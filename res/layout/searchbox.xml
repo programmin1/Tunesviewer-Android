@@ -3,5 +3,7 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:orientation="vertical" android:layout_height="wrap_content" android:layout_width="fill_parent">
     <EditText android:text="" android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/searchText"  android:imeOptions="actionSearch"></EditText>
-    <Button android:text="Search iTunesU" android:layout_height="fill_parent" android:layout_width="fill_parent" android:id="@+id/SearchButton"></Button>
+    <CheckBox android:id="@+id/checkiTunesU" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/iTunesU" ></CheckBox>
+    <CheckBox android:id="@+id/checkPodcast" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/Podcasts"></CheckBox>
+    <Button android:text="Search" android:layout_height="fill_parent" android:layout_width="fill_parent" android:id="@+id/SearchButton"></Button>
 </LinearLayout>

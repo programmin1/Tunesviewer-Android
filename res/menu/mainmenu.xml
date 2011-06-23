@@ -2,7 +2,9 @@
 <menu
   xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:menuCategory="system" android:id="@+id/search" android:icon="@android:drawable/ic_menu_search" android:title="@string/menuSearch"></item>
-    <item android:id="@+id/home" android:menuCategory="system" android:title="@string/menuHome"></item><item android:menuCategory="system" android:id="@+id/menuCopy" android:title="@string/menuCopyUrl"></item><item android:menuCategory="system" android:icon="@android:drawable/ic_media_play" android:id="@+id/go" android:title="@string/menuGo"></item>
-    
+    <item android:id="@+id/home" android:menuCategory="system" android:title="@string/menuHome"></item>
+    <item android:menuCategory="system" android:id="@+id/menuCopy" android:title="@string/menuCopyUrl"></item>
+    <item android:menuCategory="system" android:icon="@android:drawable/ic_media_play" android:id="@+id/go" android:title="@string/menuGo"></item>
+     <item android:icon="@android:drawable/ic_menu_preferences" android:menuCategory="system" android:title="@string/menuPrefs" android:id="@+id/menuPrefs"></item>
     
 </menu>

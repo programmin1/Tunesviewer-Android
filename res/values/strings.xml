@@ -1,11 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+	<!-- Menu -->
     <string name="app_name">TunesViewer</string>
     <string name="download_title">Download</string>
     <string name="menuSearch">Search</string>
     <string name="menuHome">Home</string>
     <string name="menuCopyUrl">Copy Page Url</string>
+    <string name="menuPrefs">Prefs</string>
     <string name="menuGo">Go</string>
+    
+    <!-- Prefs -->
+    <string name="prefUATitle">View Mode</string>
+    <string name="prefUASummary">Change user-agent to request pages.</string>
+    <string name="prefDLTitle">Downloads Directory</string>
+    <string name="prefDLSummary">Select a directory to download to.</string>
+    <string-array name="UAarray">
+    	<item>Full Page (Slower)</item>
+    	<item>Phone (Faster, low-bandwidth)</item>
+    </string-array>
+    <string-array name="UAvalues">
+    	<item>iTunes/10.3</item>
+    	<item>iTunes-iPhone/1.2.0</item>
+    </string-array>
+    <string name="defaultUA">iTunes-iPhone/1.2.0</string>
+    
+    <!-- Searchbox -->
+    <string name="iTunesU">Search University Media</string>
+    <string name="Podcasts">Search Podcasts</string>
+    
     <string name="Javascript" formatted="false">"/*
  * iTunes Javascript Class, added to the displayed pages.
  * Catches iTunes-api calls from pages, such as http://r.mzstatic.com/htmlResources/6018/dt-storefront-base.jsz

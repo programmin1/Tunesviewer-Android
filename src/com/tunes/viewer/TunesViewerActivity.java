@@ -28,7 +28,7 @@ public class TunesViewerActivity extends Activity {
 	private static Context _AppContext;
 	private WebView _web;
 	//private DownloadViewer myDownloader;
-	private WebViewClient _myWVC;
+	private MyWebViewClient _myWVC;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -54,7 +54,8 @@ public class TunesViewerActivity extends Activity {
 
 		_web.requestFocus(View.FOCUS_DOWN);
 		Log.d(TAG,"HOMEPAGE");
-		_web.loadUrl("http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewGrouping?id=27753");
+		//_web.loadUrl("http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewGrouping?id=27753");
+		_myWVC.shouldOverrideUrlLoading(_web, "http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewGrouping?id=27753");
 		
 	}
 	
@@ -88,7 +89,8 @@ public class TunesViewerActivity extends Activity {
 			alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 			 public void onClick(DialogInterface dialog, int whichButton) {
 			  String value = input.getText().toString();
-			  _web.loadUrl(value);
+			  //_web.loadUrl(value);
+			  _myWVC.shouldOverrideUrlLoading(_web, value);
 			  }
 			});
 			alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -99,6 +101,9 @@ public class TunesViewerActivity extends Activity {
 		case R.id.home:
 			Log.d(TAG,"HOMEPAGE");
 			_web.loadUrl("http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewGrouping?id=27753");
+			return true;
+		case R.id.menuPrefs:
+			startActivity(new Intent(this,PrefsActivity.class));
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);

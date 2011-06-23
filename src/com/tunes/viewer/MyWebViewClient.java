@@ -17,11 +17,15 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.webkit.CookieManager;
@@ -37,10 +41,12 @@ public class MyWebViewClient extends WebViewClient {
 	private Activity activity;
 	CookieManager cookieManager = CookieManager.getInstance();
 	IansCookieManager _CM = new IansCookieManager();
+	SharedPreferences _prefs;
 	
 	public MyWebViewClient (Context c, Activity a) {
 		callerContext = c;
 		activity = a;
+		_prefs = PreferenceManager.getDefaultSharedPreferences(activity);
 	}
 	
 	/**
@@ -66,7 +72,8 @@ public class MyWebViewClient extends WebViewClient {
 	 * If it's html, this lets webview show it, if it's special xml file, it converts it and loads it.
 	 */
 	public boolean shouldOverrideUrlLoading(WebView view, String url) {
-		System.setProperty("http.agent", "iTunes/10.3");
+		String ua = _prefs.getString("UserAgent", "");
+		System.setProperty("http.agent", ua);
 		view.requestFocus(View.FOCUS_DOWN);
 		view.stopLoading();
 		activity.setTitle("XML Loading...");
@@ -144,8 +151,11 @@ public class MyWebViewClient extends WebViewClient {
 			
 			SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
 			ItunesXmlParser parser = new ItunesXmlParser(u.getRef());
+			XMLReader xr = saxParser.getXMLReader();
+			xr.setContentHandler(parser);
+			xr.parse(new InputSource(conn.getInputStream()));
 			//Pass http stream to the iTunes parser:
-			saxParser.parse(conn.getInputStream(), parser);
+			//saxParser.parse(conn.getInputStream(), parser);
 			if (parser.getRedirect().equals("")) {
 				// No redirect for this page
 				if (parser.getUrls().size()==1) {

@@ -32,6 +32,9 @@ public class ItunesXmlParser extends DefaultHandler {
 	// These handle the key-value pairs in <dict> tag,
 	// such as <key>keyname</key><valuetag>value</value>
 	private HashMap<String,String> map;
+	//The same, but for sub-map <dict><key/><othervalues/></dict>
+	private HashMap<String,String> subMap;
+	
 	private String lastElement;
 	private String lastValue;
 	
@@ -44,6 +47,9 @@ public class ItunesXmlParser extends DefaultHandler {
 	
 	// The specific item id.
 	private String reference;
+	
+	//Any unused value for <key>identifier</key><dict>... storage of key in <dict>.
+	private final String KEY = "_KEY_";
 	
 	// This stack holds current location in the document, 
 	// For example, in <document><element><anotherelement> section,
@@ -71,7 +77,10 @@ public class ItunesXmlParser extends DefaultHandler {
 	public String getSingleName() {
 		return singleName;
 	}
-	
+	/**
+	 * Constructs xml parser.
+	 * @param reference is the selected part of the document, the text in #id at the end.
+	 */
 	public ItunesXmlParser(String reference) {
 		this.reference = reference;
 	}
@@ -89,6 +98,7 @@ public class ItunesXmlParser extends DefaultHandler {
 		lastValue = "";
 		backColor = "";
 		map = new HashMap<String, String>();
+		subMap = new HashMap<String, String>();
 		urls = new ArrayList<String>();
 	}
 
@@ -96,12 +106,10 @@ public class ItunesXmlParser extends DefaultHandler {
 	public void startElement(String namespaceURI, String elname,
 	                         String qName, Attributes atts) throws SAXException {
 		original.append(innerText);
-		original.append("<");
-		original.append(elname);
-		original.append(">");
 		StackElement thisEl = new StackElement(elname,atts);
+		original.append(thisEl);
 		
-		// Elements handler. This is mirror image of the one in EndElement, do not modify without changing both!
+		// Elements handler. Convert elements except for old-version info and lone FontStyle tags that make empty space.
 		if (!ignoring && !elname.equals("FontStyle")) {
 			html.append(innerText); //between elements text
 			if (elname.equals("Test")) {
@@ -112,18 +120,31 @@ public class ItunesXmlParser extends DefaultHandler {
 				backColor = atts.getValue("backColor");
 			}
 			
-			if (!docStack.empty()) {
+			if (!docStack.empty()) { // Action dependent on parent:
 				String parentName = docStack.peek().name;
 				if (parentName.equals("HBoxView")) {
 					html.append("<td>");//new col;
 				} else if (parentName.equals("VBoxView")) {
 					html.append("<tr><td>");
 				}
+				if (elname.equals("dict") && docStack.peek().atts.containsKey(KEY)) {
+					/**
+					 * <dict>ionary of keys inherits key identifier.
+					 * For example, dict should be key "artwork-urls" here:
+					 * <key>artwork-urls</key>
+					 * <array><dict>data...</dict><dict>data...</dict>
+					 */
+					thisEl.atts.put(KEY, docStack.peek().atts.get(KEY));
+				}
+				if (lastElement.equals("key")) { //Store keyname of this value element if it has its own.
+					thisEl.atts.put(KEY, lastValue);
+				}
 			}
 			
-			if (elname.equals("dict")/* && last was key unimportant. */) {
-				// New key-val map:
+			if (elname.equals("dict") && (thisEl.atts.containsKey(KEY) && isHandled(thisEl.atts.get(KEY)))) {//move to endelement.
+				// New dict, not sub-section, so make new key-val maps:
 				map.clear();
+				subMap.clear();
 				lastElement="";
 			} else if (elname.equals("HBoxView")) {
 				html.append("<!--HBox--><table><tr>");
@@ -168,18 +189,64 @@ public class ItunesXmlParser extends DefaultHandler {
 		// Elements handler. This is mirror image of the one in StartElement, do not modify without changing both!
 		if (!ignoring && !elname.equals("FontStyle")) {
 			if (lastElement.equals("key")) {
-				map.put(lastValue, innerText.toString());
+				if (!docStack.empty() && !(docStack.peek().atts.containsKey(KEY) && isHandled(docStack.peek().atts.get(KEY)))) {
+					/**
+					 * It goes in seperate subMap, so it won't overwrite, for example:
+					 * <key>url</key><string/>
+					 * <key>artwork-url</key><dict>
+					 *  <key>url</key><string (imageurl)/> <- this should be stored in subMap.
+					 */
+					subMap.put(lastValue, innerText.toString());
+				} else {
+					map.put(lastValue, innerText.toString());
+				}
 				if (lastValue.equals("URL")) {
 					urls.add(innerText.toString());
 				} else if (lastValue.equals("songName")) {
 					singleName = innerText.toString();
 				}
-			} else if (elname.equals("dict")) {
+			} else if (elname.equals("dict") && (thisEl.atts.containsKey(KEY) && isHandled(thisEl.atts.get(KEY)))) {
 				//End of key-val definition.
+				String type = "";
+				if (map.containsKey("type")) {//add type=separator
+					type = map.get("type");
+				}
 				if (map.containsKey("kind") && (map.get("kind").equals("Goto") || map.get("kind").equals("OpenURL")) &&
 				    map.containsKey("url")) {
 					//This is a redirect.
-				    redirectPage = map.get("url");
+					redirectPage = map.get("url");
+				} else if (type.equals("tab")) {
+					if (map.get("active-tab").equals("1")) {
+						html.append("<span class='tab sel'><a href=\"");
+					} else {
+						html.append("<span class='tab'><a href=\"");
+					}
+					html.append(map.get("url"));
+					html.append("\">");
+					html.append(map.get("title"));
+					html.append("</a></span>");
+				} else if (type.equals("squish")) {// An image link
+					html.append("<a href=\"");
+					html.append(map.get("url"));
+					html.append("\"><img src=\"");
+					html.append(subMap.get("url"));
+					html.append("\"></a>");
+				} else if (type.equals("link")) { //A link to page
+					html.append("<br><a href=\"");
+					html.append(map.get("url"));
+					html.append("\"><img src=\"");
+					html.append(subMap.get("url"));
+					html.append("\">");
+					html.append(map.get("title"));
+					html.append("</a>");
+				} else if (type.equals("podcast-episode")) {
+					html.append("<br><b>");
+					html.append(map.get("title"));
+					html.append("</b><br>");
+					html.append(map.get("description"));
+					html.append("<a href=\"");
+					html.append(subMap.get("url"));//directurl
+					html.append("\">Download</a>");
 				} else if (map.containsKey("songName") || map.containsKey("itemName")) {
 					addMediaRow();
 				}
@@ -283,7 +350,7 @@ public class ItunesXmlParser extends DefaultHandler {
 	}
 	
 	/**
-	 * Given attributes of <Test> tag, this returns true if it needs to be ignored old-version code.
+	 * Given attributes of <Test> tag, this returns true if it needs to be ignored, old-version code.
 	 * @param atts
 	 * @return True if this element and child elements should be ignored.
 	 */
@@ -323,6 +390,17 @@ public class ItunesXmlParser extends DefaultHandler {
 		html.append("</body></html>");
 	}
 	
+	/**
+	 * Returns true when <key>keyid</key><dict... is specifically supported by this parser.
+	 * (The dict map will be cleared when starting in this case).
+	 * @param keyid
+	 * @return
+	 */
+	private boolean isHandled(String keyid) {
+		return (keyid.equals("items") || keyid.equals("item-metadata") || keyid.equals("tabs") || keyid.equals("squishes"));
+		//return (keyid.indexOf("artwork-url")>-1 || keyid.equals("pings") || keyid.equals("store-offers"));
+	}
+	
 	private class StackElement {
 		public String name;
 		public HashMap<String,String> atts;
@@ -335,7 +413,15 @@ public class ItunesXmlParser extends DefaultHandler {
 		}
 		
 		public String toString() {
-			return name;
+			StringBuilder out = new StringBuilder();
+			out.append("<");
+			out.append(name);
+			if (atts.size()>0) {
+				out.append(" ");
+				out.append(atts.toString());
+			}
+			out.append(">");
+			return out.toString();
 		}
 	}
 }

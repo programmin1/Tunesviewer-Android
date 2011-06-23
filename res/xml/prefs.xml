@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <ListPreference android:key="UserAgent" android:entryValues="@array/UAvalues" android:entries="@array/UAarray" android:summary="@string/prefUASummary" android:title="@string/prefUATitle" android:defaultValue="@string/defaultUA"></ListPreference>
+    <EditTextPreference android:title="@string/prefDLTitle" android:summary="@string/prefDLSummary" android:key="DownloadDirectory"></EditTextPreference>
+    
+</PreferenceScreen>
