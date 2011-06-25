@@ -17,11 +17,15 @@ import android.util.Log;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
-
+/**
+ * A class to handle a download and its notification.
+ * @author luke
+ *
+ */
 public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	private Notifier notify;
 	private int _ID;
-	private static final String TAG = "DownloadService->TASK";
+	private static final String TAG = "DownloadService";
 	private HttpURLConnection connection;
 	private Context _context;
 	private String _title;
@@ -32,7 +36,11 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	private ArrayList<DownloaderTask>_alltasks;
 	boolean success = false;
 	
+	// The last updated percent downloaded.
+	int lastProgress;
+	
 	public DownloaderTask(Context c, ArrayList<DownloaderTask> t, String title, URL url, int ID) {
+		lastProgress = -1;
 		_ID = ID;
 		_url = url;
 		_context = c;
@@ -40,12 +48,13 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 		_alltasks = t;
 	}
 	
+	/**
+	 * Opens the file downloaded, with default opener.
+	 */
 	private void openFile() {
 		MimeTypeMap myMime = MimeTypeMap.getSingleton();
 
 		Intent newIntent = new Intent(android.content.Intent.ACTION_VIEW);
-
-		//Intent newIntent = new Intent(Intent.ACTION_VIEW);
 		String mimeType = myMime.getMimeTypeFromExtension(fileExt(getFile().toString()).substring(1));
 		newIntent.setDataAndType(Uri.fromFile(getFile()),mimeType);
 		newIntent.setFlags(newIntent.FLAG_ACTIVITY_NEW_TASK);
@@ -64,7 +73,6 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 			// View file.
 			//String type = fileExt(getFile().toString()).toLowerCase();
 			openFile();
-
 			return;
 		} else if (notifClicked) {
 			/*new AlertDialog.Builder(_context)
@@ -85,6 +93,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 			return;
 		}
 	}
+	
 	public void stop() {
 		cancel(false);
 	}
@@ -154,7 +163,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 		return null;
 	}
 	
-	private String fileExt(String url) {
+	public static String fileExt(String url) {
 		String ext = url.substring(url.lastIndexOf(".") );
 	if (ext.indexOf("?")>-1) {
 		ext = ext.substring(0,ext.indexOf("?"));
@@ -182,8 +191,11 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	@Override
 	protected void onProgressUpdate(Integer... values) {
 		if (ErrMSG.equals("")) {
-			notify.progressUpdate(values[0]);
-			Log.d(TAG,String.valueOf(values[0]));
+			if (values[0]!=lastProgress) {
+				notify.progressUpdate(values[0]);
+				Log.d(TAG,String.valueOf(values[0]));
+				lastProgress = values[0];
+			}
 		} else {
 			Toast.makeText(_context, ErrMSG, 4000).show();
 			notify.finish();

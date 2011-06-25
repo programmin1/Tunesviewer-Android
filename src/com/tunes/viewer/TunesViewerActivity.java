@@ -1,5 +1,8 @@
 package com.tunes.viewer;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+
 import android.app.Activity;
 import android.text.ClipboardManager;
 import android.app.AlertDialog;
@@ -55,8 +58,9 @@ public class TunesViewerActivity extends Activity {
 		_web.requestFocus(View.FOCUS_DOWN);
 		Log.d(TAG,"HOMEPAGE");
 		//_web.loadUrl("http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewGrouping?id=27753");
-		_myWVC.shouldOverrideUrlLoading(_web, "http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewGrouping?id=27753");
-		
+		if (this.getIntent().getData()==null) { //no specified url.
+			_myWVC.shouldOverrideUrlLoading(_web, "http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewGrouping?id=27753");
+		}
 	}
 	
 	@Override
@@ -64,6 +68,23 @@ public class TunesViewerActivity extends Activity {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.mainmenu, menu);
 		return true;
+	}
+	
+	/**
+	 * Returns current url of the webview.
+	 * @return String url caught with shouldOverrideUrlLoading.
+	 * @throws UnsupportedEncodingException 
+	 */
+	public String getCurrentUrl() throws UnsupportedEncodingException {
+		String url = _web.getUrl();
+		// Reverse the <!-- url --> comment added with loaddata.
+		try {
+		url = url.substring(url.indexOf("%3C%21--%20")+11, url.indexOf("%20--%3E"));
+		url = URLDecoder.decode(url,"utf-8");
+		} catch (NullPointerException e) {
+			throw new UnsupportedEncodingException();
+		}
+		return url;
 	}
 	
 	@Override
@@ -74,11 +95,24 @@ public class TunesViewerActivity extends Activity {
 			Intent intent = new Intent(TunesViewerActivity.this,Searcher.class);
 			startActivity(intent);
 			return true;
+		case R.id.menuRefresh:
+			try {
+				_myWVC.shouldOverrideUrlLoading(_web, getCurrentUrl());
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return true;
 		case R.id.menuCopy:
 			ClipboardManager c = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
-			String url = ((MyWebViewClient)_myWVC).getCurrentUrl();
-			c.setText(url);
-			Toast.makeText(_AppContext, "Copied \""+url+"\"", 1000).show();
+			try {
+				String url = getCurrentUrl();
+				c.setText(url);
+				Toast.makeText(_AppContext, "Copied "+url, 4000).show();
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			return true;
 		case R.id.go:
 			AlertDialog.Builder alert = new AlertDialog.Builder(this);
@@ -100,7 +134,8 @@ public class TunesViewerActivity extends Activity {
 			return true;
 		case R.id.home:
 			Log.d(TAG,"HOMEPAGE");
-			_web.loadUrl("http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewGrouping?id=27753");
+			//_web.loadUrl("http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewGrouping?id=27753");
+			_myWVC.shouldOverrideUrlLoading(_web, "http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewGrouping?id=27753");
 			return true;
 		case R.id.menuPrefs:
 			startActivity(new Intent(this,PrefsActivity.class));

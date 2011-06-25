@@ -1,8 +1,13 @@
 package com.tunes.viewer;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
@@ -17,9 +22,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
+import org.xml.sax.ext.DeclHandler;
 
 import android.app.Activity;
 import android.content.Context;
@@ -36,7 +43,6 @@ import android.widget.Toast;
 public class MyWebViewClient extends WebViewClient {
 		
 	final String TAG = "WVC";
-	private String _currentUrl = "";
 	private Context callerContext;
 	private Activity activity;
 	CookieManager cookieManager = CookieManager.getInstance();
@@ -47,14 +53,6 @@ public class MyWebViewClient extends WebViewClient {
 		callerContext = c;
 		activity = a;
 		_prefs = PreferenceManager.getDefaultSharedPreferences(activity);
-	}
-	
-	/**
-	 * Returns current url of the webview. (even if loadData was used when converting xml).
-	 * @return String url caught with shouldOverrideUrlLoading.
-	 */
-	public String getCurrentUrl() {
-		return _currentUrl;
 	}
 	
 	/**
@@ -118,9 +116,15 @@ public class MyWebViewClient extends WebViewClient {
 			}
 	}
 	
+	private String encode(String text) {
+		//workaround for: https://code.google.com/p/android/issues/detail?id=4401
+		return URLEncoder.encode(text).replaceAll("\\+"," ");
+	}
+	
 	private class WebLoader implements Runnable {
 		private WebView _view;
 		private String _url;
+		private String _download;
 		public WebLoader(WebView v,String u) {
 			_view = v;
 			_url = u;
@@ -149,11 +153,23 @@ public class MyWebViewClient extends WebViewClient {
 			conn.connect();
 			_CM.storeCookies(conn);
 			
-			SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
-			ItunesXmlParser parser = new ItunesXmlParser(u.getRef());
+			// Download xml/html to parse:
+			_download = makeString(conn.getInputStream()); 
+			// Remove unneeded xml declaration that may cause errors on some pages:
+			_download = _download.replace("<?","<!--").replace("?>", "-->");
+			
+			SAXParserFactory factory = SAXParserFactory.newInstance();
+			factory.setValidating(false);
+			SAXParser saxParser= factory.newSAXParser();
+			ItunesXmlParser parser = new ItunesXmlParser(u.getRef(),callerContext);
 			XMLReader xr = saxParser.getXMLReader();
 			xr.setContentHandler(parser);
-			xr.parse(new InputSource(conn.getInputStream()));
+			InputSource is = new InputSource(new StringReader(_download));
+			long startMS = System.currentTimeMillis();
+			xr.parse(is);
+			long endMS = System.currentTimeMillis();
+			Log.d(TAG,"PARSING XML TOOK "+(endMS-startMS)+" MS.");
+			//xr.parse(new InputSource())
 			//Pass http stream to the iTunes parser:
 			//saxParser.parse(conn.getInputStream(), parser);
 			if (parser.getRedirect().equals("")) {
@@ -172,7 +188,7 @@ public class MyWebViewClient extends WebViewClient {
 					synchronized (_view) {
 						_view.post(new Runnable() {
 							public void run() {
-								_view.loadData(htm,"text/html","UTF-8");
+								_view.loadData(encode("<!-- "+_url+" -->"+htm),"text/html","UTF-8");
 							}
 						});
 					}
@@ -199,10 +215,10 @@ public class MyWebViewClient extends WebViewClient {
 						load();
 					}
 				}
-				_currentUrl = _url;
 			} catch (IOException e) {
 				// Show error
 				synchronized (_view) {
+					e.printStackTrace();
 					final String msg = e.getMessage();
 					_view.post(new Runnable() {
 						public void run() {
@@ -215,12 +231,12 @@ public class MyWebViewClient extends WebViewClient {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (SAXException e) {
-				//Not xml, show in browser.
-				_currentUrl = _url;
+				//Not xml, show the downloaded html directly in browser:
 				synchronized (_view) {
+					final String data = encode("<!-- "+_url+" -->"+_download); 
 					_view.post(new Runnable() {
 						public void run() {
-							_view.loadUrl(_url);
+							_view.loadData(data,"text/html","UTF-8");
 						}
 					});
 				}
@@ -236,5 +252,20 @@ public class MyWebViewClient extends WebViewClient {
 				});
 			}
 		}
+	}
+	
+	/**
+	 * Turns an InputStream into a String.
+	 * @param in
+	 * @return String value.
+	 * @throws IOException
+	 */
+	public static String makeString (InputStream in) throws IOException {
+	    StringBuffer out = new StringBuffer();
+	    byte[] b = new byte[4096];
+	    for (int n; (n = in.read(b)) != -1;) {
+	        out.append(new String(b, 0, n));
+	    }
+	    return out.toString();
 	}
 }

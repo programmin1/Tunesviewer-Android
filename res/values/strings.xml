@@ -27,7 +27,27 @@
     <!-- Searchbox -->
     <string name="iTunesU">Search University Media</string>
     <string name="Podcasts">Search Podcasts</string>
-    
+    <string name="MobileStyles" formatted="false">"&lt;script&gt;
+function toggle(el) {
+    if (el.style.display=='none') {
+        el.style.display = 'block';
+    } else {
+        el.style.display = 'none';
+    }
+}
+&lt;/script&gt;
+&lt;style&gt;
+* {font-family: Helvetica, Arial;}
+div.media { background-color:#77FF77;
+ width=100%;border-radius:10px; border-color:white; border-style:solid; border-width:2px; padding:10px;}
+b.media {line-height: 2em;}
+a.media {height: 1.5em;
+line-height: 1.5em; vertical-align:middle;text-decoration: none; border: 1px; border-radius:6px; border-color:gray; padding: 2px;border-style: solid;background-image:-webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0%, #ffffff), color-stop(100%, #A2ABFF)); color:black}
+a.tab {vertical-align:middle;text-decoration: none; border: 1px; border-radius:6px; border-color:gray; padding: 2px;border-style: solid;background-image:-webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0%, #ffffff), color-stop(100%, #A2ABFF)); color:black}
+a.sel {background-image:-webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0%, #A2ABFF), color-stop(100%, #77AAFF));}
+
+div.separator {border: 2px; color: blue; padding: 2px;border-style: solid; text-shadow: #616161 2px 2px 4px;};
+  &lt;/style&gt;"</string>
     <string name="Javascript" formatted="false">"/*
  * iTunes Javascript Class, added to the displayed pages.
  * Catches iTunes-api calls from pages, such as http://r.mzstatic.com/htmlResources/6018/dt-storefront-base.jsz

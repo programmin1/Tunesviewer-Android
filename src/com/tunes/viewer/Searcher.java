@@ -2,25 +2,30 @@ package com.tunes.viewer;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
 public class Searcher extends Activity {
 	
 	private EditText _text;
+	private SharedPreferences _prefs;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.searchbox);
 		_text = (EditText)findViewById(R.id.searchText);
+		_prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		Button searchb = (Button) findViewById(R.id.SearchButton);
 		searchb.setOnClickListener(new OnClickListener() {
 			@Override
@@ -61,10 +66,32 @@ public class Searcher extends Activity {
 	 * @param searchString
 	 */
 	public void search() {
+		String gotourl = null;
+		String terms = Uri.encode(_text.getText().toString());//search terms
+		boolean iTunesU = ((CheckBox)findViewById(R.id.checkiTunesU)).isChecked();
+		boolean podcast = ((CheckBox)findViewById(R.id.checkPodcast)).isChecked();
+		String ua = _prefs.getString("UserAgent", "");
+		if (ua.indexOf("-")>-1) {
+			//mobile mode
+			if (iTunesU && !podcast) {
+				gotourl = "itms://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?entity=allITunesUPlaylist&term="+terms+"&media=all";
+			} else if (podcast && !iTunesU) {
+				gotourl = "itms://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?submit=media&term="+terms+"&media=podcast"; 
+			} else {
+				gotourl = "itms://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?submit=media&restrict=true&term="+terms+"&media=all";
+			}
+		} else {
+			if (podcast) {
+				gotourl = "itms://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?submit=media&term="+terms+"&media=podcast";
+			} else {
+				gotourl = "itms://search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?media=iTunesU&submit=media&term="
+				+terms;
+			}
+			
+		}
 		Intent intent = new Intent(Intent.ACTION_VIEW ,
-			Uri.parse("itms://search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?media=iTunesU&submit=media&term="
-					+Uri.encode(_text.getText().toString())));
+			Uri.parse(gotourl));
 			startActivity(intent);
-			finish();
+			//finish();
 	}
 }

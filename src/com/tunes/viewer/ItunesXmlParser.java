@@ -1,6 +1,8 @@
 package com.tunes.viewer;
 //http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewGrouping?id=27753
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
@@ -8,6 +10,8 @@ import java.util.Stack;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+
+import android.content.Context;
 
 public class ItunesXmlParser extends DefaultHandler {
 
@@ -48,6 +52,8 @@ public class ItunesXmlParser extends DefaultHandler {
 	// The specific item id.
 	private String reference;
 	
+	private Context context;
+	
 	//Any unused value for <key>identifier</key><dict>... storage of key in <dict>.
 	private final String KEY = "_KEY_";
 	
@@ -65,8 +71,15 @@ public class ItunesXmlParser extends DefaultHandler {
 		return original.toString();
 	}
 	public String getHTML() {
+		return html.toString();
 		//workaround for: https://code.google.com/p/android/issues/detail?id=4401
-		return html.toString().replace("%", "&#37;");
+		/*try {
+			return URLEncoder.encode(html.toString(),"utf-8").replaceAll("\\+"," ");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return "Error.";
+		}//html.toString().replace("%", "&#37;");*/
 	}
 	public String getRedirect() {
 		return redirectPage;
@@ -81,16 +94,17 @@ public class ItunesXmlParser extends DefaultHandler {
 	 * Constructs xml parser.
 	 * @param reference is the selected part of the document, the text in #id at the end.
 	 */
-	public ItunesXmlParser(String reference) {
+	public ItunesXmlParser(String reference, Context c) {
 		this.reference = reference;
+		this.context = c;
 	}
 	
 	@Override
 	public void startDocument() throws SAXException {
 		original = new StringBuilder();
-		html = new StringBuilder();
-		innerText = new StringBuilder();
-		media = new StringBuilder();
+		html = new StringBuilder(1024);
+		innerText = new StringBuilder(200);
+		media = new StringBuilder(200);
 		docStack = new Stack<StackElement>();
 		
 		redirectPage = "";
@@ -105,9 +119,9 @@ public class ItunesXmlParser extends DefaultHandler {
 	@Override
 	public void startElement(String namespaceURI, String elname,
 	                         String qName, Attributes atts) throws SAXException {
-		original.append(innerText);
+		//original.append(innerText);
 		StackElement thisEl = new StackElement(elname,atts);
-		original.append(thisEl);
+		//original.append(thisEl);
 		
 		// Elements handler. Convert elements except for old-version info and lone FontStyle tags that make empty space.
 		if (!ignoring && !elname.equals("FontStyle")) {
@@ -141,7 +155,7 @@ public class ItunesXmlParser extends DefaultHandler {
 				}
 			}
 			
-			if (elname.equals("dict") && (thisEl.atts.containsKey(KEY) && isHandled(thisEl.atts.get(KEY)))) {//move to endelement.
+			if (elname.equals("dict") && isHandled(thisEl)) {//move to endelement.
 				// New dict, not sub-section, so make new key-val maps:
 				map.clear();
 				subMap.clear();
@@ -182,14 +196,14 @@ public class ItunesXmlParser extends DefaultHandler {
 
 	@Override
 	public void endElement(String uri, String elname, String qName) throws SAXException {
-		original.append(innerText);
+		//original.append(innerText);
 		StackElement thisEl = docStack.pop();
 		assert(elname.equals(thisEl.name));
 		
 		// Elements handler. This is mirror image of the one in StartElement, do not modify without changing both!
 		if (!ignoring && !elname.equals("FontStyle")) {
 			if (lastElement.equals("key")) {
-				if (!docStack.empty() && !(docStack.peek().atts.containsKey(KEY) && isHandled(docStack.peek().atts.get(KEY)))) {
+				if (!docStack.empty() && !isHandled(docStack.peek())) {
 					/**
 					 * It goes in seperate subMap, so it won't overwrite, for example:
 					 * <key>url</key><string/>
@@ -205,7 +219,7 @@ public class ItunesXmlParser extends DefaultHandler {
 				} else if (lastValue.equals("songName")) {
 					singleName = innerText.toString();
 				}
-			} else if (elname.equals("dict") && (thisEl.atts.containsKey(KEY) && isHandled(thisEl.atts.get(KEY)))) {
+			} else if (elname.equals("dict") && isHandled(thisEl)) {
 				//End of key-val definition.
 				String type = "";
 				if (map.containsKey("type")) {//add type=separator
@@ -217,39 +231,75 @@ public class ItunesXmlParser extends DefaultHandler {
 					redirectPage = map.get("url");
 				} else if (type.equals("tab")) {
 					if (map.get("active-tab").equals("1")) {
-						html.append("<span class='tab sel'><a href=\"");
+						html.append("<a class='tab sel' href=\"");
 					} else {
-						html.append("<span class='tab'><a href=\"");
+						html.append("<a class='tab' href=\"");
 					}
 					html.append(map.get("url"));
 					html.append("\">");
 					html.append(map.get("title"));
-					html.append("</a></span>");
+					html.append("</a>");
 				} else if (type.equals("squish")) {// An image link
 					html.append("<a href=\"");
 					html.append(map.get("url"));
 					html.append("\"><img src=\"");
 					html.append(subMap.get("url"));
 					html.append("\"></a>");
+				} else if (type.equals("separator")) {
+					html.append("<div class='separator' width=100% style='border: 2px;padding: 2px;border-style: solid;'>");
+					if (map.containsKey("title")) {
+						html.append(map.get("title"));
+					} else {
+						html.append("&nbsp;");
+					}
+					html.append("</div>");
 				} else if (type.equals("link")) { //A link to page
-					html.append("<br><a href=\"");
+					html.append("<span class='link'><a href=\"");
 					html.append(map.get("url"));
 					html.append("\"><img src=\"");
 					html.append(subMap.get("url"));
 					html.append("\">");
 					html.append(map.get("title"));
-					html.append("</a>");
-				} else if (type.equals("podcast-episode")) {
-					html.append("<br><b>");
+					html.append("</a></span>");
+				} else if (type.equals("podcast")) { // page info.
+					html.append("<h2><img src=\"");
+					html.append(subMap.get("url"));
+					html.append("\">");
 					html.append(map.get("title"));
-					html.append("</b><br>");
+					html.append("</h2><p>");
 					html.append(map.get("description"));
-					html.append("<a href=\"");
-					html.append(subMap.get("url"));//directurl
-					html.append("\">Download</a>");
+					html.append("</p>");
+				} else if (type.equals("podcast-episode")) {
+					//html.append("<script>function downloadit(title,name) { console.log('download-it'); console.log(title); console.log(name); window.DOWNLOADINTERFACE.download(title,name); }</script>\n");
+					html.append("<div class='media' onclick='toggle(this.nextSibling)'>");
+					
+					html.append("<a class='media' style='float:right' onclick=\"alert(this);window.event.stopPropagation();window.DOWNLOADINTERFACE.download(this.getAttribute('title'),this.getAttribute('url'));\" title=\"");
+					html.append(map.get("title").replace("\"", "&quot;"));
+					html.append("\" url=\"");
+					html.append(subMap.get("asset-url").replace("\"", "&quot;"));
+					html.append("\">Download ");
+					html.append(fileExt(subMap.get("asset-url")));
+					html.append("</a>");
+					html.append("<b class='media'>");
+					html.append(map.get("title"));
+					html.append("</b></div><div style='display:none'><b>");
+					if (subMap.containsKey("duration")) {
+						html.append("Duration: ");
+						html.append(timeval(subMap.get("duration")));
+					}
+					if (map.containsKey("copyright")) {
+						html.append(" Copyright: ");
+						html.append(map.get("copyright"));
+					}
+					html.append("</b><br>");
+					html.append(map.get("long-description"));
+					html.append("<br></div>");
 				} else if (map.containsKey("songName") || map.containsKey("itemName")) {
 					addMediaRow();
 				}
+				//Done with it, don't let parent repeat:
+				map.clear();
+				subMap.clear();
 			} else if (elname.equals("HBoxView")) {
 				html.append("</tr></table>");
 			} else if (elname.equals("VBoxView")) {
@@ -289,9 +339,9 @@ public class ItunesXmlParser extends DefaultHandler {
 			ignoring = false;
 		}
 		//Must be run every time:
-		original.append("</");
-		original.append(elname);
-		original.append(">");
+		//original.append("</");
+		//original.append(elname);
+		//original.append(">");
 		innerText.setLength(0);
 	}
 
@@ -350,6 +400,22 @@ public class ItunesXmlParser extends DefaultHandler {
 	}
 	
 	/**
+	 * Same as DownloaderTask.fileExt.
+	 * @param url
+	 * @return
+	 */
+	public static String fileExt(String url) {
+		String ext = url.substring(url.lastIndexOf(".") );
+	if (ext.indexOf("?")>-1) {
+		ext = ext.substring(0,ext.indexOf("?"));
+	}
+	if (ext.indexOf("%")>-1) {
+		ext = ext.substring(0,ext.indexOf("%"));
+	}
+	return ext;
+	}
+	
+	/**
 	 * Given attributes of <Test> tag, this returns true if it needs to be ignored, old-version code.
 	 * @param atts
 	 * @return True if this element and child elements should be ignored.
@@ -380,8 +446,10 @@ public class ItunesXmlParser extends DefaultHandler {
 	}
 	
 	public void endDocument() throws SAXException {
+		//if mobile:
+		html.append(context.getString(R.string.MobileStyles));
 		original.append("<!-- (END DOC) -->");
-		html.insert(0, String.format("<html><body bgcolor=\"%s\">",backColor));
+		html.insert(0, String.format("<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/></head><body bgcolor=\"%s\">",backColor));
 		if (media.length()>0) {
 			html.append(PRE_MEDIA);
 			html.append(media);
@@ -392,12 +460,14 @@ public class ItunesXmlParser extends DefaultHandler {
 	
 	/**
 	 * Returns true when <key>keyid</key><dict... is specifically supported by this parser.
-	 * (The dict map will be cleared when starting in this case).
+	 * (The dict map should be cleared when starting/ending in this case).
+	 * 
 	 * @param keyid
-	 * @return
+	 * @return true if these should be handled in map, and subelements in submap.
 	 */
-	private boolean isHandled(String keyid) {
-		return (keyid.equals("items") || keyid.equals("item-metadata") || keyid.equals("tabs") || keyid.equals("squishes"));
+	private boolean isHandled(StackElement element) {
+		String keyid = element.atts.get(KEY);
+		return keyid != null && (keyid.equals("items") || keyid.equals("item-metadata") || keyid.equals("tabs") || keyid.equals("squishes") || keyid.equals("content"));
 		//return (keyid.indexOf("artwork-url")>-1 || keyid.equals("pings") || keyid.equals("store-offers"));
 	}
 	
