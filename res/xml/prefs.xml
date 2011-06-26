@@ -2,6 +2,6 @@
 <PreferenceScreen
   xmlns:android="http://schemas.android.com/apk/res/android">
     <ListPreference android:key="UserAgent" android:entryValues="@array/UAvalues" android:entries="@array/UAarray" android:summary="@string/prefUASummary" android:title="@string/prefUATitle" android:defaultValue="@string/defaultUA"></ListPreference>
-    <EditTextPreference android:title="@string/prefDLTitle" android:summary="@string/prefDLSummary" android:key="DownloadDirectory"></EditTextPreference>
+    <EditTextPreference android:title="@string/prefDLTitle" android:summary="@string/prefDLSummary" android:key="DownloadDirectory" android:defaultValue="@string/defaultDL"></EditTextPreference>
     
 </PreferenceScreen>

@@ -7,7 +7,7 @@
     <string name="menuHome">Home</string>
     <string name="menuCopyUrl">Copy Page Url</string>
     <string name="menuPrefs">Prefs</string>
-    <string name="menuGo">Go</string>
+    <string name="menuGo">Goto URL</string>
     
     <!-- Prefs -->
     <string name="prefUATitle">View Mode</string>
@@ -23,6 +23,7 @@
     	<item>iTunes-iPhone/1.2.0</item>
     </string-array>
     <string name="defaultUA">iTunes-iPhone/1.2.0</string>
+    <string name="defaultDL">/sdcard/</string>
     
     <!-- Searchbox -->
     <string name="iTunesU">Search University Media</string>
@@ -45,7 +46,7 @@ a.media {height: 1.5em;
 line-height: 1.5em; vertical-align:middle;text-decoration: none; border: 1px; border-radius:6px; border-color:gray; padding: 2px;border-style: solid;background-image:-webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0%, #ffffff), color-stop(100%, #A2ABFF)); color:black}
 a.tab {vertical-align:middle;text-decoration: none; border: 1px; border-radius:6px; border-color:gray; padding: 2px;border-style: solid;background-image:-webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0%, #ffffff), color-stop(100%, #A2ABFF)); color:black}
 a.sel {background-image:-webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0%, #A2ABFF), color-stop(100%, #77AAFF));}
-
+div.link {border-style:solid; border-color:blue; margin:2px; overflow:auto;}
 div.separator {border: 2px; color: blue; padding: 2px;border-style: solid; text-shadow: #616161 2px 2px 4px;};
   &lt;/style&gt;"</string>
     <string name="Javascript" formatted="false">"/*

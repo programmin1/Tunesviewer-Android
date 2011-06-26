@@ -2,7 +2,6 @@ package com.tunes.viewer;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-
 import android.app.Activity;
 import android.text.ClipboardManager;
 import android.app.AlertDialog;
@@ -88,6 +87,15 @@ public class TunesViewerActivity extends Activity {
 	}
 	
 	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		MenuItem forward = menu.findItem(R.id.menuForward);
+		if (_web != null && forward != null) {
+			forward.setEnabled(_web.canGoForward());
+		}
+		return super.onPrepareOptionsMenu(menu);
+	}
+	
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle menu
 		switch (item.getItemId()) {
@@ -113,6 +121,9 @@ public class TunesViewerActivity extends Activity {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			return true;
+		case R.id.menuForward:
+			_web.goForward();
 			return true;
 		case R.id.go:
 			AlertDialog.Builder alert = new AlertDialog.Builder(this);

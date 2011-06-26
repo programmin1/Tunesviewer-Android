@@ -63,6 +63,9 @@ public class MyWebViewClient extends WebViewClient {
 		Log.d(TAG,"Inserting script into "+url);
 		view.loadUrl("javascript:"+TunesViewerActivity.getContext().getString(R.string.Javascript));
 		//view.loadUrl("javascript:window.DOWNLOADINTERFACE.source(document.documentElement.innerHTML);");
+		if (activity.findViewById(R.id.menuForward)!=null) {
+			activity.findViewById(R.id.menuForward).setClickable(view.canGoForward());
+		}
 	}
 	
 	/**
@@ -118,7 +121,13 @@ public class MyWebViewClient extends WebViewClient {
 	
 	private String encode(String text) {
 		//workaround for: https://code.google.com/p/android/issues/detail?id=4401
-		return URLEncoder.encode(text).replaceAll("\\+"," ");
+		long start = System.currentTimeMillis();
+		//String out = URLEncoder.encode(text).replaceAll("\\+"," ");
+		//FastURLEncoder is around 5x faster!
+		String out = FastURLEncoder.encode(text).replaceAll("\\+"," ");
+		long end = System.currentTimeMillis();
+		Log.d(TAG,"ENCODE TOOK "+(end-start)+" MS.");
+		return out;
 	}
 	
 	private class WebLoader implements Runnable {

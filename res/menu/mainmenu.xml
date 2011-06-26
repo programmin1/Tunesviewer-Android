@@ -3,9 +3,10 @@
   xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:menuCategory="system" android:id="@+id/search" android:icon="@android:drawable/ic_menu_search" android:title="@string/menuSearch"></item>
     <item android:id="@+id/menuRefresh" android:title="Refresh" android:menuCategory="system" android:icon="@drawable/ic_menu_refresh"></item><item android:id="@+id/home" android:menuCategory="system" android:title="@string/menuHome" android:icon="@drawable/ic_menu_home"></item>
-    <item android:menuCategory="system" android:id="@+id/menuCopy" android:title="@string/menuCopyUrl"></item>
-    <item android:menuCategory="system" android:id="@+id/go" android:title="@string/menuGo" android:icon="@drawable/ic_menu_goto"></item>
-     <item android:icon="@android:drawable/ic_menu_preferences" android:menuCategory="system" android:title="@string/menuPrefs" android:id="@+id/menuPrefs"></item>
+    
+    <item android:id="@+id/menuForward" android:menuCategory="system" android:title="Forward" android:icon="@drawable/ic_menu_forward"></item>
+     <item android:icon="@drawable/ic_menu_goto" android:id="@+id/go" android:title="@string/menuGo" android:menuCategory="system"></item><item android:title="@string/menuCopyUrl" android:id="@+id/menuCopy" android:menuCategory="system"></item><item android:icon="@android:drawable/ic_menu_preferences" android:menuCategory="system" android:title="@string/menuPrefs" android:id="@+id/menuPrefs"></item>
+     
      
     
 </menu>

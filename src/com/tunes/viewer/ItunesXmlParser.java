@@ -122,6 +122,10 @@ public class ItunesXmlParser extends DefaultHandler {
 		//original.append(innerText);
 		StackElement thisEl = new StackElement(elname,atts);
 		//original.append(thisEl);
+		if (elname.equals("html") && docStack.size()==0) {
+			// Even if it happens to parse correctly as xml, HTML should be shown directly!
+			throw new SAXException();
+		}
 		
 		// Elements handler. Convert elements except for old-version info and lone FontStyle tags that make empty space.
 		if (!ignoring && !elname.equals("FontStyle")) {
@@ -254,13 +258,13 @@ public class ItunesXmlParser extends DefaultHandler {
 					}
 					html.append("</div>");
 				} else if (type.equals("link")) { //A link to page
-					html.append("<span class='link'><a href=\"");
+					html.append("<div class='link'><a href=\"");
 					html.append(map.get("url"));
-					html.append("\"><img src=\"");
+					html.append("\"><img style='vertical-align: top; margin:2px; float:left;' src=\"");
 					html.append(subMap.get("url"));
 					html.append("\">");
 					html.append(map.get("title"));
-					html.append("</a></span>");
+					html.append("</a></div>");
 				} else if (type.equals("podcast")) { // page info.
 					html.append("<h2><img src=\"");
 					html.append(subMap.get("url"));
@@ -447,7 +451,7 @@ public class ItunesXmlParser extends DefaultHandler {
 	
 	public void endDocument() throws SAXException {
 		//if mobile:
-		html.append(context.getString(R.string.MobileStyles));
+		html.insert(0,context.getString(R.string.MobileStyles));
 		original.append("<!-- (END DOC) -->");
 		html.insert(0, String.format("<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/></head><body bgcolor=\"%s\">",backColor));
 		if (media.length()>0) {
@@ -467,7 +471,7 @@ public class ItunesXmlParser extends DefaultHandler {
 	 */
 	private boolean isHandled(StackElement element) {
 		String keyid = element.atts.get(KEY);
-		return keyid != null && (keyid.equals("items") || keyid.equals("item-metadata") || keyid.equals("tabs") || keyid.equals("squishes") || keyid.equals("content"));
+		return keyid != null && (keyid.equals("action") || keyid.equals("items") || keyid.equals("item-metadata") || keyid.equals("tabs") || keyid.equals("squishes") || keyid.equals("content"));
 		//return (keyid.indexOf("artwork-url")>-1 || keyid.equals("pings") || keyid.equals("store-offers"));
 	}
 	

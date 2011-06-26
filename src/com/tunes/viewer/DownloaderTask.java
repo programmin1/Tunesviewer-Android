@@ -11,8 +11,10 @@ import java.util.ArrayList;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
@@ -130,7 +132,8 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 					fixedName.append(_title.charAt(c));
 				}
 			}
-			outFile = new File("/sdcard/"+fixedName.toString()+fileExt(_url.toString()));
+			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(_context);
+			outFile = new File(prefs.getString("DownloadDirectory","/sdcard/"),fixedName.toString()+fileExt(_url.toString()));
 			if (outFile.exists() && outFile.length() == contentLength) {
 				onPostExecute(contentLength); //Done. Already downloaded.
 			} else {
