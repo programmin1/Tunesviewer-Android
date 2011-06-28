@@ -69,6 +69,13 @@ public class TunesViewerActivity extends Activity {
 		return true;
 	}
 	
+	@Override
+	public void onLowMemory() {
+		Log.d(TAG,"LOW MEMORY");
+		_web.clearCache(true);
+		super.onLowMemory();
+	}
+	
 	/**
 	 * Returns current url of the webview.
 	 * @return String url caught with shouldOverrideUrlLoading.
@@ -125,6 +132,11 @@ public class TunesViewerActivity extends Activity {
 		case R.id.menuForward:
 			_web.goForward();
 			return true;
+		case R.id.menuClear:
+			_web.clearHistory();
+			_web.clearCache(true);
+			_myWVC.clearCookies();
+			return true;
 		case R.id.go:
 			AlertDialog.Builder alert = new AlertDialog.Builder(this);
 			alert.setTitle("Goto");
@@ -177,6 +189,12 @@ public class TunesViewerActivity extends Activity {
 		_web.requestFocus(View.FOCUS_DOWN);
    }
 
+	@Override
+	protected void onDestroy() {
+		_web.destroy();
+		super.onDestroy();
+	}
+	
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if ((keyCode == KeyEvent.KEYCODE_BACK) && _web.canGoBack()) {
 			_web.goBack();
@@ -185,6 +203,7 @@ public class TunesViewerActivity extends Activity {
 		return super.onKeyDown(keyCode, event);
 	}
 }
+
 
 class MyJavaScriptInterface {
 	private Context _context;
@@ -201,6 +220,6 @@ class MyJavaScriptInterface {
 	}
 	
 	public void source(String src) {
-		Log.d("source:",src);
+		//Log.d("source:",src);
 	}
 }

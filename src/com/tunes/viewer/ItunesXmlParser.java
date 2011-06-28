@@ -1,8 +1,6 @@
 package com.tunes.viewer;
 //http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewGrouping?id=27753
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
@@ -266,11 +264,13 @@ public class ItunesXmlParser extends DefaultHandler {
 					html.append(map.get("title"));
 					html.append("</a></div>");
 				} else if (type.equals("podcast")) { // page info.
-					html.append("<h2><img src=\"");
+					html.append("<h2><a href=\"");
+					html.append(map.get("url"));
+					html.append("\"><img src=\"");
 					html.append(subMap.get("url"));
-					html.append("\">");
+					html.append("\"><br>");
 					html.append(map.get("title"));
-					html.append("</h2><p>");
+					html.append("</a></h2><p>");
 					html.append(map.get("description"));
 					html.append("</p>");
 				} else if (type.equals("podcast-episode")) {

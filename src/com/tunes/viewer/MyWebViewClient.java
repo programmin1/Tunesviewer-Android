@@ -1,7 +1,9 @@
 package com.tunes.viewer;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
@@ -42,17 +44,20 @@ import android.widget.Toast;
 
 public class MyWebViewClient extends WebViewClient {
 		
-	final String TAG = "WVC";
+	private final String TAG = "WVC";
 	private Context callerContext;
 	private Activity activity;
-	CookieManager cookieManager = CookieManager.getInstance();
-	IansCookieManager _CM = new IansCookieManager();
-	SharedPreferences _prefs;
+	private IansCookieManager _CM = new IansCookieManager();
+	private SharedPreferences _prefs;
 	
 	public MyWebViewClient (Context c, Activity a) {
 		callerContext = c;
 		activity = a;
 		_prefs = PreferenceManager.getDefaultSharedPreferences(activity);
+	}
+	
+	public void clearCookies() {
+		_CM = new IansCookieManager();
 	}
 	
 	/**
@@ -70,10 +75,10 @@ public class MyWebViewClient extends WebViewClient {
 	
 	/**
 	 * Determines load behavior.
-	 * If it's html, this lets webview show it, if it's special xml file, it converts it and loads it.
+	 * If it's HTML, this lets WebView show it, if it's special XML file, it converts it and loads it.
 	 */
 	public boolean shouldOverrideUrlLoading(WebView view, String url) {
-		String ua = _prefs.getString("UserAgent", "");
+		String ua = _prefs.getString("UserAgent", callerContext.getString(R.string.defaultUA));
 		System.setProperty("http.agent", ua);
 		view.requestFocus(View.FOCUS_DOWN);
 		view.stopLoading();
@@ -82,15 +87,15 @@ public class MyWebViewClient extends WebViewClient {
 		return true;
 	}
 	
-	// always verify the host - dont check for certificate
+	// always verify the host - don't check for certificate
 	final static HostnameVerifier DO_NOT_VERIFY = new HostnameVerifier() {
 		public boolean verify(String hostname, SSLSession session) {
-				return true;
+			return true;
 		}
 	};
 
 	/**
-	 * Trust every server - dont check for any certificate
+	 * Trust every server - don't check for any certificate
 	 */
 	private static void trustAllHosts() {
 			// Create a trust manager that does not validate certificate chains
@@ -127,6 +132,7 @@ public class MyWebViewClient extends WebViewClient {
 		String out = FastURLEncoder.encode(text).replaceAll("\\+"," ");
 		long end = System.currentTimeMillis();
 		Log.d(TAG,"ENCODE TOOK "+(end-start)+" MS.");
+		
 		return out;
 	}
 	
@@ -164,7 +170,7 @@ public class MyWebViewClient extends WebViewClient {
 			
 			// Download xml/html to parse:
 			_download = makeString(conn.getInputStream()); 
-			// Remove unneeded xml declaration that may cause errors on some pages:
+			// Remove unneeded XML declaration that may cause errors on some pages:
 			_download = _download.replace("<?","<!--").replace("?>", "-->");
 			
 			SAXParserFactory factory = SAXParserFactory.newInstance();
@@ -193,11 +199,13 @@ public class MyWebViewClient extends WebViewClient {
 					callerContext.startService(intent);
 				} else {
 					// Load converted html:
-					final String htm = parser.getHTML();
+					final String data = encode("<!-- "+_url+" -->"+parser.getHTML());
+					_download = null;
+					System.gc();
 					synchronized (_view) {
 						_view.post(new Runnable() {
 							public void run() {
-								_view.loadData(encode("<!-- "+_url+" -->"+htm),"text/html","UTF-8");
+								_view.loadData(data,"text/html","UTF-8");
 							}
 						});
 					}
@@ -243,6 +251,8 @@ public class MyWebViewClient extends WebViewClient {
 				//Not xml, show the downloaded html directly in browser:
 				synchronized (_view) {
 					final String data = encode("<!-- "+_url+" -->"+_download); 
+					_download = null;
+					System.gc();
 					_view.post(new Runnable() {
 						public void run() {
 							_view.loadData(data,"text/html","UTF-8");
@@ -269,12 +279,29 @@ public class MyWebViewClient extends WebViewClient {
 	 * @return String value.
 	 * @throws IOException
 	 */
-	public static String makeString (InputStream in) throws IOException {
-	    StringBuffer out = new StringBuffer();
-	    byte[] b = new byte[4096];
-	    for (int n; (n = in.read(b)) != -1;) {
-	        out.append(new String(b, 0, n));
-	    }
-	    return out.toString();
+	private String makeStringold (InputStream in) throws IOException {
+		StringBuilder out = new StringBuilder(1024);
+		byte[] b = new byte[4096];
+		for (int n; (n = in.read(b)) != -1;) {
+			out.append(new String(b, 0, n));
+		}
+		return out.toString();
+	}
+
+	private String makeString(InputStream is) throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+		StringBuilder sb = new StringBuilder();
+		String line = null;
+		while ((line = reader.readLine()) != null) {
+			sb.append(line + "\n");
+		}
+		is.close();
+		return sb.toString();
+	}
+	
+	@Override
+	protected void finalize() throws Throwable {
+		// TODO Auto-generated method stub
+		super.finalize();
 	}
 }

@@ -6,6 +6,7 @@
     
     <item android:id="@+id/menuForward" android:menuCategory="system" android:title="Forward" android:icon="@drawable/ic_menu_forward"></item>
      <item android:icon="@drawable/ic_menu_goto" android:id="@+id/go" android:title="@string/menuGo" android:menuCategory="system"></item><item android:title="@string/menuCopyUrl" android:id="@+id/menuCopy" android:menuCategory="system"></item><item android:icon="@android:drawable/ic_menu_preferences" android:menuCategory="system" android:title="@string/menuPrefs" android:id="@+id/menuPrefs"></item>
+     <item android:menuCategory="system" android:id="@+id/menuClear" android:title="@string/menuClear"></item>
      
      
     

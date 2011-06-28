@@ -6,6 +6,7 @@
     <string name="menuSearch">Search</string>
     <string name="menuHome">Home</string>
     <string name="menuCopyUrl">Copy Page Url</string>
+    <string name="menuClear">Clear History &amp; Cookies</string>
     <string name="menuPrefs">Prefs</string>
     <string name="menuGo">Goto URL</string>
     

@@ -133,7 +133,9 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 				}
 			}
 			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(_context);
-			outFile = new File(prefs.getString("DownloadDirectory","/sdcard/"),fixedName.toString()+fileExt(_url.toString()));
+			outFile = new File(prefs
+					.getString("DownloadDirectory",_context.getString(R.string.defaultDL))
+					, fixedName.toString()+fileExt(_url.toString()));
 			if (outFile.exists() && outFile.length() == contentLength) {
 				onPostExecute(contentLength); //Done. Already downloaded.
 			} else {
