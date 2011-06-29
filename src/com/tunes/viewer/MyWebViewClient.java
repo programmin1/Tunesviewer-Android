@@ -12,6 +12,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Stack;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -34,6 +35,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
@@ -50,14 +52,55 @@ public class MyWebViewClient extends WebViewClient {
 	private IansCookieManager _CM = new IansCookieManager();
 	private SharedPreferences _prefs;
 	
-	public MyWebViewClient (Context c, Activity a) {
+	//Back and Forward navigation stacks:
+	private Stack<String> Back = new Stack<String>();
+	private Stack<String> Forward = new Stack<String>();
+	private WebView _web;
+	
+	public MyWebViewClient (Context c, Activity a, WebView v) {
 		callerContext = c;
 		activity = a;
 		_prefs = PreferenceManager.getDefaultSharedPreferences(activity);
+		_web = v;
 	}
 	
-	public void clearCookies() {
+	public boolean canGoBack() {
+		return (Back.size()>0);
+	}
+	/**
+	 * Goes backward, or causes exception if canGoBack() is false.
+	 */
+	public void goBack() {
+		Forward.push(_web.getUrl());
+		String url = Back.pop();
+		new Thread(new WebLoader(_web,url)).start();
+	}
+	
+	public boolean canGoForward() {
+		return (Forward.size()>0);
+	}
+	/**
+	 * Goes forward, or causes exception is canGoForward() is false.
+	 */
+	public void goForward() {
+		Back.push(_web.getUrl());
+		new Thread(new WebLoader(_web,Forward.pop())).start();
+	}
+	/**
+	 * Refreshes the WebView, no change to back/forward stack.
+	 */
+	public void refresh() {
+		new Thread(new WebLoader(_web,_web.getUrl())).start();
+	}
+	
+	
+	/**
+	 * Clears the history and the cookie handler.
+	 */
+	public void clearInfo() {
 		_CM = new IansCookieManager();
+		Back.clear();
+		Forward.clear();
 	}
 	
 	/**
@@ -66,7 +109,7 @@ public class MyWebViewClient extends WebViewClient {
 	@Override
 	public void onPageFinished(WebView view, String url) {
 		Log.d(TAG,"Inserting script into "+url);
-		view.loadUrl("javascript:"+TunesViewerActivity.getContext().getString(R.string.Javascript));
+		view.loadUrl("javascript:"+callerContext.getString(R.string.Javascript));
 		//view.loadUrl("javascript:window.DOWNLOADINTERFACE.source(document.documentElement.innerHTML);");
 		if (activity.findViewById(R.id.menuForward)!=null) {
 			activity.findViewById(R.id.menuForward).setClickable(view.canGoForward());
@@ -74,7 +117,7 @@ public class MyWebViewClient extends WebViewClient {
 	}
 	
 	/**
-	 * Determines load behavior.
+	 * Determines load behavior on "click".
 	 * If it's HTML, this lets WebView show it, if it's special XML file, it converts it and loads it.
 	 */
 	public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -83,6 +126,11 @@ public class MyWebViewClient extends WebViewClient {
 		view.requestFocus(View.FOCUS_DOWN);
 		view.stopLoading();
 		activity.setTitle("XML Loading...");
+		// Clicked link, so clear forward and add this to "back".
+		Forward.clear();
+		if (view.getUrl() != null) {
+			Back.push(view.getUrl());
+		}
 		new Thread(new WebLoader(view,url)).start();
 		return true;
 	}
@@ -93,7 +141,6 @@ public class MyWebViewClient extends WebViewClient {
 			return true;
 		}
 	};
-
 	/**
 	 * Trust every server - don't check for any certificate
 	 */
@@ -123,7 +170,7 @@ public class MyWebViewClient extends WebViewClient {
 					e.printStackTrace();
 			}
 	}
-	
+	/* No longer needed without loadData()
 	private String encode(String text) {
 		//workaround for: https://code.google.com/p/android/issues/detail?id=4401
 		long start = System.currentTimeMillis();
@@ -134,7 +181,7 @@ public class MyWebViewClient extends WebViewClient {
 		Log.d(TAG,"ENCODE TOOK "+(end-start)+" MS.");
 		
 		return out;
-	}
+	}*/
 	
 	private class WebLoader implements Runnable {
 		private WebView _view;
@@ -199,13 +246,13 @@ public class MyWebViewClient extends WebViewClient {
 					callerContext.startService(intent);
 				} else {
 					// Load converted html:
-					final String data = encode("<!-- "+_url+" -->"+parser.getHTML());
+					final String data = /*encode*/("<!-- "+_url+" -->"+parser.getHTML());
 					_download = null;
 					System.gc();
 					synchronized (_view) {
 						_view.post(new Runnable() {
 							public void run() {
-								_view.loadData(data,"text/html","UTF-8");
+								_view.loadDataWithBaseURL(_url,data,"text/html","UTF-8",_url);
 							}
 						});
 					}
@@ -250,12 +297,12 @@ public class MyWebViewClient extends WebViewClient {
 			} catch (SAXException e) {
 				//Not xml, show the downloaded html directly in browser:
 				synchronized (_view) {
-					final String data = encode("<!-- "+_url+" -->"+_download); 
+					final String data = /*encode*/("<!-- "+_url+" -->"+_download); 
 					_download = null;
 					System.gc();
 					_view.post(new Runnable() {
 						public void run() {
-							_view.loadData(data,"text/html","UTF-8");
+							_view.loadDataWithBaseURL(_url,data,"text/html","UTF-8",_url);
 						}
 					});
 				}
@@ -273,21 +320,21 @@ public class MyWebViewClient extends WebViewClient {
 		}
 	}
 	
-	/**
-	 * Turns an InputStream into a String.
-	 * @param in
-	 * @return String value.
-	 * @throws IOException
-	 */
-	private String makeStringold (InputStream in) throws IOException {
+	/*private String makeStringold (InputStream in) throws IOException {
 		StringBuilder out = new StringBuilder(1024);
 		byte[] b = new byte[4096];
 		for (int n; (n = in.read(b)) != -1;) {
 			out.append(new String(b, 0, n));
 		}
 		return out.toString();
-	}
+	}*/
 
+	/**
+	 * Turns an InputStream into a String.
+	 * @param in
+	 * @return String value.
+	 * @throws IOException
+	 */
 	private String makeString(InputStream is) throws IOException {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 		StringBuilder sb = new StringBuilder();
@@ -297,11 +344,5 @@ public class MyWebViewClient extends WebViewClient {
 		}
 		is.close();
 		return sb.toString();
-	}
-	
-	@Override
-	protected void finalize() throws Throwable {
-		// TODO Auto-generated method stub
-		super.finalize();
 	}
 }

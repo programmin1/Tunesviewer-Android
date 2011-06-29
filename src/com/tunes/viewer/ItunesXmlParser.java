@@ -11,6 +11,18 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import android.content.Context;
 
+/**
+ * iTunesU XML parser using Java SaxParser
+ * This will parse both mobile (iPhone) XML and desktop (iTunes) XML. 
+ * 
+ * After parsing with this class, getRedirect() will give you the redirect, if this is a redirect page.
+ * If the page describes a download, parser.getUrls().size()==1, and the item's name is getSingleName().
+ * Otherwise, use getHTML() to get the generated document.
+ * If the page is already HTML, this will throw SAXException.
+ * 
+ * @author Luke Bryan
+ *
+ */
 public class ItunesXmlParser extends DefaultHandler {
 
 	// HTML before and after the media list:
@@ -31,7 +43,7 @@ public class ItunesXmlParser extends DefaultHandler {
 	// Converted html for use in the browser:
 	private StringBuilder html;
 	
-	// These handle the key-value pairs in <dict> tag,
+	// This handles the key-value pairs in <dict> tag,
 	// such as <key>keyname</key><valuetag>value</value>
 	private HashMap<String,String> map;
 	//The same, but for sub-map <dict><key/><othervalues/></dict>
@@ -70,21 +82,26 @@ public class ItunesXmlParser extends DefaultHandler {
 	}
 	public String getHTML() {
 		return html.toString();
-		//workaround for: https://code.google.com/p/android/issues/detail?id=4401
-		/*try {
-			return URLEncoder.encode(html.toString(),"utf-8").replaceAll("\\+"," ");
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return "Error.";
-		}//html.toString().replace("%", "&#37;");*/
 	}
+	/**
+	 * Returns the redirect if this was a redirect page, otherwise blank "".
+	 * @return
+	 */
 	public String getRedirect() {
 		return redirectPage;
 	}
+	
+	/**
+	 * Returns urls available
+	 * @return
+	 */
 	public ArrayList<String> getUrls() {
 		return urls;
 	}
+	/**
+	 * The name of the single file, when this page describes one file download.
+	 * @return
+	 */
 	public String getSingleName() {
 		return singleName;
 	}
@@ -202,7 +219,7 @@ public class ItunesXmlParser extends DefaultHandler {
 		StackElement thisEl = docStack.pop();
 		assert(elname.equals(thisEl.name));
 		
-		// Elements handler. This is mirror image of the one in StartElement, do not modify without changing both!
+		// Elements handler. Mirror image of the one in StartElement
 		if (!ignoring && !elname.equals("FontStyle")) {
 			if (lastElement.equals("key")) {
 				if (!docStack.empty() && !isHandled(docStack.peek())) {
@@ -276,8 +293,8 @@ public class ItunesXmlParser extends DefaultHandler {
 				} else if (type.equals("podcast-episode")) {
 					//html.append("<script>function downloadit(title,name) { console.log('download-it'); console.log(title); console.log(name); window.DOWNLOADINTERFACE.download(title,name); }</script>\n");
 					html.append("<div class='media' onclick='toggle(this.nextSibling)'>");
-					
-					html.append("<a class='media' style='float:right' onclick=\"alert(this);window.event.stopPropagation();window.DOWNLOADINTERFACE.download(this.getAttribute('title'),this.getAttribute('url'));\" title=\"");
+					//stoppropagation to prevent clicking container, then download:
+					html.append("<a class='media' style='float:right' onclick=\"window.event.stopPropagation();window.DOWNLOADINTERFACE.download(this.getAttribute('title'),this.getAttribute('url'));\" title=\"");
 					html.append(map.get("title").replace("\"", "&quot;"));
 					html.append("\" url=\"");
 					html.append(subMap.get("asset-url").replace("\"", "&quot;"));
@@ -349,16 +366,19 @@ public class ItunesXmlParser extends DefaultHandler {
 		innerText.setLength(0);
 	}
 
+	/**
+	 * Adds a row representing the file to the media variable.
+	 */
 	private void addMediaRow() {
 		String name = "";
 		String artist = "";
 		String duration = "";
 		String comments = "";
-		String rtype = "";
+		//String rtype = "";
 		String url = "";
 		String directurl = "";
-		String releaseDate = "";
-		String modifiedDate = "";
+		//String releaseDate = "";
+		//String modifiedDate = "";
 		String id = "";
 		String style = "dl";
 		if (map.containsKey("songName")) {
@@ -410,17 +430,17 @@ public class ItunesXmlParser extends DefaultHandler {
 	 */
 	public static String fileExt(String url) {
 		String ext = url.substring(url.lastIndexOf(".") );
-	if (ext.indexOf("?")>-1) {
-		ext = ext.substring(0,ext.indexOf("?"));
-	}
-	if (ext.indexOf("%")>-1) {
-		ext = ext.substring(0,ext.indexOf("%"));
-	}
-	return ext;
+		if (ext.indexOf("?")>-1) {
+			ext = ext.substring(0,ext.indexOf("?"));
+		}
+		if (ext.indexOf("%")>-1) {
+			ext = ext.substring(0,ext.indexOf("%"));
+		}
+		return ext;
 	}
 	
 	/**
-	 * Given attributes of <Test> tag, this returns true if it needs to be ignored, old-version code.
+	 * Given attributes of <Test> tag, this returns true if it needs to be ignored, old-version code,
 	 * @param atts
 	 * @return True if this element and child elements should be ignored.
 	 */
@@ -432,6 +452,11 @@ public class ItunesXmlParser extends DefaultHandler {
 		}
 	}
 	
+	/**
+	 * Gives the time value in min:sec format, given milliseconds.
+	 * @param ms
+	 * @return
+	 */
 	private String timeval(String ms) {
 		String out = ms;
 		try {
@@ -464,20 +489,23 @@ public class ItunesXmlParser extends DefaultHandler {
 	
 	/**
 	 * Returns true when <key>keyid</key><dict... is specifically supported by this parser.
-	 * (The dict map should be cleared when starting/ending in this case).
+	 * (The dict map should be cleared when starting/ending <dict> tag in this case).
 	 * 
 	 * @param keyid
-	 * @return true if these should be handled in map, and subelements in submap.
+	 * @return true if these key-vals should be handled in map, and subelements in submap.
 	 */
 	private boolean isHandled(StackElement element) {
 		String keyid = element.atts.get(KEY);
 		return keyid != null && (keyid.equals("action") || keyid.equals("items") || keyid.equals("item-metadata") || keyid.equals("tabs") || keyid.equals("squishes") || keyid.equals("content"));
-		//return (keyid.indexOf("artwork-url")>-1 || keyid.equals("pings") || keyid.equals("store-offers"));
 	}
 	
+	/**
+	 * Container class to represent a tag and its attributes.
+	 */
 	private class StackElement {
 		public String name;
 		public HashMap<String,String> atts;
+		
 		public StackElement(String name, Attributes a) {
 			this.name = name;
 			atts = new HashMap<String,String>();

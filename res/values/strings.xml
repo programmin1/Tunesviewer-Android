@@ -9,6 +9,7 @@
     <string name="menuClear">Clear History &amp; Cookies</string>
     <string name="menuPrefs">Prefs</string>
     <string name="menuGo">Goto URL</string>
+    <string name="menuSource">View Page Source</string>
     
     <!-- Prefs -->
     <string name="prefUATitle">View Mode</string>
@@ -17,7 +18,7 @@
     <string name="prefDLSummary">Select a directory to download to.</string>
     <string-array name="UAarray">
     	<item>Full Page (Slower)</item>
-    	<item>Phone (Faster, low-bandwidth)</item>
+    	<item>Mobile (Faster, low-bandwidth)</item>
     </string-array>
     <string-array name="UAvalues">
     	<item>iTunes/10.3</item>

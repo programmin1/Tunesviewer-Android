@@ -1,7 +1,5 @@
 package com.tunes.viewer;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import android.app.Activity;
 import android.text.ClipboardManager;
 import android.app.AlertDialog;
@@ -19,9 +17,7 @@ import android.view.View;
 import android.view.Window;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class TunesViewerActivity extends Activity {
@@ -48,8 +44,8 @@ public class TunesViewerActivity extends Activity {
 		s.setBuiltInZoomControls(true);
 		s.setUseWideViewPort(true); //enables double tap
 
-		_web.addJavascriptInterface(new MyJavaScriptInterface(getApplicationContext()), "DOWNLOADINTERFACE");
-		_myWVC =  new MyWebViewClient(getApplicationContext(),this);
+		_web.addJavascriptInterface(new MyJavaScriptInterface(this), "DOWNLOADINTERFACE");
+		_myWVC =  new MyWebViewClient(getApplicationContext(),this,_web);
 		_web.setWebViewClient(_myWVC);
 		_web.setWebChromeClient(new MyWebChromeClient(this));
 		Log.d(TAG,"SETUP Done");
@@ -72,32 +68,16 @@ public class TunesViewerActivity extends Activity {
 	@Override
 	public void onLowMemory() {
 		Log.d(TAG,"LOW MEMORY");
+		_web.clearHistory();//Not needed, we have our own back/forward stacks.
 		_web.clearCache(true);
 		super.onLowMemory();
-	}
-	
-	/**
-	 * Returns current url of the webview.
-	 * @return String url caught with shouldOverrideUrlLoading.
-	 * @throws UnsupportedEncodingException 
-	 */
-	public String getCurrentUrl() throws UnsupportedEncodingException {
-		String url = _web.getUrl();
-		// Reverse the <!-- url --> comment added with loaddata.
-		try {
-		url = url.substring(url.indexOf("%3C%21--%20")+11, url.indexOf("%20--%3E"));
-		url = URLDecoder.decode(url,"utf-8");
-		} catch (NullPointerException e) {
-			throw new UnsupportedEncodingException();
-		}
-		return url;
 	}
 	
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		MenuItem forward = menu.findItem(R.id.menuForward);
 		if (_web != null && forward != null) {
-			forward.setEnabled(_web.canGoForward());
+			forward.setEnabled(_myWVC.canGoForward());
 		}
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -111,31 +91,24 @@ public class TunesViewerActivity extends Activity {
 			startActivity(intent);
 			return true;
 		case R.id.menuRefresh:
-			try {
-				_myWVC.shouldOverrideUrlLoading(_web, getCurrentUrl());
-			} catch (UnsupportedEncodingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			_myWVC.refresh();
 			return true;
 		case R.id.menuCopy:
 			ClipboardManager c = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
-			try {
-				String url = getCurrentUrl();
-				c.setText(url);
-				Toast.makeText(_AppContext, "Copied "+url, 4000).show();
-			} catch (UnsupportedEncodingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			String url = _web.getUrl();
+			c.setText(url);
+			Toast.makeText(_AppContext, "Copied "+url, 4000).show();
 			return true;
 		case R.id.menuForward:
-			_web.goForward();
+			_myWVC.goForward();
 			return true;
 		case R.id.menuClear:
 			_web.clearHistory();
 			_web.clearCache(true);
-			_myWVC.clearCookies();
+			_myWVC.clearInfo();
+			return true;
+		case R.id.menuSource:
+			_web.loadUrl("javascript:window.DOWNLOADINTERFACE.source(document.documentElement.innerHTML)");
 			return true;
 		case R.id.go:
 			AlertDialog.Builder alert = new AlertDialog.Builder(this);
@@ -145,9 +118,12 @@ public class TunesViewerActivity extends Activity {
 			alert.setView(input);
 			alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 			 public void onClick(DialogInterface dialog, int whichButton) {
-			  String value = input.getText().toString();
-			  //_web.loadUrl(value);
-			  _myWVC.shouldOverrideUrlLoading(_web, value);
+				  String value = input.getText().toString();
+				  if (value.startsWith("javascript")) {
+					  _web.loadUrl(value);
+				  } else {
+					  _myWVC.shouldOverrideUrlLoading(_web, value);
+				  }
 			  }
 			});
 			alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -196,8 +172,8 @@ public class TunesViewerActivity extends Activity {
 	}
 	
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if ((keyCode == KeyEvent.KEYCODE_BACK) && _web.canGoBack()) {
-			_web.goBack();
+		if ((keyCode == KeyEvent.KEYCODE_BACK) && _myWVC.canGoBack()) {
+			_myWVC.goBack();
 			return true;
 		}
 		return super.onKeyDown(keyCode, event);
@@ -212,6 +188,11 @@ class MyJavaScriptInterface {
 		_context = c;
 	}
 	
+	/**
+	 * Starts a media file download.
+	 * @param title
+	 * @param url
+	 */
 	public void download(String title, String url) {
 		Intent intent = new Intent(_context,DownloadService.class);
 		intent.putExtra("url", url);
@@ -219,7 +200,28 @@ class MyJavaScriptInterface {
 		_context.startService(intent);
 	}
 	
+	/**
+	 * Shows a view-source dialog with given source string.
+	 * @param src
+	 */
 	public void source(String src) {
-		//Log.d("source:",src);
+		final String source = src;
+		new AlertDialog.Builder(_context)
+		.setIcon(android.R.drawable.ic_dialog_alert)
+		.setTitle("Page Source")
+		.setMessage(source)
+		.setPositiveButton("Copy Text", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				ClipboardManager c = (ClipboardManager)_context.getSystemService(_context.CLIPBOARD_SERVICE);
+				c.setText(source);
+			}
+		})
+		.setNegativeButton("Close", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+			}
+		})
+		.show();
 	}
 }

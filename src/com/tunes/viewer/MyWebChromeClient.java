@@ -41,6 +41,7 @@ public class MyWebChromeClient extends WebChromeClient {
 	  result.confirm();
 	  return true;
 	};
+	
 	   
 	/**
 	 * Catches progress events while the html is loading.
