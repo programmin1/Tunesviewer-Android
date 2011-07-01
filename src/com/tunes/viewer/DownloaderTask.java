@@ -21,7 +21,7 @@ import android.widget.Toast;
 
 /**
  * A class to handle a download and its notification.
- * @author luke
+ * @author Luke
  *
  */
 public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
@@ -51,7 +51,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	}
 	
 	/**
-	 * Opens the file downloaded, with default opener.
+	 * Opens the downloaded file, with default opener.
 	 */
 	private void openFile() {
 		MimeTypeMap myMime = MimeTypeMap.getSingleton();
@@ -63,19 +63,20 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 		try {
 			_context.startActivity(newIntent);
 		} catch (android.content.ActivityNotFoundException e) {
-			Toast.makeText(_context, "No app for this type of file.", 4000).show();
+			Toast.makeText(_context, "No app for this type of file.", Toast.LENGTH_LONG).show();
 		}
 		notify.finish();
 		cancel(false);
 	}
 	
+	/**
+	 * Cancels download if not finished, otherwise open the file.
+	 * @param notifClicked
+	 */
 	public void doTapAction(boolean notifClicked) {
 		boolean s = getStatus().equals(AsyncTask.Status.FINISHED);
 		if (s && !isCancelled()/* && notifClicked*/) {//success
-			// View file.
-			//String type = fileExt(getFile().toString()).toLowerCase();
 			openFile();
-			return;
 		} else if (notifClicked) {
 			/*new AlertDialog.Builder(_context)
 		.setIcon(android.R.drawable.ic_dialog_alert)
@@ -91,8 +92,6 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 		});*/
 
 			cancel(false);
-			//myDownloaders.remove(T);
-			return;
 		}
 	}
 	
@@ -162,7 +161,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 		} catch (IOException e) {
 			e.printStackTrace();
 			ErrMSG = "Download error: "+e.getMessage();
-			//TODO: Fix it so this cancels, not finishes.
+			publishProgress(0);
 			cancel(false);
 		}
 		return null;
@@ -176,7 +175,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	if (ext.indexOf("%")>-1) {
 		ext = ext.substring(0,ext.indexOf("%"));
 	}
-	return ext;
+	return ext.toLowerCase();
 	}
 	
 	@Override
@@ -202,7 +201,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 				lastProgress = values[0];
 			}
 		} else {
-			Toast.makeText(_context, ErrMSG, 4000).show();
+			Toast.makeText(_context, ErrMSG, Toast.LENGTH_LONG).show();
 			notify.finish();
 			cancel(false);
 		}

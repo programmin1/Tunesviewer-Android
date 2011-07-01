@@ -1,13 +1,14 @@
 package com.tunes.viewer;
 
-import java.util.Random;
-
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 
+/**
+ * Notification manager class, handles the notification with % complete and estimated time remaining.
+ */
 public class Notifier {
 	
 	private Context _context;
@@ -18,6 +19,8 @@ public class Notifier {
 	private String _url;
 	private String _title;
 	
+	private long _started;
+	
 	public Notifier(Context c, int NOTIF_ID, String url, String title) {
 		_NOTIFICATION_ID = NOTIF_ID;
 		_context = c;
@@ -25,6 +28,7 @@ public class Notifier {
 		_title=title;
 		notificationManager = (NotificationManager) _context.getSystemService(Context.NOTIFICATION_SERVICE);
 		makeNotification(true,title);
+		_started = System.currentTimeMillis();
 	}
 	
 	/**
@@ -64,10 +68,26 @@ public class Notifier {
 		notificationManager.notify(_NOTIFICATION_ID, notification);
 	}
 	
+	/**
+	 * Updates the notification's display with percent progress.
+	 * @param progress
+	 */
 	public void progressUpdate(int progress) {
-		CharSequence contentText = progress + "% - Tap to cancel download.";
-		notification.setLatestEventInfo(_context, _title, contentText, notificationIntent);
-		notificationManager.notify(_NOTIFICATION_ID, notification);
+		/*******  To calculate time remaining ********
+		 * Assuming elapsedTime / fullTime = percentdownloaded / 100,
+		 * fullTime = 100*elapsedTime / percentdownloaded.
+		 */
+		if (progress > 0) {
+			long fullTime = 100*elapsedTime()/progress;
+			String remaining = ItunesXmlParser.timeval(String.valueOf(fullTime - elapsedTime()));
+			CharSequence contentText = progress + "% ("+remaining+") Tap to cancel download.";
+			notification.setLatestEventInfo(_context, _title, contentText, notificationIntent);
+			notificationManager.notify(_NOTIFICATION_ID, notification);
+		}
+	}
+	
+	private long elapsedTime() {
+		return System.currentTimeMillis()-_started;
 	}
 	
 	/**

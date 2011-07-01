@@ -27,6 +27,8 @@
     <string name="defaultUA">iTunes-iPhone/1.2.0</string>
     <string name="defaultDL">/sdcard/</string>
     
+    <string name="NoActivity">No suitable app found to preview this.</string>
+    
     <!-- Searchbox -->
     <string name="iTunesU">Search University Media</string>
     <string name="Podcasts">Search Podcasts</string>
@@ -57,6 +59,7 @@ div.separator {border: 2px; color: blue; padding: 2px;border-style: solid; text-
  */
 function player () {
 	this.playURL = function(input) {
+		window.DOWNLOADINTERFACE.preview(input.url);
 		var div = document.createElement('div');
 		div.setAttribute('class','quick-view video movie active activity-video-dialog');
 		div.setAttribute('style','width:50%; height:auto; position:fixed; left: 25%; float: top ; top:10px');

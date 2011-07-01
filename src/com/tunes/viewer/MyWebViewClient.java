@@ -116,6 +116,12 @@ public class MyWebViewClient extends WebViewClient {
 		}
 	}
 	
+	@Override
+	public void onPageStarted(WebView view, String url, Bitmap favicon) {
+		// TODO Auto-generated method stub
+		super.onPageStarted(view, url, favicon);
+	}
+	
 	/**
 	 * Determines load behavior on "click".
 	 * If it's HTML, this lets WebView show it, if it's special XML file, it converts it and loads it.
@@ -123,7 +129,8 @@ public class MyWebViewClient extends WebViewClient {
 	public boolean shouldOverrideUrlLoading(WebView view, String url) {
 		String ua = _prefs.getString("UserAgent", callerContext.getString(R.string.defaultUA));
 		System.setProperty("http.agent", ua);
-		view.requestFocus(View.FOCUS_DOWN);
+		view.getSettings().setUserAgentString(ua);
+		//view.requestFocus(View.FOCUS_DOWN);
 		view.stopLoading();
 		activity.setTitle("XML Loading...");
 		// Clicked link, so clear forward and add this to "back".
@@ -231,9 +238,6 @@ public class MyWebViewClient extends WebViewClient {
 			xr.parse(is);
 			long endMS = System.currentTimeMillis();
 			Log.d(TAG,"PARSING XML TOOK "+(endMS-startMS)+" MS.");
-			//xr.parse(new InputSource())
-			//Pass http stream to the iTunes parser:
-			//saxParser.parse(conn.getInputStream(), parser);
 			if (parser.getRedirect().equals("")) {
 				// No redirect for this page
 				if (parser.getUrls().size()==1) {
@@ -248,11 +252,11 @@ public class MyWebViewClient extends WebViewClient {
 					// Load converted html:
 					final String data = /*encode*/("<!-- "+_url+" -->"+parser.getHTML());
 					_download = null;
-					System.gc();
 					synchronized (_view) {
 						_view.post(new Runnable() {
 							public void run() {
 								_view.loadDataWithBaseURL(_url,data,"text/html","UTF-8",_url);
+								_view.clearHistory();
 							}
 						});
 					}
@@ -292,22 +296,23 @@ public class MyWebViewClient extends WebViewClient {
 				}
 				e.printStackTrace();
 			} catch (ParserConfigurationException e) {
-				// TODO Auto-generated catch block
+				Toast.makeText(callerContext,"ParserConfigurationError", 5000);
 				e.printStackTrace();
 			} catch (SAXException e) {
-				//Not xml, show the downloaded html directly in browser:
+				//Not XML, show the downloaded html directly in browser:
 				synchronized (_view) {
-					final String data = /*encode*/("<!-- "+_url+" -->"+_download); 
+					final String data = /*encode*/("<!-- "+_url+" -->"+_download);
 					_download = null;
-					System.gc();
 					_view.post(new Runnable() {
 						public void run() {
 							_view.loadDataWithBaseURL(_url,data,"text/html","UTF-8",_url);
+							//If not cleared, when back is not handled it
+							_view.clearHistory();
 						}
 					});
 				}
 			} catch (FactoryConfigurationError e) {
-				// TODO Auto-generated catch block
+				Toast.makeText(callerContext,"FactoryConfigurationError", 5000);
 				e.printStackTrace();
 			}
 			synchronized (activity) {//reset title

@@ -1,13 +1,13 @@
 package com.tunes.viewer;
 
 import android.app.Activity;
-import android.text.ClipboardManager;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.ClipboardManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -44,7 +44,7 @@ public class TunesViewerActivity extends Activity {
 		s.setBuiltInZoomControls(true);
 		s.setUseWideViewPort(true); //enables double tap
 
-		_web.addJavascriptInterface(new MyJavaScriptInterface(this), "DOWNLOADINTERFACE");
+		_web.addJavascriptInterface(new JSInterface(this), "DOWNLOADINTERFACE");
 		_myWVC =  new MyWebViewClient(getApplicationContext(),this,_web);
 		_web.setWebViewClient(_myWVC);
 		_web.setWebChromeClient(new MyWebChromeClient(this));
@@ -158,11 +158,12 @@ public class TunesViewerActivity extends Activity {
 			if (u.substring(0, 4).equals("itms")) {
 				u = "http"+u.substring(4);
 			}
-			Log.d("url", u);
+			Log.d("Loading url: ", u);
 			_myWVC.shouldOverrideUrlLoading(_web, u);
-			//_web.loadUrl(u);
+			// Clear data so it won't go here again after another activity runs, and user returns here.
+			this.getIntent().setData(null);
 		}
-		_web.requestFocus(View.FOCUS_DOWN);
+		//_web.requestFocus(View.FOCUS_DOWN);
    }
 
 	@Override
@@ -177,51 +178,5 @@ public class TunesViewerActivity extends Activity {
 			return true;
 		}
 		return super.onKeyDown(keyCode, event);
-	}
-}
-
-
-class MyJavaScriptInterface {
-	private Context _context;
-	
-	public MyJavaScriptInterface(Context c) {
-		_context = c;
-	}
-	
-	/**
-	 * Starts a media file download.
-	 * @param title
-	 * @param url
-	 */
-	public void download(String title, String url) {
-		Intent intent = new Intent(_context,DownloadService.class);
-		intent.putExtra("url", url);
-		intent.putExtra("name",title);
-		_context.startService(intent);
-	}
-	
-	/**
-	 * Shows a view-source dialog with given source string.
-	 * @param src
-	 */
-	public void source(String src) {
-		final String source = src;
-		new AlertDialog.Builder(_context)
-		.setIcon(android.R.drawable.ic_dialog_alert)
-		.setTitle("Page Source")
-		.setMessage(source)
-		.setPositiveButton("Copy Text", new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				ClipboardManager c = (ClipboardManager)_context.getSystemService(_context.CLIPBOARD_SERVICE);
-				c.setText(source);
-			}
-		})
-		.setNegativeButton("Close", new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-			}
-		})
-		.show();
 	}
 }

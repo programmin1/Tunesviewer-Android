@@ -25,6 +25,7 @@
                     <data android:scheme="itmss"/>
                 </intent-filter>
         </activity>
+	    <activity android:name=".Player" />
 	    <activity android:name=".DownloadViewer" />
 	    <activity android:name=".PrefsActivity" />  
 		<activity android:name=".Searcher" android:windowSoftInputMode="stateVisible"/>

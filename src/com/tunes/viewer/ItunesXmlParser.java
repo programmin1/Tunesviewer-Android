@@ -10,6 +10,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import android.content.Context;
+import android.util.Log;
 
 /**
  * iTunesU XML parser using Java SaxParser
@@ -32,6 +33,7 @@ public class ItunesXmlParser extends DefaultHandler {
 	"tr.selection {background:gold;}\n</style>"+
 	"<table width='100%' border='1' bgcolor='white' cellspacing=\"1\" cellpadding=\"3\"><tr bgcolor='CCCCCC'><td><b>Name</b></td><td><b>Author</b></td><td><b>Duration</b></td><td><b>Comment</b></td><td><b>Download</b></td></tr>\n";
 	private static final String POST_MEDIA = "</table>";
+	private static final String TAG = "parser";
 	
 	// Holds text inside or between the elements,
 	// this is printed out and reset at start-tag and end-tag.
@@ -300,8 +302,11 @@ public class ItunesXmlParser extends DefaultHandler {
 					html.append(subMap.get("asset-url").replace("\"", "&quot;"));
 					html.append("\">Download ");
 					html.append(fileExt(subMap.get("asset-url")));
-					html.append("</a>");
-					html.append("<b class='media'>");
+					html.append("</a><a href='javascript:;' onclick=\"window.event.stopPropagation();window.DOWNLOADINTERFACE.preview(this.getAttribute('title'),this.getAttribute('url'));\" title=\"");
+					html.append(map.get("title").replace("\"", "&quot;"));
+					html.append("\" url=\"");
+					html.append(subMap.get("asset-url").replace("\"", "&quot;"));
+					html.append("\">preview</a><b class='media'>");
 					html.append(map.get("title"));
 					html.append("</b></div><div style='display:none'><b>");
 					if (subMap.containsKey("duration")) {
@@ -457,12 +462,18 @@ public class ItunesXmlParser extends DefaultHandler {
 	 * @param ms
 	 * @return
 	 */
-	private String timeval(String ms) {
+	public static String timeval(String ms) {
 		String out = ms;
 		try {
-			int sec = Integer.valueOf(ms)/1000;
-			out = String.valueOf(sec/60)+":"+String.valueOf(sec % 60);
+			long sec = Long.valueOf(ms)/1000;
+			out = String.valueOf(sec/60)+":";
+			if ((sec % 60) < 10) {
+				out += String.valueOf(sec % 60);
+			} else {
+				out += "0"+String.valueOf(sec % 60);
+			}
 		} catch (NumberFormatException e) {
+			Log.e(TAG,"Unable to convert time value: \""+out+"\".");
 		}
 		return out;
 	}
