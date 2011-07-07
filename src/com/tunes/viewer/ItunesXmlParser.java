@@ -19,9 +19,10 @@ import android.util.Log;
  * After parsing with this class, getRedirect() will give you the redirect, if this is a redirect page.
  * If the page describes a download, parser.getUrls().size()==1, and the item's name is getSingleName().
  * Otherwise, use getHTML() to get the generated document.
+ * 
  * If the page is already HTML, this will throw SAXException.
  * 
- * @author Luke Bryan
+ * @author Luke Bryan 2011
  *
  */
 public class ItunesXmlParser extends DefaultHandler {
@@ -79,6 +80,9 @@ public class ItunesXmlParser extends DefaultHandler {
 	// When true, it's ignoring the <Test comparison='lt' oldversion></Test> values.
 	private boolean ignoring = false;
 	
+	int scrWidth;
+	private int _imgPrefSize;
+	
 	public String toString() {
 		return original.toString();
 	}
@@ -111,9 +115,11 @@ public class ItunesXmlParser extends DefaultHandler {
 	 * Constructs xml parser.
 	 * @param reference is the selected part of the document, the text in #id at the end.
 	 */
-	public ItunesXmlParser(String reference, Context c) {
+	public ItunesXmlParser(String reference, Context c, int width, int imgPref) {
 		this.reference = reference;
 		this.context = c;
+		this.scrWidth = width;
+		_imgPrefSize = imgPref;
 	}
 	
 	@Override
@@ -136,9 +142,9 @@ public class ItunesXmlParser extends DefaultHandler {
 	@Override
 	public void startElement(String namespaceURI, String elname,
 	                         String qName, Attributes atts) throws SAXException {
-		//original.append(innerText);
+		original.append(innerText);
 		StackElement thisEl = new StackElement(elname,atts);
-		//original.append(thisEl);
+		original.append(thisEl);
 		if (elname.equals("html") && docStack.size()==0) {
 			// Even if it happens to parse correctly as xml, HTML should be shown directly!
 			throw new SAXException();
@@ -181,6 +187,10 @@ public class ItunesXmlParser extends DefaultHandler {
 				map.clear();
 				subMap.clear();
 				lastElement="";
+			} else if (elname.equals("array")) {
+				if (thisEl.atts.get(KEY) != null && thisEl.atts.get(KEY).equals("tabs")) {
+					html.append("<!-- tabs --><div align='center'>");
+				}
 			} else if (elname.equals("HBoxView")) {
 				html.append("<!--HBox--><table><tr>");
 			} else if (elname.equals("VBoxView")) {
@@ -217,7 +227,7 @@ public class ItunesXmlParser extends DefaultHandler {
 
 	@Override
 	public void endElement(String uri, String elname, String qName) throws SAXException {
-		//original.append(innerText);
+		original.append(innerText);
 		StackElement thisEl = docStack.pop();
 		assert(elname.equals(thisEl.name));
 		
@@ -231,7 +241,20 @@ public class ItunesXmlParser extends DefaultHandler {
 					 * <key>artwork-url</key><dict>
 					 *  <key>url</key><string (imageurl)/> <- this should be stored in subMap.
 					 */
-					subMap.put(lastValue, innerText.toString());
+					try {
+						//When img preferred size specified, the url should be within the size range.
+						if (_imgPrefSize > 0 //there is preferred size
+								&& lastValue.toString().equals("url") && subMap.containsKey("url") // and this is url key that will replace other value
+								&& subMap.get("box-height")!=null && Integer.valueOf(subMap.get("box-height")) > _imgPrefSize) // and last-seen boxheight isn't in pref range
+						{
+							//Don't show image that is larger than preferred size. Url will not be overwritten. 
+						} else {
+							//Add key --> value pair to SUB map.
+							subMap.put(lastValue, innerText.toString());
+						}
+					} catch (NumberFormatException e) {
+						Log.e(TAG,"Unexpected subMap box-height.");
+					};
 				} else {
 					map.put(lastValue, innerText.toString());
 				}
@@ -267,13 +290,13 @@ public class ItunesXmlParser extends DefaultHandler {
 					html.append(subMap.get("url"));
 					html.append("\"></a>");
 				} else if (type.equals("separator")) {
-					html.append("<div class='separator' width=100% style='border: 2px;padding: 2px;border-style: solid;'>");
+					html.append("<br><font class='separator' style='padding: 2px;'>");
 					if (map.containsKey("title")) {
 						html.append(map.get("title"));
 					} else {
 						html.append("&nbsp;");
 					}
-					html.append("</div>");
+					html.append("</font><br>");
 				} else if (type.equals("link")) { //A link to page
 					html.append("<div class='link'><a href=\"");
 					html.append(map.get("url"));
@@ -283,15 +306,17 @@ public class ItunesXmlParser extends DefaultHandler {
 					html.append(map.get("title"));
 					html.append("</a></div>");
 				} else if (type.equals("podcast")) { // page info.
-					html.append("<h2><a href=\"");
+					html.append("<h2><a href='javascript:;' url=\"");
 					html.append(map.get("url"));
-					html.append("\"><img src=\"");
+					html.append("\" onclick=\"window.DOWNLOADINTERFACE.go(this.getAttribute('url'))\"><img src=\"");
 					html.append(subMap.get("url"));
 					html.append("\"><br>");
 					html.append(map.get("title"));
 					html.append("</a></h2><p>");
 					html.append(map.get("description"));
-					html.append("</p>");
+					html.append("<br><a href='javascript:;' url=\"");
+					html.append(map.get("view-user-reviews-url"));
+					html.append("\" onclick=\"window.DOWNLOADINTERFACE.go(this.getAttribute('url'))\">Reviews</a></p>");
 				} else if (type.equals("podcast-episode")) {
 					//html.append("<script>function downloadit(title,name) { console.log('download-it'); console.log(title); console.log(name); window.DOWNLOADINTERFACE.download(title,name); }</script>\n");
 					html.append("<div class='media' onclick='toggle(this.nextSibling)'>");
@@ -306,7 +331,7 @@ public class ItunesXmlParser extends DefaultHandler {
 					html.append(map.get("title").replace("\"", "&quot;"));
 					html.append("\" url=\"");
 					html.append(subMap.get("asset-url").replace("\"", "&quot;"));
-					html.append("\">preview</a><b class='media'>");
+					html.append("\"><span class='preview'></span></a>&nbsp;<b class='media'>");
 					html.append(map.get("title"));
 					html.append("</b></div><div style='display:none'><b>");
 					if (subMap.containsKey("duration")) {
@@ -326,6 +351,10 @@ public class ItunesXmlParser extends DefaultHandler {
 				//Done with it, don't let parent repeat:
 				map.clear();
 				subMap.clear();
+			} else if (elname.equals("array")) {
+				if (thisEl.atts.get(KEY) != null && thisEl.atts.get(KEY).equals("tabs")) {
+					html.append("<!-- end tabs --></div>");
+				}
 			} else if (elname.equals("HBoxView")) {
 				html.append("</tr></table>");
 			} else if (elname.equals("VBoxView")) {
@@ -365,9 +394,9 @@ public class ItunesXmlParser extends DefaultHandler {
 			ignoring = false;
 		}
 		//Must be run every time:
-		//original.append("</");
-		//original.append(elname);
-		//original.append(">");
+		original.append("</");
+		original.append(elname);
+		original.append(">");
 		innerText.setLength(0);
 	}
 
@@ -468,9 +497,9 @@ public class ItunesXmlParser extends DefaultHandler {
 			long sec = Long.valueOf(ms)/1000;
 			out = String.valueOf(sec/60)+":";
 			if ((sec % 60) < 10) {
-				out += String.valueOf(sec % 60);
-			} else {
 				out += "0"+String.valueOf(sec % 60);
+			} else {
+				out += String.valueOf(sec % 60);
 			}
 		} catch (NumberFormatException e) {
 			Log.e(TAG,"Unable to convert time value: \""+out+"\".");
@@ -488,8 +517,11 @@ public class ItunesXmlParser extends DefaultHandler {
 	public void endDocument() throws SAXException {
 		//if mobile:
 		html.insert(0,context.getString(R.string.MobileStyles));
+		//Add style to keep large images from going off the screen:
+		html.insert(0, "<style> img { max-width: "+(scrWidth-5)+"px }</style>");
 		original.append("<!-- (END DOC) -->");
-		html.insert(0, String.format("<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/></head><body bgcolor=\"%s\">",backColor));
+		html.insert(0, String.format("<html><head>"+
+			"<meta name=\"viewportppppppp\" content=\"width=device-width\" /><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/></head><body bgcolor=\"%s\">",backColor));
 		if (media.length()>0) {
 			html.append(PRE_MEDIA);
 			html.append(media);

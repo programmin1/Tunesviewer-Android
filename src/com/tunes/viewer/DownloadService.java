@@ -1,28 +1,11 @@
 package com.tunes.viewer;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
-
-import android.app.AlertDialog;
-import android.app.NotificationManager;
 import android.app.Service;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.IBinder;
-import android.util.Log;
-import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 public class DownloadService extends Service {

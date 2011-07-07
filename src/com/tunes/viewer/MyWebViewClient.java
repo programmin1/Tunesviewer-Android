@@ -5,11 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Stack;
@@ -25,21 +22,16 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
-import org.xml.sax.ext.DeclHandler;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.View;
-import android.webkit.CookieManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
@@ -51,6 +43,7 @@ public class MyWebViewClient extends WebViewClient {
 	private Activity activity;
 	private IansCookieManager _CM = new IansCookieManager();
 	private SharedPreferences _prefs;
+	private String _originalDownload = "";
 	
 	//Back and Forward navigation stacks:
 	private Stack<String> Back = new Stack<String>();
@@ -64,6 +57,14 @@ public class MyWebViewClient extends WebViewClient {
 		_web = v;
 	}
 	
+	public String getOriginal() {
+		return _originalDownload;
+	}
+	
+	/**
+	 * Returns true when goBack() will work.
+	 * @return
+	 */
 	public boolean canGoBack() {
 		return (Back.size()>0);
 	}
@@ -73,9 +74,12 @@ public class MyWebViewClient extends WebViewClient {
 	public void goBack() {
 		Forward.push(_web.getUrl());
 		String url = Back.pop();
-		new Thread(new WebLoader(_web,url)).start();
+		new Thread(new WebLoader(_web,url,this)).start();
 	}
-	
+	/**
+	 * Returns true when goForward() will work.
+	 * @return
+	 */
 	public boolean canGoForward() {
 		return (Forward.size()>0);
 	}
@@ -84,15 +88,14 @@ public class MyWebViewClient extends WebViewClient {
 	 */
 	public void goForward() {
 		Back.push(_web.getUrl());
-		new Thread(new WebLoader(_web,Forward.pop())).start();
+		new Thread(new WebLoader(_web,Forward.pop(),this)).start();
 	}
 	/**
 	 * Refreshes the WebView, no change to back/forward stack.
 	 */
 	public void refresh() {
-		new Thread(new WebLoader(_web,_web.getUrl())).start();
+		new Thread(new WebLoader(_web,_web.getUrl(),this)).start();
 	}
-	
 	
 	/**
 	 * Clears the history and the cookie handler.
@@ -115,13 +118,7 @@ public class MyWebViewClient extends WebViewClient {
 			activity.findViewById(R.id.menuForward).setClickable(view.canGoForward());
 		}
 	}
-	
-	@Override
-	public void onPageStarted(WebView view, String url, Bitmap favicon) {
-		// TODO Auto-generated method stub
-		super.onPageStarted(view, url, favicon);
-	}
-	
+
 	/**
 	 * Determines load behavior on "click".
 	 * If it's HTML, this lets WebView show it, if it's special XML file, it converts it and loads it.
@@ -138,7 +135,7 @@ public class MyWebViewClient extends WebViewClient {
 		if (view.getUrl() != null) {
 			Back.push(view.getUrl());
 		}
-		new Thread(new WebLoader(view,url)).start();
+		new Thread(new WebLoader(view,url,this)).start();
 		return true;
 	}
 	
@@ -190,13 +187,32 @@ public class MyWebViewClient extends WebViewClient {
 		return out;
 	}*/
 	
+	/**
+	 * Turns an InputStream into a String.
+	 * @param in
+	 * @return String value.
+	 * @throws IOException
+	 */
+	private String makeString(InputStream is) throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+		StringBuilder sb = new StringBuilder();
+		String line = null;
+		while ((line = reader.readLine()) != null) {
+			sb.append(line + "\n");
+		}
+		is.close();
+		return sb.toString();
+	}
+	
 	private class WebLoader implements Runnable {
 		private WebView _view;
 		private String _url;
 		private String _download;
-		public WebLoader(WebView v,String u) {
+		private MyWebViewClient caller;
+		public WebLoader(WebView v,String u, MyWebViewClient caller) {
 			_view = v;
 			_url = u;
+			this.caller = caller;
 		}
 		
 		/**
@@ -224,13 +240,16 @@ public class MyWebViewClient extends WebViewClient {
 			
 			// Download xml/html to parse:
 			_download = makeString(conn.getInputStream()); 
+			synchronized (caller) {
+				caller._originalDownload = _download;
+			}
 			// Remove unneeded XML declaration that may cause errors on some pages:
 			_download = _download.replace("<?","<!--").replace("?>", "-->");
 			
 			SAXParserFactory factory = SAXParserFactory.newInstance();
 			factory.setValidating(false);
 			SAXParser saxParser= factory.newSAXParser();
-			ItunesXmlParser parser = new ItunesXmlParser(u.getRef(),callerContext);
+			ItunesXmlParser parser = new ItunesXmlParser(u.getRef(),callerContext,_view.getWidth(),Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(callerContext).getString("ImgPref", "0")));
 			XMLReader xr = saxParser.getXMLReader();
 			xr.setContentHandler(parser);
 			InputSource is = new InputSource(new StringReader(_download));
@@ -255,6 +274,8 @@ public class MyWebViewClient extends WebViewClient {
 					synchronized (_view) {
 						_view.post(new Runnable() {
 							public void run() {
+								String pref = PreferenceManager.getDefaultSharedPreferences(callerContext).getString("ImgPref", "0");
+								_view.getSettings().setBlockNetworkImage(pref.equals("-1"));
 								_view.loadDataWithBaseURL(_url,data,"text/html","UTF-8",_url);
 								_view.clearHistory();
 							}
@@ -301,12 +322,14 @@ public class MyWebViewClient extends WebViewClient {
 			} catch (SAXException e) {
 				//Not XML, show the downloaded html directly in browser:
 				synchronized (_view) {
-					final String data = /*encode*/("<!-- "+_url+" -->"+_download);
+					final String data = "<!-- "+_url+" -->"+_download;
 					_download = null;
 					_view.post(new Runnable() {
 						public void run() {
+							String pref = PreferenceManager.getDefaultSharedPreferences(callerContext).getString("ImgPref", "0");
+							_view.getSettings().setBlockNetworkImage(pref.equals("-1"));
 							_view.loadDataWithBaseURL(_url,data,"text/html","UTF-8",_url);
-							//If not cleared, when back is not handled it
+							//No need for history, this has custom history handler.
 							_view.clearHistory();
 						}
 					});
@@ -334,20 +357,4 @@ public class MyWebViewClient extends WebViewClient {
 		return out.toString();
 	}*/
 
-	/**
-	 * Turns an InputStream into a String.
-	 * @param in
-	 * @return String value.
-	 * @throws IOException
-	 */
-	private String makeString(InputStream is) throws IOException {
-		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-		StringBuilder sb = new StringBuilder();
-		String line = null;
-		while ((line = reader.readLine()) != null) {
-			sb.append(line + "\n");
-		}
-		is.close();
-		return sb.toString();
-	}
 }

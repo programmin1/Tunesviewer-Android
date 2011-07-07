@@ -1,29 +1,10 @@
 package com.tunes.viewer;
 
-import android.app.AlertDialog;
-import android.content.ActivityNotFoundException;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.view.View;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.content.Context;
-
 import android.app.Activity;
-import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnCompletionListener;
-import android.media.MediaPlayer.OnErrorListener;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
-import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.widget.FrameLayout;
 import android.widget.Toast;
-import android.widget.VideoView;
 
 public class MyWebChromeClient extends WebChromeClient {
 	

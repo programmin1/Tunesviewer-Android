@@ -5,8 +5,10 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.ClipboardManager;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -42,10 +44,10 @@ public class TunesViewerActivity extends Activity {
 		s.setUserAgentString("iTunes/10.2");
 		s.setSupportZoom(true);
 		s.setBuiltInZoomControls(true);
-		s.setUseWideViewPort(true); //enables double tap
+		s.setUseWideViewPort(false); //disables horizontal scroll
 
-		_web.addJavascriptInterface(new JSInterface(this), "DOWNLOADINTERFACE");
 		_myWVC =  new MyWebViewClient(getApplicationContext(),this,_web);
+		_web.addJavascriptInterface(new JSInterface(this), "DOWNLOADINTERFACE");
 		_web.setWebViewClient(_myWVC);
 		_web.setWebChromeClient(new MyWebChromeClient(this));
 		Log.d(TAG,"SETUP Done");
@@ -79,6 +81,10 @@ public class TunesViewerActivity extends Activity {
 		if (_web != null && forward != null) {
 			forward.setEnabled(_myWVC.canGoForward());
 		}
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		boolean debugMode = (prefs!= null && prefs.getBoolean("debug", false));
+		menu.findItem(R.id.menuSource).setVisible(debugMode);
+		menu.findItem(R.id.menuOriginalSource).setVisible(debugMode);
 		return super.onPrepareOptionsMenu(menu);
 	}
 	
@@ -106,6 +112,22 @@ public class TunesViewerActivity extends Activity {
 			_web.clearHistory();
 			_web.clearCache(true);
 			_myWVC.clearInfo();
+			return true;
+		case R.id.menuOriginalSource:
+			final String source = _myWVC.getOriginal();
+			new AlertDialog.Builder(this)
+			.setIcon(android.R.drawable.ic_dialog_alert)
+			.setTitle("Original Source")
+			.setMessage(source)
+			.setPositiveButton("Copy Text", new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					ClipboardManager c = (ClipboardManager)getSystemService(getApplicationContext().CLIPBOARD_SERVICE);
+					c.setText(source);
+				}
+			})
+			.setNegativeButton("Close", null)
+			.show();
 			return true;
 		case R.id.menuSource:
 			_web.loadUrl("javascript:window.DOWNLOADINTERFACE.source(document.documentElement.innerHTML)");
@@ -144,6 +166,20 @@ public class TunesViewerActivity extends Activity {
 		}
 	}
 	
+	/**
+	 * Loads a url into this activity's WebView. This should be safe for any url, and usable from other threads.
+	 * @param url
+	 */
+	public void loadUrl(String url) {
+		final String u = url;
+		_web.post(new Runnable() {
+			@Override
+			public void run() {
+				_myWVC.shouldOverrideUrlLoading(_web, u);
+			}
+		});
+	}
+	
 	public static Context getContext() {
 		return _AppContext;
 	}
@@ -175,6 +211,10 @@ public class TunesViewerActivity extends Activity {
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if ((keyCode == KeyEvent.KEYCODE_BACK) && _myWVC.canGoBack()) {
 			_myWVC.goBack();
+			return true;
+		} else if ((keyCode == KeyEvent.KEYCODE_SEARCH)) {
+			Intent intent = new Intent(TunesViewerActivity.this,Searcher.class);
+			startActivity(intent);
 			return true;
 		}
 		return super.onKeyDown(keyCode, event);

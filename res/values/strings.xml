@@ -7,9 +7,10 @@
     <string name="menuHome">Home</string>
     <string name="menuCopyUrl">Copy Page Url</string>
     <string name="menuClear">Clear History &amp; Cookies</string>
-    <string name="menuPrefs">Prefs</string>
+    <string name="menuPrefs">Settings</string>
     <string name="menuGo">Goto URL</string>
     <string name="menuSource">View Page Source</string>
+    <string name="menuOriginal">View Original Source</string>
     
     <!-- Prefs -->
     <string name="prefUATitle">View Mode</string>
@@ -25,7 +26,32 @@
     	<item>iTunes-iPhone/1.2.0</item>
     </string-array>
     <string name="defaultUA">iTunes-iPhone/1.2.0</string>
+    
+    
+    <string name="prefImgTitle">Image Size</string>
+    <string name="prefImgSummary">Preferred image size for mobile view mode.</string>
+    <string-array name="ImgArray">
+    	<item>No Images</item>
+    	<item>Small (55px)</item>
+    	<item>Medium (88px)</item>
+    	<item>Large (176px)</item>
+    	<item>Any size</item>
+    </string-array>
+    <string-array name="ImgValues">
+    	<item>-1</item>
+    	<item>55</item>
+    	<item>88</item>
+    	<item>176</item>
+    	<item>0</item>
+    </string-array>
+    <string name="defaultImg">0</string>
     <string name="defaultDL">/sdcard/</string>
+    
+    <string name="prefAdvTitle">Show Debug menus</string>
+    <string name="prefAdvSummary">Enable view-source menu items</string>
+    
+    <string name="prefInsertTitle">Additional Scripts/Styles</string>
+    <string name="prefInsertSummary">Enter your custom &lt;script&gt; tags or styles to insert into generated html.</string>
     
     <string name="NoActivity">No suitable app found to preview this.</string>
     
@@ -45,13 +71,14 @@ function toggle(el) {
 * {font-family: Helvetica, Arial;}
 div.media { background-color:#77FF77;
  width=100%;border-radius:10px; border-color:white; border-style:solid; border-width:2px; padding:10px;}
+span.preview {display:inline-block; background-repeat:no-repeat; background-position:center; padding:5px; vertical-align:middle; width:22px; height:22px; background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAALmSURBVDiNrdVLbExRGAfw/33OmDZIxqDo4lYQYSEWJMJGIojUQk1RJBWpjXdIbi2ICJHxXFjYiu2NSiw8EqRUPDJBionScqnxGpppp/d27j3n3HMsmo5Oqq0+TnJ2J7/v/53vJEcSQmDbhTnPhRCNhAUnLdPOYhyWDAA+ZYtXLFy0W1OV9i3nZh+LJ4yScYEBoHLpqtDRLbtKl8xbUK+rSnrz2Yr98YShjxkWCKBpHdi4fOWE+k07Jy+aPfeUrinp6jPGjnjCUMYEM94Jl7QgEu7C1pXrSg5tqI3NLzcuhTTVjieMqnjCkEYMQwSFEjTIwvVTmFSaR93aqpK962vKK8pmXQnraks8YaweEcw5A+e83w7g0wxy+WZEJzHsqdxcWrdm49wZ0di17RfnPI8njGVDwZIQAvGEIU7vqIPrtw5+EDJ0bRpCahnef/2E64/vu67nJD3CDlim3TwofGJ7LVz/w7AtSpKCsFaGkDodqc+t/Mazxjyh3j2PssOWaReSFeBjNTVwfXtY+G8BFRP0mdCVqWi2W/itZJNHOWkgNDhimXa6AB+proLrt/833LdkSUckVA5VjuJFW4rdbX5CgOC02neAMB+UsVHAEphCAIUi4AwQgIBAAaaMjAiWJAURfTp0NYY3nz/yxtc3PRbQBsJ6r+JvYkpAWTCU1QtCQlifgrAWQ+v3b/zBm4d5Qv17hAVFwytKzIZMLCGkTURYj6H9VweaUrfdPOlJEsb/+dz6JfYGvQpNiSCsR/Gj08HTd4+cXN55Txnfa5n248Fi9IMHDk+RQwhpE5F1CJJtL51O1/lGA77PMu07Q7RWDPvMAwt6YVlSoakR5PIcr962Or+7u7MsEAcBNFimLYZDi2BKfXDBIcsaHE/g7de0k+ly8wEXJoCrlmkPP9l/JqY+fAq0/ezuyXT1EC7EcSFw2TJtMhJwAJz60uVlcpQJIc5ygfOWabujAYtgRZZe/MyRRs4xbp/pHxoMnL5j5aIcAAAAAElFTkSuQmCC);}
 b.media {line-height: 2em;}
 a.media {height: 1.5em;
 line-height: 1.5em; vertical-align:middle;text-decoration: none; border: 1px; border-radius:6px; border-color:gray; padding: 2px;border-style: solid;background-image:-webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0%, #ffffff), color-stop(100%, #A2ABFF)); color:black}
 a.tab {vertical-align:middle;text-decoration: none; border: 1px; border-radius:6px; border-color:gray; padding: 2px;border-style: solid;background-image:-webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0%, #ffffff), color-stop(100%, #A2ABFF)); color:black}
 a.sel {background-image:-webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0%, #A2ABFF), color-stop(100%, #77AAFF));}
 div.link {border-style:solid; border-color:blue; margin:2px; overflow:auto;}
-div.separator {border: 2px; color: blue; padding: 2px;border-style: solid; text-shadow: #616161 2px 2px 4px;};
+font.separator {color: blue; padding: 2px; font-size:1.5em; text-shadow: #616161 2px 2px 4px;};
   &lt;/style&gt;"</string>
     <string name="Javascript" formatted="false">"/*
  * iTunes Javascript Class, added to the displayed pages.
@@ -59,7 +86,8 @@ div.separator {border: 2px; color: blue; padding: 2px;border-style: solid; text-
  */
 function player () {
 	this.playURL = function(input) {
-		window.DOWNLOADINTERFACE.preview(input.url);
+		window.DOWNLOADINTERFACE.preview('preview',input.url);
+		return 'not 0';
 		var div = document.createElement('div');
 		div.setAttribute('class','quick-view video movie active activity-video-dialog');
 		div.setAttribute('style','width:50%; height:auto; position:fixed; left: 25%; float: top ; top:10px');

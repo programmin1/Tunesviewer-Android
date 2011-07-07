@@ -59,7 +59,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 		Intent newIntent = new Intent(android.content.Intent.ACTION_VIEW);
 		String mimeType = myMime.getMimeTypeFromExtension(fileExt(getFile().toString()).substring(1));
 		newIntent.setDataAndType(Uri.fromFile(getFile()),mimeType);
-		newIntent.setFlags(newIntent.FLAG_ACTIVITY_NEW_TASK);
+		newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		try {
 			_context.startActivity(newIntent);
 		} catch (android.content.ActivityNotFoundException e) {
