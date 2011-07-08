@@ -10,6 +10,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import android.content.Context;
+import android.os.Debug;
 import android.util.Log;
 
 /**
@@ -120,12 +121,13 @@ public class ItunesXmlParser extends DefaultHandler {
 		this.context = c;
 		this.scrWidth = width;
 		_imgPrefSize = imgPref;
+		//Debug.startMethodTracing("XML");
 	}
 	
 	@Override
 	public void startDocument() throws SAXException {
-		original = new StringBuilder();
-		html = new StringBuilder(1024);
+		original = new StringBuilder(2048);
+		html = new StringBuilder(2048);
 		innerText = new StringBuilder(200);
 		media = new StringBuilder(200);
 		docStack = new Stack<StackElement>();
@@ -189,7 +191,7 @@ public class ItunesXmlParser extends DefaultHandler {
 				lastElement="";
 			} else if (elname.equals("array")) {
 				if (thisEl.atts.get(KEY) != null && thisEl.atts.get(KEY).equals("tabs")) {
-					html.append("<!-- tabs --><div align='center'>");
+					html.append("<!-- tabs --><div style='margin:10px;' align='center'>");
 				}
 			} else if (elname.equals("HBoxView")) {
 				html.append("<!--HBox--><table><tr>");
@@ -234,7 +236,12 @@ public class ItunesXmlParser extends DefaultHandler {
 		// Elements handler. Mirror image of the one in StartElement
 		if (!ignoring && !elname.equals("FontStyle")) {
 			if (lastElement.equals("key")) {
-				if (!docStack.empty() && !isHandled(docStack.peek())) {
+				if (docStack.size()==2 && docStack.peek().name.equals("dict") && lastValue.equals("title")) {
+					//special case - <plist><dict><key>title</key>...
+					html.append("<h1>");
+					html.append(innerText);
+					html.append("</h1>");
+				} else if (!docStack.empty() && !isHandled(docStack.peek())) {
 					/**
 					 * It goes in seperate subMap, so it won't overwrite, for example:
 					 * <key>url</key><string/>
@@ -273,6 +280,27 @@ public class ItunesXmlParser extends DefaultHandler {
 				    map.containsKey("url")) {
 					//This is a redirect.
 					redirectPage = map.get("url");
+				} else if (type.equals("review-header")) {
+					html.append(context.getString(R.string.RatingStars).replace(
+					  "STARS", String.valueOf(125*(Float.valueOf(map.get("average-user-rating"))))));
+					html.append("<br>");
+					html.append(map.get("title"));
+				} else if (type.equals("review")) {
+					html.append("<p><b>");
+					html.append(context.getString(R.string.RatingStars).replace(
+						"STARS", String.valueOf(125*(Float.valueOf(map.get("average-user-rating"))))));
+					html.append(map.get("title"));
+					html.append("</b><br>");
+					html.append(map.get("text"));
+					html.append("<br>&nbsp;-&nbsp;");
+					html.append(map.get("user-name"));
+				} else if (type.equals("more")) {
+					html.append("<div>");
+					html.append("<a href=\"");
+					html.append(map.get("url"));
+					html.append("\">");
+					html.append(map.get("title"));
+					html.append("</a>");
 				} else if (type.equals("tab")) {
 					if (map.get("active-tab").equals("1")) {
 						html.append("<a class='tab sel' href=\"");
@@ -300,23 +328,35 @@ public class ItunesXmlParser extends DefaultHandler {
 				} else if (type.equals("link")) { //A link to page
 					html.append("<div class='link'><a href=\"");
 					html.append(map.get("url"));
-					html.append("\"><img style='vertical-align: top; margin:2px; float:left;' src=\"");
+					html.append("\"><img style='vertical-align: top; margin:2px; float:left; display:block;' src=\"");
 					html.append(subMap.get("url"));
 					html.append("\">");
 					html.append(map.get("title"));
 					html.append("</a></div>");
-				} else if (type.equals("podcast")) { // page info.
-					html.append("<h2><a href='javascript:;' url=\"");
+				} else if (type.equals("pagination")) {
+					html.append("<div><a href=\"");
 					html.append(map.get("url"));
-					html.append("\" onclick=\"window.DOWNLOADINTERFACE.go(this.getAttribute('url'))\"><img src=\"");
-					html.append(subMap.get("url"));
-					html.append("\"><br>");
+					html.append("\">");
 					html.append(map.get("title"));
-					html.append("</a></h2><p>");
-					html.append(map.get("description"));
+					html.append("</a></div>");
+				} else if (type.equals("podcast")) { // page info.
+					html.append("<div style='display:table; margin-top:7px;'><!-- podcast --><a href='javascript:;' url=\"");
+					html.append(map.get("url"));
+					html.append("\" onclick=\"window.DOWNLOADINTERFACE.go(this.getAttribute('url'))\"><img style='float:left; padding:3px;' src=\"");
+					html.append(subMap.get("url"));
+					html.append("\"><font size='+2'>");
+					html.append(map.get("title"));
+					if (subMap.containsKey("label")) {
+						html.append(" ["+subMap.get("label")+"]");
+					}
+					html.append("</font></a>");
 					html.append("<br><a href='javascript:;' url=\"");
-					html.append(map.get("view-user-reviews-url"));
-					html.append("\" onclick=\"window.DOWNLOADINTERFACE.go(this.getAttribute('url'))\">Reviews</a></p>");
+					html.append(map.get("view-user-reviews-url"));//Ratings link
+					html.append("\" onclick=\"window.DOWNLOADINTERFACE.go(this.getAttribute('url'))\">");
+					html.append(map.get("title2"));
+					html.append("</a><br>");
+					html.append(map.get("description"));
+					html.append("</div>");
 				} else if (type.equals("podcast-episode")) {
 					//html.append("<script>function downloadit(title,name) { console.log('download-it'); console.log(title); console.log(name); window.DOWNLOADINTERFACE.download(title,name); }</script>\n");
 					html.append("<div class='media' onclick='toggle(this.nextSibling)'>");
@@ -333,6 +373,9 @@ public class ItunesXmlParser extends DefaultHandler {
 					html.append(subMap.get("asset-url").replace("\"", "&quot;"));
 					html.append("\"><span class='preview'></span></a>&nbsp;<b class='media'>");
 					html.append(map.get("title"));
+					if (subMap.containsKey("label")) {
+						html.append(" ["+subMap.get("label")+"]");
+					}
 					html.append("</b></div><div style='display:none'><b>");
 					if (subMap.containsKey("duration")) {
 						html.append("Duration: ");
@@ -528,6 +571,7 @@ public class ItunesXmlParser extends DefaultHandler {
 			html.append(POST_MEDIA);
 		}
 		html.append("</body></html>");
+		//Debug.stopMethodTracing();
 	}
 	
 	/**

@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Debug;
 import android.preference.PreferenceManager;
 import android.text.ClipboardManager;
 import android.util.Log;
@@ -32,6 +33,7 @@ public class TunesViewerActivity extends Activity {
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		//Debug.startMethodTracing("MYTRACE");
 		_AppContext = getApplicationContext();
 		this.requestWindowFeature(Window.FEATURE_PROGRESS);
 		super.onCreate(savedInstanceState);
@@ -116,7 +118,7 @@ public class TunesViewerActivity extends Activity {
 		case R.id.menuOriginalSource:
 			final String source = _myWVC.getOriginal();
 			new AlertDialog.Builder(this)
-			.setIcon(android.R.drawable.ic_dialog_alert)
+			.setIcon(android.R.drawable.ic_dialog_info)
 			.setTitle("Original Source")
 			.setMessage(source)
 			.setPositiveButton("Copy Text", new DialogInterface.OnClickListener() {
@@ -204,6 +206,7 @@ public class TunesViewerActivity extends Activity {
 
 	@Override
 	protected void onDestroy() {
+		//Debug.stopMethodTracing();
 		_web.destroy();
 		super.onDestroy();
 	}

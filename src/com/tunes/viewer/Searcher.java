@@ -74,7 +74,7 @@ public class Searcher extends Activity {
 		if (ua.indexOf("-")>-1) {
 			//mobile mode
 			if (iTunesU && !podcast) {
-				gotourl = "itms://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?entity=allITunesUPlaylist&term="+terms+"&media=all";
+				gotourl = "itms://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?entity=iTunesUPodcast&term="+terms+"&media=all";
 			} else if (podcast && !iTunesU) {
 				gotourl = "itms://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?submit=media&term="+terms+"&media=podcast"; 
 			} else {

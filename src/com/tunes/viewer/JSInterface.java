@@ -60,7 +60,7 @@ public class JSInterface {
 	public void source(String src) {
 		final String source = src;
 		new AlertDialog.Builder(_context)
-		.setIcon(android.R.drawable.ic_dialog_alert)
+		.setIcon(android.R.drawable.ic_dialog_info)
 		.setTitle("Page Source")
 		.setMessage(source)
 		.setPositiveButton("Copy Text", new DialogInterface.OnClickListener() {

@@ -37,6 +37,7 @@
     	<item>Large (176px)</item>
     	<item>Any size</item>
     </string-array>
+    <!-- Can't use integer-array, see http://code.google.com/p/android/issues/detail?id=2096 -->
     <string-array name="ImgValues">
     	<item>-1</item>
     	<item>55</item>
@@ -50,14 +51,17 @@
     <string name="prefAdvTitle">Show Debug menus</string>
     <string name="prefAdvSummary">Enable view-source menu items</string>
     
-    <string name="prefInsertTitle">Additional Scripts/Styles</string>
-    <string name="prefInsertSummary">Enter your custom &lt;script&gt; tags or styles to insert into generated html.</string>
+    <string name="prefInsertTitle">Additional Script</string>
+    <string name="prefInsertSummary">Enter JavaScript that will run on each page.</string>
     
     <string name="NoActivity">No suitable app found to preview this.</string>
     
     <!-- Searchbox -->
     <string name="iTunesU">Search University Media</string>
     <string name="Podcasts">Search Podcasts</string>
+    
+    <string name="RatingStars">&lt;div style=\"background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAZCAYAAADE6YVjAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAPugAAD7oBsgpXUQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAARESURBVEiJrZNdbFRFFMf/Z2Z6d7tbWroVSks/IKWoD7U0tAKCqVYjiEj8ADTaQGKM8qA8+OADiTGGaBQTY3wwYnywFnlQMdAQVKIopKVWaIsgX0Wqttp2YZeybdne3Xtnjg/dpXRb7TZ6kpvM3Dnn/Ob/v+cSMyPdaGug1UTyU2b92LItfDTdOjEDgBAk3y9f8UEekWhqa6DZ/zsEQH2gaG1R7sInkb/g8UyAXkq3kNKxq62BLEHyj6oHj8xTGQraSLQfWB5l1oXLtnBkuvq0lBgXzwUKVgeUJweItUNKifzSjcq4tC2d+mmVtOwiS5Dor3n4YEDFzwMZAnBcaF8Nju+rG9HGKVz5PA//JyVGY2teYV2W8uQAHAXcUQBxSMRQULbBw5penLGSI++RALAQQAWASiLaftcjey1lnwWkA4DGErWBybobx758yDbGeYuZDwO4WLuN+ydBDr+DuQCeECSqSYhqY3QZCaVm55XFArfcZuXNq1K+/BVA5BBASeEJkK8KsZHLCPY2O+HgL2YofNED6GsEOqGNbgZwAkALHX03s2v+ojWlgTmLrczsImT4CyCsAMAaiP0JxIJAvA8QNytOQIwBrLlAxlzAWwQIH7R9BfZwD4avXnLDwTMm1NPardx4vDPDyl44u7gOiLQC4VMAXIBovBkAGEzcJ9d279hlRjoAZkiS8FvF8Jc/qtgd1Zd/P3ZVOTG9uevE7gVSyKWFZbUSIxcm9rp5Q1NAkuvklgFklyLU9YU582NjyBizgZgZX79GuVLI9iWrnimdU7JUIPRNIjvRwHUA5kRjHoMRAEhAqYnQvAcw+FcHHz/yYcQYs3zNq3zhxnQdfIVKhBCdd977bG6g4HZC+DuADWCPAtqkDsx4SAF4M8eGIu9+RILn0frtruuGedXaHXwSSBnhA9upUhC1VFUu8xUUFBOuXwaM+8+AZAgF+PIRCvWjrb05xsx1697gYzfMTP1Pml6mlUT0wz1LKtQsX+b0gEQMDo+g+fRZh5nXrd/JhybcITV5/U5uIabWYCg89i3SfIaGRiBZdKQCAEClvgAAdjHfJxTgpGFVIkgbaBeeqc4mQfa+QERERX4lZwTxSwnXMYumOptkl3ExXzts+RXNyC6/EnAdzvp8K82aVolxschSwlbaeFNHNxKNIzhkIz/Hi5xMa8KZFwA0acNcAuDMv0M0yv1epeGOWzUYdXCy95odHLaVFPSzNlxZkuszdxTlWFme8RaWEHY0ridBprJrcbalPNAag8M2vj93JfbVqQE9MBhr1A6KN35kqrWDW3tCo/ubOvv1T5euOqN2HNAaPilhXJROa5dkKtea1eFzYbs/EpMEajCM1+v3mJ5kztON3A1g0+6nqKI7GH3714HofYvn+SBBXtYomRbixHnfb0G7DoyPDePNzZ+ZvtScZNTv4dMA1nyyiWq6+qI7jOFawziVmvc34IoMnpJlbFoAAAAASUVORK5CYII=); height:25px; width:STARSpx;\"&gt;&lt;/div&gt;</string>
+    
     <string name="MobileStyles" formatted="false">"&lt;script&gt;
 function toggle(el) {
     if (el.style.display=='none') {
@@ -68,6 +72,7 @@ function toggle(el) {
 }
 &lt;/script&gt;
 &lt;style&gt;
+h1 {margin:4px;font-size:1.5em; text-shadow: #999999 2px 2px 2px;}
 * {font-family: Helvetica, Arial;}
 div.media { background-color:#77FF77;
  width=100%;border-radius:10px; border-color:white; border-style:solid; border-width:2px; padding:10px;}
@@ -75,7 +80,7 @@ span.preview {display:inline-block; background-repeat:no-repeat; background-posi
 b.media {line-height: 2em;}
 a.media {height: 1.5em;
 line-height: 1.5em; vertical-align:middle;text-decoration: none; border: 1px; border-radius:6px; border-color:gray; padding: 2px;border-style: solid;background-image:-webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0%, #ffffff), color-stop(100%, #A2ABFF)); color:black}
-a.tab {vertical-align:middle;text-decoration: none; border: 1px; border-radius:6px; border-color:gray; padding: 2px;border-style: solid;background-image:-webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0%, #ffffff), color-stop(100%, #A2ABFF)); color:black}
+a.tab {vertical-align:middle;text-decoration: none; border: 1px; border-radius:6px; border-color:gray; padding: 5px;border-style: solid;background-image:-webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0%, #ffffff), color-stop(100%, #A2ABFF)); color:black}
 a.sel {background-image:-webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0%, #A2ABFF), color-stop(100%, #77AAFF));}
 div.link {border-style:solid; border-color:blue; margin:2px; overflow:auto;}
 font.separator {color: blue; padding: 2px; font-size:1.5em; text-shadow: #616161 2px 2px 4px;};

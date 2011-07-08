@@ -113,7 +113,7 @@ public class MyWebViewClient extends WebViewClient {
 	public void onPageFinished(WebView view, String url) {
 		Log.d(TAG,"Inserting script into "+url);
 		view.loadUrl("javascript:"+callerContext.getString(R.string.Javascript));
-		//view.loadUrl("javascript:window.DOWNLOADINTERFACE.source(document.documentElement.innerHTML);");
+		view.loadUrl("javascript:"+_prefs.getString("extraScript", ""));
 		if (activity.findViewById(R.id.menuForward)!=null) {
 			activity.findViewById(R.id.menuForward).setClickable(view.canGoForward());
 		}
@@ -256,7 +256,7 @@ public class MyWebViewClient extends WebViewClient {
 			long startMS = System.currentTimeMillis();
 			xr.parse(is);
 			long endMS = System.currentTimeMillis();
-			Log.d(TAG,"PARSING XML TOOK "+(endMS-startMS)+" MS.");
+			Log.i(TAG,"PARSING XML TOOK "+(endMS-startMS)+" MS.");
 			if (parser.getRedirect().equals("")) {
 				// No redirect for this page
 				if (parser.getUrls().size()==1) {
