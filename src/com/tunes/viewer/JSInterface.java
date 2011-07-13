@@ -61,13 +61,13 @@ public class JSInterface {
 		final String source = src;
 		new AlertDialog.Builder(_context)
 		.setIcon(android.R.drawable.ic_dialog_info)
-		.setTitle("Page Source")
+		.setTitle("Page Source ("+source.length()+" chars.)")
 		.setMessage(source)
 		.setPositiveButton("Copy Text", new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				ClipboardManager c = (ClipboardManager)_context.getSystemService(_context.CLIPBOARD_SERVICE);
-				c.setText(source);
+				ClipboardManager cb = (ClipboardManager)_context.getSystemService(_context.CLIPBOARD_SERVICE);
+				cb.setText(source);
 			}
 		})
 		.setNegativeButton("Close", null)

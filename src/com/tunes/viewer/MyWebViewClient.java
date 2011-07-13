@@ -94,7 +94,9 @@ public class MyWebViewClient extends WebViewClient {
 	 * Refreshes the WebView, no change to back/forward stack.
 	 */
 	public void refresh() {
-		new Thread(new WebLoader(_web,_web.getUrl(),this)).start();
+		if (_web.getUrl() != null) {
+			new Thread(new WebLoader(_web,_web.getUrl(),this)).start();
+		}
 	}
 	
 	/**
@@ -249,7 +251,7 @@ public class MyWebViewClient extends WebViewClient {
 			SAXParserFactory factory = SAXParserFactory.newInstance();
 			factory.setValidating(false);
 			SAXParser saxParser= factory.newSAXParser();
-			ItunesXmlParser parser = new ItunesXmlParser(u.getRef(),callerContext,_view.getWidth(),Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(callerContext).getString("ImgPref", "0")));
+			ItunesXmlParser parser = new ItunesXmlParser(u,callerContext,_view.getWidth(),Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(callerContext).getString("ImgPref", "0")));
 			XMLReader xr = saxParser.getXMLReader();
 			xr.setContentHandler(parser);
 			InputSource is = new InputSource(new StringReader(_download));
@@ -295,7 +297,6 @@ public class MyWebViewClient extends WebViewClient {
 		@Override
 		public void run() {
 			boolean worked;
-			// no shared access to the WebView! 
 			try {
 				worked = load();
 				if (!worked) {
@@ -307,17 +308,14 @@ public class MyWebViewClient extends WebViewClient {
 			} catch (IOException e) {
 				// Show error
 				synchronized (_view) {
-					e.printStackTrace();
 					final String msg = e.getMessage();
-					_view.post(new Runnable() {
+					activity.runOnUiThread(new Runnable() {
 						public void run() {
-							Toast.makeText(callerContext, msg, 4000);
+							Toast.makeText(callerContext, msg, Toast.LENGTH_LONG).show();
 						}
 					});
 				}
-				e.printStackTrace();
 			} catch (ParserConfigurationException e) {
-				Toast.makeText(callerContext,"ParserConfigurationError", 5000);
 				e.printStackTrace();
 			} catch (SAXException e) {
 				//Not XML, show the downloaded html directly in browser:
@@ -335,7 +333,6 @@ public class MyWebViewClient extends WebViewClient {
 					});
 				}
 			} catch (FactoryConfigurationError e) {
-				Toast.makeText(callerContext,"FactoryConfigurationError", 5000);
 				e.printStackTrace();
 			}
 			synchronized (activity) {//reset title
@@ -346,6 +343,10 @@ public class MyWebViewClient extends WebViewClient {
 				});
 			}
 		}
+	}
+
+	public String getCookies() {
+		return _CM.toString();
 	}
 	
 	/*private String makeStringold (InputStream in) throws IOException {

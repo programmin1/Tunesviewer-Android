@@ -33,7 +33,6 @@ public class TunesViewerActivity extends Activity {
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		//Debug.startMethodTracing("MYTRACE");
 		_AppContext = getApplicationContext();
 		this.requestWindowFeature(Window.FEATURE_PROGRESS);
 		super.onCreate(savedInstanceState);
@@ -78,6 +77,17 @@ public class TunesViewerActivity extends Activity {
 	}
 	
 	@Override
+	protected void onPause() {
+		_web.pauseTimers();
+		super.onPause();
+	}
+	@Override
+	protected void onResume() {
+		_web.resumeTimers();
+		super.onResume();
+	}
+	
+	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		MenuItem forward = menu.findItem(R.id.menuForward);
 		if (_web != null && forward != null) {
@@ -87,6 +97,7 @@ public class TunesViewerActivity extends Activity {
 		boolean debugMode = (prefs!= null && prefs.getBoolean("debug", false));
 		menu.findItem(R.id.menuSource).setVisible(debugMode);
 		menu.findItem(R.id.menuOriginalSource).setVisible(debugMode);
+		menu.findItem(R.id.menuCookie).setVisible(debugMode);
 		return super.onPrepareOptionsMenu(menu);
 	}
 	
@@ -119,7 +130,7 @@ public class TunesViewerActivity extends Activity {
 			final String source = _myWVC.getOriginal();
 			new AlertDialog.Builder(this)
 			.setIcon(android.R.drawable.ic_dialog_info)
-			.setTitle("Original Source")
+			.setTitle("Original Source ("+source.length()+" chars)")
 			.setMessage(source)
 			.setPositiveButton("Copy Text", new DialogInterface.OnClickListener() {
 				@Override
@@ -133,6 +144,22 @@ public class TunesViewerActivity extends Activity {
 			return true;
 		case R.id.menuSource:
 			_web.loadUrl("javascript:window.DOWNLOADINTERFACE.source(document.documentElement.innerHTML)");
+			return true;
+		case R.id.menuCookie:
+			final String cookies = _myWVC.getCookies();
+			new AlertDialog.Builder(this)
+			.setIcon(android.R.drawable.ic_dialog_info)
+			.setTitle("Cookies")
+			.setMessage(cookies)
+			.setPositiveButton("Copy Text", new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					ClipboardManager c = (ClipboardManager)getSystemService(getApplicationContext().CLIPBOARD_SERVICE);
+					c.setText(cookies);
+				}
+			})
+			.setNegativeButton("Close", null)
+			.show();
 			return true;
 		case R.id.go:
 			AlertDialog.Builder alert = new AlertDialog.Builder(this);
@@ -206,7 +233,6 @@ public class TunesViewerActivity extends Activity {
 
 	@Override
 	protected void onDestroy() {
-		//Debug.stopMethodTracing();
 		_web.destroy();
 		super.onDestroy();
 	}

@@ -1,6 +1,7 @@
 package com.tunes.viewer;
 //http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewGrouping?id=27753
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
@@ -27,12 +28,18 @@ import android.util.Log;
  *
  */
 public class ItunesXmlParser extends DefaultHandler {
+	
+	//Turn on to enable profiling
+	private final boolean _profiling = false;
+	//Turn on to enable original-source parsing also:
+	private final boolean _debug = true;
 
-	// HTML before and after the media list:
-	private static final String PRE_MEDIA = "<script>function downloadit(title,name) { console.log('download-it'); console.log(title); console.log(name); window.DOWNLOADINTERFACE.download(title,name); }</script>\n"+
+	// HTML style and scripts before and after the media list: (Main styles are in strings.xml)
+	private static final String PRE_MEDIA = "<script>document.onload=function() {document.location=\"%s\"}; function downloadit(title,name) { console.log('download-it'); console.log(title); console.log(name); window.DOWNLOADINTERFACE.download(title,name); }</script>\n"+
 	"<style>* {font-family: Helvetica, Arial;}\n"+
 	"tr.dl > td {background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0.48, rgb(215,239,245)), color-stop(1, white));}\n"+
-	"tr.selection {background:gold;}\n</style>"+
+	"tr.selection {background:gold;}\n"+
+	"tr.selection > td {background-image:-webkit-gradient(linear, left bottom, left top, color-stop(0.48, #FEFF52), color-stop(1, gold));}</style>"+
 	"<table width='100%' border='1' bgcolor='white' cellspacing=\"1\" cellpadding=\"3\"><tr bgcolor='CCCCCC'><td><b>Name</b></td><td><b>Author</b></td><td><b>Duration</b></td><td><b>Comment</b></td><td><b>Download</b></td></tr>\n";
 	private static final String POST_MEDIA = "</table>";
 	private static final String TAG = "parser";
@@ -63,8 +70,10 @@ public class ItunesXmlParser extends DefaultHandler {
 	private ArrayList<String> urls;
 	private String singleName;
 	
-	// The specific item id.
-	private String reference;
+	// The specific item-id.
+	private String _reference;
+	// The url of the page.
+	private URL _url;
 	
 	private Context context;
 	
@@ -116,12 +125,23 @@ public class ItunesXmlParser extends DefaultHandler {
 	 * Constructs xml parser.
 	 * @param reference is the selected part of the document, the text in #id at the end.
 	 */
-	public ItunesXmlParser(String reference, Context c, int width, int imgPref) {
-		this.reference = reference;
+	public ItunesXmlParser(URL url, Context c, int width, int imgPref) {
+		_url = url;
+		_reference = "";
+		if (url.getQuery() != null) {
+			String[] queries = url.getQuery().split("&");
+			for (String q : queries) {
+				if (q.startsWith("i=")) {
+					_reference = q.substring(2);
+				}
+			}
+		}
 		this.context = c;
 		this.scrWidth = width;
 		_imgPrefSize = imgPref;
-		//Debug.startMethodTracing("XML");
+		if (_profiling) {
+			Debug.startMethodTracing("XML");
+		}
 	}
 	
 	@Override
@@ -144,9 +164,13 @@ public class ItunesXmlParser extends DefaultHandler {
 	@Override
 	public void startElement(String namespaceURI, String elname,
 	                         String qName, Attributes atts) throws SAXException {
-		original.append(innerText);
+		if (_debug) {
+			original.append(innerText);
+		}
 		StackElement thisEl = new StackElement(elname,atts);
-		original.append(thisEl);
+		if (_debug) {
+			original.append(thisEl);
+		}
 		if (elname.equals("html") && docStack.size()==0) {
 			// Even if it happens to parse correctly as xml, HTML should be shown directly!
 			throw new SAXException();
@@ -191,7 +215,7 @@ public class ItunesXmlParser extends DefaultHandler {
 				lastElement="";
 			} else if (elname.equals("array")) {
 				if (thisEl.atts.get(KEY) != null && thisEl.atts.get(KEY).equals("tabs")) {
-					html.append("<!-- tabs --><div style='margin:10px;' align='center'>");
+					html.append("<!-- tabs --><div style='margin:10px; text-align:center'>");
 				}
 			} else if (elname.equals("HBoxView")) {
 				html.append("<!--HBox--><table><tr>");
@@ -229,7 +253,10 @@ public class ItunesXmlParser extends DefaultHandler {
 
 	@Override
 	public void endElement(String uri, String elname, String qName) throws SAXException {
-		original.append(innerText);
+		String extra = "";
+		if (_debug) {
+			original.append(innerText);
+		}
 		StackElement thisEl = docStack.pop();
 		assert(elname.equals(thisEl.name));
 		
@@ -281,12 +308,13 @@ public class ItunesXmlParser extends DefaultHandler {
 					//This is a redirect.
 					redirectPage = map.get("url");
 				} else if (type.equals("review-header")) {
+					// Set width, with 25x25 star, 5-stars is 125px.
 					html.append(context.getString(R.string.RatingStars).replace(
 					  "STARS", String.valueOf(125*(Float.valueOf(map.get("average-user-rating"))))));
 					html.append("<br>");
 					html.append(map.get("title"));
 				} else if (type.equals("review")) {
-					html.append("<p><b>");
+					html.append("<div><br><b>");
 					html.append(context.getString(R.string.RatingStars).replace(
 						"STARS", String.valueOf(125*(Float.valueOf(map.get("average-user-rating"))))));
 					html.append(map.get("title"));
@@ -294,6 +322,7 @@ public class ItunesXmlParser extends DefaultHandler {
 					html.append(map.get("text"));
 					html.append("<br>&nbsp;-&nbsp;");
 					html.append(map.get("user-name"));
+					html.append("</div>");
 				} else if (type.equals("more")) {
 					html.append("<div>");
 					html.append("<a href=\"");
@@ -314,17 +343,17 @@ public class ItunesXmlParser extends DefaultHandler {
 				} else if (type.equals("squish")) {// An image link
 					html.append("<a href=\"");
 					html.append(map.get("url"));
-					html.append("\"><img src=\"");
+					html.append("\"><img class='rounded' src=\"");
 					html.append(subMap.get("url"));
 					html.append("\"></a>");
 				} else if (type.equals("separator")) {
-					html.append("<br><font class='separator' style='padding: 2px;'>");
+					html.append("<div><font class='separator' style='padding: 2px;'>");
 					if (map.containsKey("title")) {
 						html.append(map.get("title"));
 					} else {
 						html.append("&nbsp;");
 					}
-					html.append("</font><br>");
+					html.append("</font></div>");
 				} else if (type.equals("link")) { //A link to page
 					html.append("<div class='link'><a href=\"");
 					html.append(map.get("url"));
@@ -359,7 +388,11 @@ public class ItunesXmlParser extends DefaultHandler {
 					html.append("</div>");
 				} else if (type.equals("podcast-episode")) {
 					//html.append("<script>function downloadit(title,name) { console.log('download-it'); console.log(title); console.log(name); window.DOWNLOADINTERFACE.download(title,name); }</script>\n");
-					html.append("<div class='media' onclick='toggle(this.nextSibling)'>");
+					if (map.containsKey("url") && map.get("url").equals(_url.toString())) {
+						extra = "style='background-color:gold;' ";
+						html.append("<a name='here'></a>");
+					}
+					html.append("<div class='media' "+extra+" onclick='toggle(this.nextSibling)'>");
 					//stoppropagation to prevent clicking container, then download:
 					html.append("<a class='media' style='float:right' onclick=\"window.event.stopPropagation();window.DOWNLOADINTERFACE.download(this.getAttribute('title'),this.getAttribute('url'));\" title=\"");
 					html.append(map.get("title").replace("\"", "&quot;"));
@@ -436,10 +469,13 @@ public class ItunesXmlParser extends DefaultHandler {
 			//Just got the ending tag of this ignored element, reset to normal:
 			ignoring = false;
 		}
+		
+		if (_debug) {
+			original.append("</");
+			original.append(elname);
+			original.append(">");
+		}
 		//Must be run every time:
-		original.append("</");
-		original.append(elname);
-		original.append(">");
 		innerText.setLength(0);
 	}
 
@@ -490,12 +526,13 @@ public class ItunesXmlParser extends DefaultHandler {
 		if (map.containsKey("itemId")) {
 			id = map.get("itemId");
 		}
-		if (id.equals(reference)) {
+		if (id.equals(_reference)) {
 			style = "dl selection";
 		}
-		if (!directurl.equals("") && directurl.lastIndexOf(".")>-1) { //valid row:
+		if (!directurl.equals("") && directurl.lastIndexOf(".")>-1) { //valid media row:
 		 media.append(String.format(
-		 "<tr class=\"%s\" onClick=\"downloadit(this.getAttribute('name'),this.getAttribute('url'));\" name=\"%s\" url=\"%s\"><td><a name=\"%s\">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>\n",
+		 "<tr class=\"%s\" onClick=\"window.DOWNLOADINTERFACE.preview(this.getAttribute('name'),this.getAttribute('url'));\" name=\"%s\" url=\"%s\"><td><a name=\"%s\">%s</a></td><td>%s</td><td>%s</td><td>%s</td>"+
+		 "<td><a href='javascript:;' onclick=\"window.event.stopPropagation(); downloadit(this.parentNode.parentNode.getAttribute('name'),this.parentNode.parentNode.getAttribute('url'))\">Download %s</a></td></tr>\n",
 		 style,name.replace("\"", "&quot;"),directurl.replace("\"", "&quot;"),id,name,artist,timeval(duration),comments,directurl.substring(directurl.lastIndexOf("."))));
 		}
 	}
@@ -561,17 +598,23 @@ public class ItunesXmlParser extends DefaultHandler {
 		//if mobile:
 		html.insert(0,context.getString(R.string.MobileStyles));
 		//Add style to keep large images from going off the screen:
-		html.insert(0, "<style> img { max-width: "+(scrWidth-5)+"px }</style>");
+		html.insert(0, "<style> img { max-width:"+(scrWidth-5)+"px; height:auto;}</style>");
 		original.append("<!-- (END DOC) -->");
+		if (backColor.equals("")) {
+			backColor = "#E2E2E2";
+		}
 		html.insert(0, String.format("<html><head>"+
-			"<meta name=\"viewportppppppp\" content=\"width=device-width\" /><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/></head><body bgcolor=\"%s\">",backColor));
+			//<meta name=\"viewport\" content=\"width=device-width\" />
+			"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/></head><body bgcolor=\"%s\">",backColor));
 		if (media.length()>0) {
-			html.append(PRE_MEDIA);
+			html.append(PRE_MEDIA.replace("%s","#"+_reference));
 			html.append(media);
 			html.append(POST_MEDIA);
 		}
 		html.append("</body></html>");
-		//Debug.stopMethodTracing();
+		if (_profiling) {
+			Debug.stopMethodTracing();
+		}
 	}
 	
 	/**

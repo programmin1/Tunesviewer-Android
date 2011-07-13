@@ -11,6 +11,7 @@
     <string name="menuGo">Goto URL</string>
     <string name="menuSource">View Page Source</string>
     <string name="menuOriginal">View Original Source</string>
+    <string name="menuCookies">View Cookies</string>
     
     <!-- Prefs -->
     <string name="prefUATitle">View Mode</string>
@@ -72,14 +73,24 @@ function toggle(el) {
 }
 &lt;/script&gt;
 &lt;style&gt;
-h1 {margin:4px;font-size:1.5em; text-shadow: #999999 2px 2px 2px;}
+h1 {margin:4px;font-size:1.5em; text-shadow: #999999 2px 2px 2px; text-align:center;}
+img.rounded {border-radius:5px; text-align:center}
+body {text-align:center;}
+tab {text-align:center;}
+h2 {text-align:left;}
+h3 {text-align:left;}
+div {text-align:left;}
 * {font-family: Helvetica, Arial;}
 div.media { background-color:#77FF77;
  width=100%;border-radius:10px; border-color:white; border-style:solid; border-width:2px; padding:10px;}
 span.preview {display:inline-block; background-repeat:no-repeat; background-position:center; padding:5px; vertical-align:middle; width:22px; height:22px; background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAALmSURBVDiNrdVLbExRGAfw/33OmDZIxqDo4lYQYSEWJMJGIojUQk1RJBWpjXdIbi2ICJHxXFjYiu2NSiw8EqRUPDJBionScqnxGpppp/d27j3n3HMsmo5Oqq0+TnJ2J7/v/53vJEcSQmDbhTnPhRCNhAUnLdPOYhyWDAA+ZYtXLFy0W1OV9i3nZh+LJ4yScYEBoHLpqtDRLbtKl8xbUK+rSnrz2Yr98YShjxkWCKBpHdi4fOWE+k07Jy+aPfeUrinp6jPGjnjCUMYEM94Jl7QgEu7C1pXrSg5tqI3NLzcuhTTVjieMqnjCkEYMQwSFEjTIwvVTmFSaR93aqpK962vKK8pmXQnraks8YaweEcw5A+e83w7g0wxy+WZEJzHsqdxcWrdm49wZ0di17RfnPI8njGVDwZIQAvGEIU7vqIPrtw5+EDJ0bRpCahnef/2E64/vu67nJD3CDlim3TwofGJ7LVz/w7AtSpKCsFaGkDodqc+t/Mazxjyh3j2PssOWaReSFeBjNTVwfXtY+G8BFRP0mdCVqWi2W/itZJNHOWkgNDhimXa6AB+proLrt/833LdkSUckVA5VjuJFW4rdbX5CgOC02neAMB+UsVHAEphCAIUi4AwQgIBAAaaMjAiWJAURfTp0NYY3nz/yxtc3PRbQBsJ6r+JvYkpAWTCU1QtCQlifgrAWQ+v3b/zBm4d5Qv17hAVFwytKzIZMLCGkTURYj6H9VweaUrfdPOlJEsb/+dz6JfYGvQpNiSCsR/Gj08HTd4+cXN55Txnfa5n248Fi9IMHDk+RQwhpE5F1CJJtL51O1/lGA77PMu07Q7RWDPvMAwt6YVlSoakR5PIcr962Or+7u7MsEAcBNFimLYZDi2BKfXDBIcsaHE/g7de0k+ly8wEXJoCrlmkPP9l/JqY+fAq0/ezuyXT1EC7EcSFw2TJtMhJwAJz60uVlcpQJIc5ygfOWabujAYtgRZZe/MyRRs4xbp/pHxoMnL5j5aIcAAAAAElFTkSuQmCC);}
+
+selection {background-color:gold;}
 b.media {line-height: 2em;}
 a.media {height: 1.5em;
-line-height: 1.5em; vertical-align:middle;text-decoration: none; border: 1px; border-radius:6px; border-color:gray; padding: 2px;border-style: solid;background-image:-webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0%, #ffffff), color-stop(100%, #A2ABFF)); color:black}
+ line-height: 1.5em; vertical-align:middle;text-decoration: none;
+ border: 1px; border-radius:6px; border-color:gray; padding: 2px;border-style: solid;
+ background-image:-webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0%, #ffffff), color-stop(100%, #A2ABFF)); color:black}
 a.tab {vertical-align:middle;text-decoration: none; border: 1px; border-radius:6px; border-color:gray; padding: 5px;border-style: solid;background-image:-webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0%, #ffffff), color-stop(100%, #A2ABFF)); color:black}
 a.sel {background-image:-webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0%, #A2ABFF), color-stop(100%, #77AAFF));}
 div.link {border-style:solid; border-color:blue; margin:2px; overflow:auto;}
