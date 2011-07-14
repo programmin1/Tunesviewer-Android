@@ -35,9 +35,10 @@ public class TunesViewerActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		_AppContext = getApplicationContext();
 		this.requestWindowFeature(Window.FEATURE_PROGRESS);
+		this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		
+		//set(R.id.mainWebView) = new WebView(this);
 		_web = (WebView) findViewById(R.id.mainWebView);
 		WebSettings s = _web.getSettings();
 		s.setJavaScriptEnabled(true);
@@ -51,11 +52,7 @@ public class TunesViewerActivity extends Activity {
 		_web.addJavascriptInterface(new JSInterface(this), "DOWNLOADINTERFACE");
 		_web.setWebViewClient(_myWVC);
 		_web.setWebChromeClient(new MyWebChromeClient(this));
-		Log.d(TAG,"SETUP Done");
-
 		_web.requestFocus(View.FOCUS_DOWN);
-		Log.d(TAG,"HOMEPAGE");
-		//_web.loadUrl("http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewGrouping?id=27753");
 		if (this.getIntent().getData()==null) { //no specified url.
 			_myWVC.shouldOverrideUrlLoading(_web, "http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewGrouping?id=27753");
 		}
@@ -248,4 +245,5 @@ public class TunesViewerActivity extends Activity {
 		}
 		return super.onKeyDown(keyCode, event);
 	}
+	
 }

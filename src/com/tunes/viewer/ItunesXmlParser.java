@@ -32,7 +32,7 @@ public class ItunesXmlParser extends DefaultHandler {
 	//Turn on to enable profiling
 	private final boolean _profiling = false;
 	//Turn on to enable original-source parsing also:
-	private final boolean _debug = true;
+	private final boolean _debug = false;
 
 	// HTML style and scripts before and after the media list: (Main styles are in strings.xml)
 	private static final String PRE_MEDIA = "<script>document.onload=function() {document.location=\"%s\"}; function downloadit(title,name) { console.log('download-it'); console.log(title); console.log(name); window.DOWNLOADINTERFACE.download(title,name); }</script>\n"+
@@ -530,6 +530,9 @@ public class ItunesXmlParser extends DefaultHandler {
 			style = "dl selection";
 		}
 		if (!directurl.equals("") && directurl.lastIndexOf(".")>-1) { //valid media row:
+		 if (style.equals("dl selection")) {
+			 media.append("<a name='here'></a>");
+		 }
 		 media.append(String.format(
 		 "<tr class=\"%s\" onClick=\"window.DOWNLOADINTERFACE.preview(this.getAttribute('name'),this.getAttribute('url'));\" name=\"%s\" url=\"%s\"><td><a name=\"%s\">%s</a></td><td>%s</td><td>%s</td><td>%s</td>"+
 		 "<td><a href='javascript:;' onclick=\"window.event.stopPropagation(); downloadit(this.parentNode.parentNode.getAttribute('name'),this.parentNode.parentNode.getAttribute('url'))\">Download %s</a></td></tr>\n",

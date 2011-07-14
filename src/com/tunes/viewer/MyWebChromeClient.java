@@ -31,14 +31,15 @@ public class MyWebChromeClient extends WebChromeClient {
 	{
 		activity.setTitle(" Loading...");
 		activity.setProgress(progress * 100);
-		if(progress == 100) {
+		/*if(progress == 100) {
 			activity.setTitle(R.string.app_name);
-		}
+		}*/
 	}
 	
 	// Webkit messages
 	public void addMessageToConsole(String message, int lineNumber, String sourceID)  
 	{
+		//Already logged with tag "Web Console".
 		//Log.d("WebKit", sourceID + ": Line " + Integer.toString(lineNumber) + " : " + message);  
 	}
 

@@ -57,6 +57,10 @@ public class MyWebViewClient extends WebViewClient {
 		_web = v;
 	}
 	
+	/**
+	 * Returns the original source of the current document.
+	 * @return string.
+	 */
 	public String getOriginal() {
 		return _originalDownload;
 	}
@@ -109,7 +113,7 @@ public class MyWebViewClient extends WebViewClient {
 	}
 	
 	/**
-	 * Called on page load, inserts the javascript required to catch download clicks, etc.
+	 * Called on page load, inserts the javascript required to catch download/preview clicks, etc.
 	 */
 	@Override
 	public void onPageFinished(WebView view, String url) {
@@ -123,7 +127,6 @@ public class MyWebViewClient extends WebViewClient {
 
 	/**
 	 * Determines load behavior on "click".
-	 * If it's HTML, this lets WebView show it, if it's special XML file, it converts it and loads it.
 	 */
 	public boolean shouldOverrideUrlLoading(WebView view, String url) {
 		String ua = _prefs.getString("UserAgent", callerContext.getString(R.string.defaultUA));
@@ -131,7 +134,7 @@ public class MyWebViewClient extends WebViewClient {
 		view.getSettings().setUserAgentString(ua);
 		//view.requestFocus(View.FOCUS_DOWN);
 		view.stopLoading();
-		activity.setTitle("XML Loading...");
+		activity.setTitle("Loading...");
 		// Clicked link, so clear forward and add this to "back".
 		Forward.clear();
 		if (view.getUrl() != null) {
@@ -141,12 +144,6 @@ public class MyWebViewClient extends WebViewClient {
 		return true;
 	}
 	
-	// always verify the host - don't check for certificate
-	final static HostnameVerifier DO_NOT_VERIFY = new HostnameVerifier() {
-		public boolean verify(String hostname, SSLSession session) {
-			return true;
-		}
-	};
 	/**
 	 * Trust every server - don't check for any certificate
 	 */
@@ -176,7 +173,15 @@ public class MyWebViewClient extends WebViewClient {
 					e.printStackTrace();
 			}
 	}
-	/* No longer needed without loadData()
+	
+
+	// always verify the host - don't check for certificate
+	final static HostnameVerifier DO_NOT_VERIFY = new HostnameVerifier() {
+		public boolean verify(String hostname, SSLSession session) {
+			return true;
+		}
+	};
+	/* No longer needed, without loadData()
 	private String encode(String text) {
 		//workaround for: https://code.google.com/p/android/issues/detail?id=4401
 		long start = System.currentTimeMillis();
@@ -195,17 +200,38 @@ public class MyWebViewClient extends WebViewClient {
 	 * @return String value.
 	 * @throws IOException
 	 */
-	private String makeString(InputStream is) throws IOException {
+	private String makeString(InputStream is, int totalLength) throws IOException {
+		int length = 0;
 		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 		StringBuilder sb = new StringBuilder();
 		String line = null;
 		while ((line = reader.readLine()) != null) {
 			sb.append(line + "\n");
+			/* Doesn't work here for some reason.
+			length += line.length()+1;
+			final int prog = (length*100)/totalLength;
+			activity.runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					activity.setProgress(prog);
+				}
+			});*/
 		}
 		is.close();
 		return sb.toString();
 	}
 	
+	/**
+	 * Returns string description of cookies.
+	 * @return IansCookieManger.toString().
+	 */
+	public String getCookies() {
+		return _CM.toString();
+	}
+	
+	/**
+	 * Page loading thread
+	 */
 	private class WebLoader implements Runnable {
 		private WebView _view;
 		private String _url;
@@ -215,10 +241,11 @@ public class MyWebViewClient extends WebViewClient {
 			_view = v;
 			_url = u;
 			this.caller = caller;
+			activity.setProgressBarIndeterminateVisibility(true);
 		}
 		
 		/**
-		 * Loads url into view.
+		 * Loads url into view, or downloads the file specified.
 		 * @return true if it worked, no redirect required.
 		 * @throws IOException 
 		 * @throws FactoryConfigurationError 
@@ -226,6 +253,7 @@ public class MyWebViewClient extends WebViewClient {
 		 * @throws ParserConfigurationException 
 		 */
 		private boolean load() throws IOException, ParserConfigurationException, SAXException, FactoryConfigurationError {
+			int length;
 			boolean worked = false;
 			if (_url.substring(0, 4).equals("itms")) {
 				_url = "http"+_url.substring(4);
@@ -239,9 +267,10 @@ public class MyWebViewClient extends WebViewClient {
 			_CM.setCookies(conn);
 			conn.connect();
 			_CM.storeCookies(conn);
+			length = conn.getContentLength();
 			
 			// Download xml/html to parse:
-			_download = makeString(conn.getInputStream()); 
+			_download = makeString(conn.getInputStream(),length); 
 			synchronized (caller) {
 				caller._originalDownload = _download;
 			}
@@ -251,7 +280,8 @@ public class MyWebViewClient extends WebViewClient {
 			SAXParserFactory factory = SAXParserFactory.newInstance();
 			factory.setValidating(false);
 			SAXParser saxParser= factory.newSAXParser();
-			ItunesXmlParser parser = new ItunesXmlParser(u,callerContext,_view.getWidth(),Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(callerContext).getString("ImgPref", "0")));
+			ItunesXmlParser parser = new ItunesXmlParser(
+				u,callerContext,_view.getWidth(),Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(callerContext).getString("ImgPref", "0")));
 			XMLReader xr = saxParser.getXMLReader();
 			xr.setContentHandler(parser);
 			InputSource is = new InputSource(new StringReader(_download));
@@ -271,15 +301,13 @@ public class MyWebViewClient extends WebViewClient {
 					callerContext.startService(intent);
 				} else {
 					// Load converted html:
-					final String data = /*encode*/("<!-- "+_url+" -->"+parser.getHTML());
+					final String data = /*encode*/(parser.getHTML());
 					_download = null;
 					synchronized (_view) {
 						_view.post(new Runnable() {
 							public void run() {
-								String pref = PreferenceManager.getDefaultSharedPreferences(callerContext).getString("ImgPref", "0");
-								_view.getSettings().setBlockNetworkImage(pref.equals("-1"));
+								prepareView(_view);
 								_view.loadDataWithBaseURL(_url,data,"text/html","UTF-8",_url);
-								_view.clearHistory();
 							}
 						});
 					}
@@ -289,7 +317,6 @@ public class MyWebViewClient extends WebViewClient {
 				// Redirect:
 				_url = parser.getRedirect();
 				worked = false;
-				//new Thread(new WebLoader(_view,parser.getRedirect())).start();
 			}
 			return worked;
 		}
@@ -301,7 +328,7 @@ public class MyWebViewClient extends WebViewClient {
 				worked = load();
 				if (!worked) {
 					worked = load();
-					if (!worked) {
+					if (!worked) { //max 2 redirects.
 						load();
 					}
 				}
@@ -320,15 +347,12 @@ public class MyWebViewClient extends WebViewClient {
 			} catch (SAXException e) {
 				//Not XML, show the downloaded html directly in browser:
 				synchronized (_view) {
-					final String data = "<!-- "+_url+" -->"+_download;
+					final String data = _download;
 					_download = null;
 					_view.post(new Runnable() {
 						public void run() {
-							String pref = PreferenceManager.getDefaultSharedPreferences(callerContext).getString("ImgPref", "0");
-							_view.getSettings().setBlockNetworkImage(pref.equals("-1"));
+							prepareView(_view);
 							_view.loadDataWithBaseURL(_url,data,"text/html","UTF-8",_url);
-							//No need for history, this has custom history handler.
-							_view.clearHistory();
 						}
 					});
 				}
@@ -338,16 +362,22 @@ public class MyWebViewClient extends WebViewClient {
 			synchronized (activity) {//reset title
 				activity.runOnUiThread(new Runnable() {
 					public void run() {
-						activity.setTitle("TunesViewer");
+						activity.setProgressBarIndeterminateVisibility(false);
 					}
 				});
 			}
 		}
+	
+		private void prepareView(WebView view) {
+			//No need for history, this has custom history handler.
+			_view.clearHistory();
+			//If preference set, disable image loading:
+			String pref = PreferenceManager.getDefaultSharedPreferences(callerContext).getString("ImgPref", "0");
+			_view.getSettings().setBlockNetworkImage(pref.equals("-1"));
+		}
 	}
+	
 
-	public String getCookies() {
-		return _CM.toString();
-	}
 	
 	/*private String makeStringold (InputStream in) throws IOException {
 		StringBuilder out = new StringBuilder(1024);

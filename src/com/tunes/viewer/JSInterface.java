@@ -81,4 +81,17 @@ public class JSInterface {
 	public void go(String url) {
 		_context.loadUrl(url);
 	}
+	
+	/**
+	 * Sets the activity's title.
+	 * @param title
+	 */
+	public void setTitle(final String title) {
+		_context.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				_context.setTitle(title);
+			}
+		});
+	}
 }
