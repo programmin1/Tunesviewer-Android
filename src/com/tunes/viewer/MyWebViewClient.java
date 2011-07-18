@@ -30,6 +30,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.webkit.WebView;
@@ -40,7 +41,7 @@ public class MyWebViewClient extends WebViewClient {
 		
 	private final String TAG = "WVC";
 	private Context callerContext;
-	private Activity activity;
+	private TunesViewerActivity activity;
 	private IansCookieManager _CM = new IansCookieManager();
 	private SharedPreferences _prefs;
 	private String _originalDownload = "";
@@ -50,7 +51,7 @@ public class MyWebViewClient extends WebViewClient {
 	private Stack<String> Forward = new Stack<String>();
 	private WebView _web;
 	
-	public MyWebViewClient (Context c, Activity a, WebView v) {
+	public MyWebViewClient (Context c, TunesViewerActivity a, WebView v) {
 		callerContext = c;
 		activity = a;
 		_prefs = PreferenceManager.getDefaultSharedPreferences(activity);
@@ -123,6 +124,11 @@ public class MyWebViewClient extends WebViewClient {
 		if (activity.findViewById(R.id.menuForward)!=null) {
 			activity.findViewById(R.id.menuForward).setClickable(view.canGoForward());
 		}
+	}
+	@Override
+	public void onPageStarted(WebView view, String url, Bitmap favicon) {
+		activity.hideSearch();
+		super.onPageStarted(view, url, favicon);
 	}
 
 	/**

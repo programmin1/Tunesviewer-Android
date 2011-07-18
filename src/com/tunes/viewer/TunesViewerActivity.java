@@ -1,5 +1,6 @@
 package com.tunes.viewer;
 
+import java.lang.reflect.Method;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -8,9 +9,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Debug;
 import android.preference.PreferenceManager;
 import android.text.ClipboardManager;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -18,6 +20,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.EditText;
@@ -47,7 +51,9 @@ public class TunesViewerActivity extends Activity {
 		s.setSupportZoom(true);
 		s.setBuiltInZoomControls(true);
 		s.setUseWideViewPort(false); //disables horizontal scroll
-
+		//findViewById(R.id.WVScroll).setHorizontalScrollBarEnabled(true);
+		//findViewById(R.id.WVScroll).setVerticalScrollBarEnabled(true);
+		//registerForContextMenu(_web);
 		_myWVC =  new MyWebViewClient(getApplicationContext(),this,_web);
 		_web.addJavascriptInterface(new JSInterface(this), "DOWNLOADINTERFACE");
 		_web.setWebViewClient(_myWVC);
@@ -56,6 +62,50 @@ public class TunesViewerActivity extends Activity {
 		if (this.getIntent().getData()==null) { //no specified url.
 			_myWVC.shouldOverrideUrlLoading(_web, "http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewGrouping?id=27753");
 		}
+		((EditText)findViewById(R.id.editFind)).addTextChangedListener(new TextWatcher() {
+			@Override
+			public void afterTextChanged(Editable s) {
+				_web.computeScroll();
+				if (s.toString().equals("")) {	
+					_web.clearMatches();
+				} else {
+					_web.findAll(s.toString());
+				}
+			}
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {	
+			}
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
+			}
+		});
+		findViewById(R.id.findPrevious).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				_web.findNext(false);
+			}
+		});
+		findViewById(R.id.findNext).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				_web.findNext(true);
+			}
+		});
+	}
+	
+	public void hideSearch() {
+		_web.clearMatches();
+		findViewById(R.id.findLayout).setVisibility(View.GONE);
+		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.hideSoftInputFromWindow(findViewById(R.id.editFind).getWindowToken(), 0);
+		try
+		{
+		    Method m = WebView.class.getMethod("setFindIsUp", Boolean.TYPE);
+		    m.invoke(_web, false);
+		}
+		catch (Throwable ignored){}
 	}
 	
 	@Override
@@ -123,6 +173,20 @@ public class TunesViewerActivity extends Activity {
 			_web.clearCache(true);
 			_myWVC.clearInfo();
 			return true;
+		case R.id.menuFindText:
+			_web.loadUrl("javascript:divs = document.getElementsByTagName('div'); for (i=0; i<divs.length; i++) {divs[i].style.display='block';}");
+			findViewById(R.id.findLayout).setVisibility(View.VISIBLE);
+			findViewById(R.id.findLayout).requestFocus(View.FOCUS_DOWN);
+			_web.clearMatches();
+			_web.findAll(((EditText)findViewById(R.id.editFind)).getText().toString());
+			try
+			{
+			    Method m = WebView.class.getMethod("setFindIsUp", Boolean.TYPE);
+			    m.invoke(_web, true);
+			}
+			catch (Throwable ignored){}
+
+			return true;
 		case R.id.menuOriginalSource:
 			final String source = _myWVC.getOriginal();
 			new AlertDialog.Builder(this)
@@ -160,11 +224,13 @@ public class TunesViewerActivity extends Activity {
 			return true;
 		case R.id.go:
 			AlertDialog.Builder alert = new AlertDialog.Builder(this);
-			alert.setTitle("Goto");
+			alert.setTitle("Location");
 			alert.setMessage("Enter a url or javascript:script:");
 			final EditText input = new EditText(this);
+			input.setText(_web.getUrl());
+			input.selectAll();
 			alert.setView(input);
-			alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+			alert.setPositiveButton("Goto", new DialogInterface.OnClickListener() {
 			 public void onClick(DialogInterface dialog, int whichButton) {
 				  String value = input.getText().toString();
 				  if (value.startsWith("javascript")) {
@@ -235,9 +301,14 @@ public class TunesViewerActivity extends Activity {
 	}
 	
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if ((keyCode == KeyEvent.KEYCODE_BACK) && _myWVC.canGoBack()) {
-			_myWVC.goBack();
-			return true;
+		if ((keyCode == KeyEvent.KEYCODE_BACK)) {
+			if (findViewById(R.id.findLayout).getVisibility() == View.VISIBLE) {
+				hideSearch();
+				return true;
+			} else if (_myWVC.canGoBack()) {
+				_myWVC.goBack();
+				return true;
+			}
 		} else if ((keyCode == KeyEvent.KEYCODE_SEARCH)) {
 			Intent intent = new Intent(TunesViewerActivity.this,Searcher.class);
 			startActivity(intent);

@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.StatFs;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
@@ -25,7 +26,7 @@ import android.widget.Toast;
  *
  */
 public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
-	private Notifier notify;
+	private Notifier _notify;
 	private int _ID;
 	private static final String TAG = "DownloadService";
 	private HttpURLConnection connection;
@@ -33,10 +34,10 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	private String _title;
 	private URL _url;
 	private final String VALIDCHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 $%`-_@{}~!#().";
-	private String ErrMSG = "";
-	private File outFile;
+	private String _ErrMSG = "";
+	private File _outFile;
 	private ArrayList<DownloaderTask>_alltasks;
-	boolean success = false;
+	//boolean success = false;
 	
 	// The last updated percent downloaded.
 	int lastProgress;
@@ -57,15 +58,15 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 		MimeTypeMap myMime = MimeTypeMap.getSingleton();
 
 		Intent newIntent = new Intent(android.content.Intent.ACTION_VIEW);
-		String mimeType = myMime.getMimeTypeFromExtension(fileExt(getFile().toString()).substring(1));
+		String mimeType = myMime.getMimeTypeFromExtension(ItunesXmlParser.fileExt(getFile().toString()).substring(1));
 		newIntent.setDataAndType(Uri.fromFile(getFile()),mimeType);
 		newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		try {
 			_context.startActivity(newIntent);
 		} catch (android.content.ActivityNotFoundException e) {
-			Toast.makeText(_context, "No app for this type of file.", Toast.LENGTH_LONG).show();
+			Toast.makeText(_context, _context.getString(R.string.NoActivity), Toast.LENGTH_LONG).show();
 		}
-		notify.finish();
+		_notify.finish();
 		cancel(false);
 	}
 	
@@ -125,94 +126,96 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 			throw new IOException();
 			}
 			BufferedInputStream in = new BufferedInputStream(connection.getInputStream());
-			StringBuffer fixedName = new StringBuffer();
+			StringBuilder fixedName = new StringBuilder();
 			for (int c=0; c<_title.length(); c++) { // Make a valid name:
 				if (VALIDCHARS.indexOf(_title.charAt(c))>-1) {
 					fixedName.append(_title.charAt(c));
 				}
 			}
 			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(_context);
-			outFile = new File(prefs
-					.getString("DownloadDirectory",_context.getString(R.string.defaultDL))
-					, fixedName.toString()+fileExt(_url.toString()));
-			if (outFile.exists() && outFile.length() == contentLength) {
+			_outFile = new File(prefs.getString("DownloadDirectory",_context.getString(R.string.defaultDL))
+					, fixedName.toString()+ItunesXmlParser.fileExt(_url.toString()));
+			if (_outFile.exists() && _outFile.length() == contentLength) {
 				onPostExecute(contentLength); //Done. Already downloaded.
-			} else {
-			outFile.createNewFile();
-			FileOutputStream file = new FileOutputStream(outFile);
-			BufferedOutputStream out = new BufferedOutputStream(file);
-			int Byte;
-			while ((Byte = in.read()) != -1 && !isCancelled()) {
-				out.write(Byte);
-				downloaded++;
-				if (downloaded % 1024 == 0) {
-					publishProgress((int) ((downloaded/ (float)contentLength)*100));
+			} else if (true) {//(connection.getContentLength()==-1 || available(outFile) <= connection.getContentLength()) {
+				//unfortunately checking for room causes crash. Why?
+				_outFile.createNewFile();
+				FileOutputStream file = new FileOutputStream(_outFile);
+				BufferedOutputStream out = new BufferedOutputStream(file);
+				int Byte;
+				while ((Byte = in.read()) != -1 && !isCancelled()) {
+					out.write(Byte);
+					downloaded++;
+					if (downloaded % 1024 == 0) {
+						publishProgress((int) ((downloaded/ (float)contentLength)*100));
+					}
 				}
-			}
-			out.flush();
-			if (isCancelled()) {
-					outFile.delete();
+				out.flush();
+				if (isCancelled()) {
+						_outFile.delete();
+				} else {
+					//success = true;
+				}
+				in.close();
+				out.close();
 			} else {
-				success = true;
-			}
-			in.close();
-			out.close();
+				_ErrMSG = "Not enough room!";
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-			ErrMSG = "Download error: "+e.getMessage();
+			_ErrMSG = "Download error: "+e.getMessage();
 			publishProgress(0);
 			cancel(false);
 		}
 		return null;
 	}
 	
-	public static String fileExt(String url) {
-		String ext = url.substring(url.lastIndexOf(".") );
-	if (ext.indexOf("?")>-1) {
-		ext = ext.substring(0,ext.indexOf("?"));
-	}
-	if (ext.indexOf("%")>-1) {
-		ext = ext.substring(0,ext.indexOf("%"));
-	}
-	return ext.toLowerCase();
-	}
-	
 	@Override
 	protected void onCancelled() {
 		_alltasks.remove(this);
-		notify.finish();
+		_notify.finish();
 	}
 	
 	protected File getFile() {
-		return outFile;
+		return _outFile;
 	}
 	
 	@Override
 	protected void onPreExecute() {
-		notify = new Notifier(_context, _ID, _url.toString(), _title);
+		_notify = new Notifier(_context, _ID, _url.toString(), _title);
 	}
 	@Override
 	protected void onProgressUpdate(Integer... values) {
-		if (ErrMSG.equals("")) {
+		if (_ErrMSG.equals("")) {
 			if (values[0]!=lastProgress) {
-				notify.progressUpdate(values[0]);
+				_notify.progressUpdate(values[0]);
 				Log.d(TAG,String.valueOf(values[0]));
 				lastProgress = values[0];
 			}
 		} else {
-			Toast.makeText(_context, ErrMSG, Toast.LENGTH_LONG).show();
-			notify.finish();
+			Toast.makeText(_context, _ErrMSG, Toast.LENGTH_LONG).show();
+			_notify.finish();
 			cancel(false);
 		}
 	}
 	@Override
 	protected void onPostExecute(Long result) {
-		success = true;
-		notify.showDone();
+		//success = true;
+		_notify.showDone();
 	}
 	
+	/**
+	 * Returns bytes available.
+	 * @param file
+	 * @return
+	 */
+	public static long available(File f) {
+		StatFs stat = new StatFs(f.getPath());
+		return (long)stat.getBlockSize() * (long)stat.getAvailableBlocks();
+	}
+
+	
 	public String toString() {
-		return outFile.toString();
+		return _outFile.toString();
 	}
 }

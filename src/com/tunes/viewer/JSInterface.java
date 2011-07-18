@@ -1,20 +1,24 @@
 package com.tunes.viewer;
 
 import java.util.Arrays;
-
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.text.ClipboardManager;
 import android.widget.Toast;
 
+/**
+ * Javascript interface for the WebView
+ * Note that all of these functions must be safe for untrusted input!
+ */
 public class JSInterface {
 
 	private TunesViewerActivity _context;
 	final String[] audioFormats = {".mp3",".m4a",".amr",".m4p",".aiff",".aif",".aifc"};
-	
+	final String[] videoFormats = {".mp4",".m4v",".mov",".m4b"};
 	public JSInterface(TunesViewerActivity c) {
 		_context = c;
 	}
@@ -39,17 +43,18 @@ public class JSInterface {
 	public void preview(String title, String url) {
 		try {
 			Intent i = new Intent(Intent.ACTION_VIEW);
-			String type = DownloaderTask.fileExt(url);
+			String type = ItunesXmlParser.fileExt(url);
 			if (Arrays.asList(audioFormats).indexOf(type) > -1) {
 				i.setDataAndType(Uri.parse(url), "audio/*");
-			} else {
+			} else if (Arrays.asList(videoFormats).indexOf(type) > -1) {
 				i.setDataAndType(Uri.parse(url), "video/*");
+			} else {
+				i.setDataAndType(Uri.parse(url), "*/*");
 			}
 			_context.startActivity(i);
 		} catch (ActivityNotFoundException e) {
 			Toast.makeText(_context, _context.getText(R.string.NoActivity), Toast.LENGTH_LONG).show();
 		}
-		
 	}
 	
 
@@ -66,7 +71,7 @@ public class JSInterface {
 		.setPositiveButton("Copy Text", new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				ClipboardManager cb = (ClipboardManager)_context.getSystemService(_context.CLIPBOARD_SERVICE);
+				ClipboardManager cb = (ClipboardManager)_context.getSystemService(Context.CLIPBOARD_SERVICE);
 				cb.setText(source);
 			}
 		})
@@ -90,7 +95,7 @@ public class JSInterface {
 		_context.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				_context.setTitle(title);
+				_context.setTitle(title.replace("&amp;","&"));
 			}
 		});
 	}

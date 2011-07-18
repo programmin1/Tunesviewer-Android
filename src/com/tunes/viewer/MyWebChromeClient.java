@@ -15,20 +15,17 @@ public class MyWebChromeClient extends WebChromeClient {
 	}
 	
 	@Override
-	public boolean onJsAlert(WebView view, String url, String message, final android.webkit.JsResult result)  
-	{
+	public boolean onJsAlert(WebView view, String url, String message, final android.webkit.JsResult result) {
 	  Log.d("alert", message);
 	  Toast.makeText(activity.getApplicationContext(), message, 3000).show();
 	  result.confirm();
 	  return true;
 	};
 	
-	   
 	/**
 	 * Catches progress events while the html is loading.
 	 */
-	public void onProgressChanged(WebView view, int progress)
-	{
+	public void onProgressChanged(WebView view, int progress) {
 		activity.setTitle(" Loading...");
 		activity.setProgress(progress * 100);
 		/*if(progress == 100) {
@@ -36,11 +33,11 @@ public class MyWebChromeClient extends WebChromeClient {
 		}*/
 	}
 	
-	// Webkit messages
+	// Webkit messages already logged with tag "Web Console".
+	/*
 	public void addMessageToConsole(String message, int lineNumber, String sourceID)  
 	{
-		//Already logged with tag "Web Console".
 		//Log.d("WebKit", sourceID + ": Line " + Integer.toString(lineNumber) + " : " + message);  
-	}
+	}*/
 
 }

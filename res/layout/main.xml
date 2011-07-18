@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:stretchColumns="0"
-    android:orientation="vertical">
+    android:stretchColumns="0" android:orientation="vertical" android:gravity="bottom">
 
+     <com.tunes.viewer.Viewer weight="1" android:id="@+id/mainWebView" android:layout_gravity="top" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_above="@+id/findLayout">
+     </com.tunes.viewer.Viewer>
 
-
-<!-- 
-<EditText android:text="@+id/EditText01" android:id="@+id/EditText01" 
-android:layout_height="wrap_content" android:layout_width="fill_parent"></EditText>
-<Button android:id="@+id/Button01" android:layout_height="wrap_content" android:layout_width="fill_parent" android:text="GO"></Button>
- -->
-<android.webkit.WebView android:layout_width="fill_parent" android:layout_height="fill_parent" android:id="@+id/mainWebView"></android.webkit.WebView>
-</LinearLayout>
+	 <LinearLayout android:visibility="gone" android:layout_width="fill_parent" android:id="@+id/findLayout" android:orientation="horizontal" android:layout_gravity="bottom" android:layout_height="wrap_content" android:layout_alignParentBottom="true">
+	     <EditText android:layout_weight="4" android:layout_width="wrap_content" android:id="@+id/editFind" android:layout_height="wrap_content" android:text="" android:layout_gravity="bottom">
+	     </EditText>
+	     <Button android:text=" &lt; " android:layout_weight="1" android:id="@+id/findPrevious" android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
+	     <Button android:text=" &gt; " android:layout_weight="1" android:id="@+id/findNext" android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
+	 </LinearLayout>
+</RelativeLayout>
