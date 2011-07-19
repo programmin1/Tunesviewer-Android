@@ -547,13 +547,13 @@ public class ItunesXmlParser extends DefaultHandler {
 			style = "dl selection";
 		}
 		if (!directurl.equals("") && directurl.lastIndexOf(".")>-1) { //valid media row:
-		 if (style.equals("dl selection")) {
-			 media.append("<a name='here'></a>");
-		 }
-		 media.append(String.format(
-		 "<tr class=\"%s\" onClick=\"window.DOWNLOADINTERFACE.preview(this.getAttribute('name'),this.getAttribute('url'));\" name=\"%s\" url=\"%s\"><td><a name=\"%s\">%s</a></td><td>%s</td><td>%s</td><td>%s</td>"+
-		 "<td><a href='javascript:;' onclick=\"window.event.stopPropagation(); downloadit(this.parentNode.parentNode.getAttribute('name'),this.parentNode.parentNode.getAttribute('url'))\">Download %s</a></td></tr>\n",
-		 style,name.replace("\"", "&quot;"),directurl.replace("\"", "&quot;"),id,name,artist,timeval(duration),comments,directurl.substring(directurl.lastIndexOf("."))));
+			if (style.equals("dl selection")) {
+				media.append("<a name='here'></a>");
+			}
+			media.append(String.format(
+			"<tr class=\"%s\" onClick=\"window.DOWNLOADINTERFACE.preview(this.getAttribute('name'),this.getAttribute('url'));\" name=\"%s\" url=\"%s\"><td><a name=\"%s\">%s</a></td><td>%s</td><td>%s</td><td>%s</td>"+
+			"<td><a href='javascript:;' onclick=\"window.event.stopPropagation(); downloadit(this.parentNode.parentNode.getAttribute('name'),this.parentNode.parentNode.getAttribute('url'))\">Download %s</a></td></tr>\n",
+			style,name.replace("\"", "&quot;"),directurl.replace("\"", "&quot;"),id,name,artist,timeval(duration),comments,directurl.substring(directurl.lastIndexOf("."))));
 		}
 	}
 	
@@ -624,7 +624,7 @@ public class ItunesXmlParser extends DefaultHandler {
 		html.insert(0, "<style> img { max-width:"+(scrWidth-5)+"px; height:auto;}</style>");
 		original.append("<!-- (END DOC) -->");
 		if (backColor.equals("")) {
-			backColor = "#E2E2E2";
+			backColor = "#E2E2E2"; //Default background.
 		}
 		html.insert(0, String.format("<html><head>"+
 			//<meta name=\"viewport\" content=\"width=device-width\" />
@@ -641,7 +641,7 @@ public class ItunesXmlParser extends DefaultHandler {
 	}
 	
 	/**
-	 * Returns true when <key>keyid</key><dict... is specifically supported by this parser.
+	 * Returns true when <key>keyid</key><dict>... is specifically supported by this parser.
 	 * (The dict map should be cleared when starting/ending <dict> tag in this case).
 	 * This is used for mobile mode.
 	 * 

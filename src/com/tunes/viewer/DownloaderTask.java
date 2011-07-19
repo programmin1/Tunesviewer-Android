@@ -23,20 +23,19 @@ import android.widget.Toast;
 /**
  * A class to handle a download and its notification.
  * @author Luke
- *
  */
 public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	private Notifier _notify;
 	private int _ID;
 	private static final String TAG = "DownloadService";
-	private HttpURLConnection connection;
+	private HttpURLConnection _connection;
 	private Context _context;
 	private String _title;
 	private URL _url;
 	private final String VALIDCHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 $%`-_@{}~!#().";
 	private String _ErrMSG = "";
 	private File _outFile;
-	private ArrayList<DownloaderTask>_alltasks;
+	private ArrayList<DownloaderTask> _alltasks;
 	//boolean success = false;
 	
 	// The last updated percent downloaded.
@@ -80,18 +79,17 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 			openFile();
 		} else if (notifClicked) {
 			/*new AlertDialog.Builder(_context)
-		.setIcon(android.R.drawable.ic_dialog_alert)
-		.setTitle("Cancel")
-		.setMessage("Cancel file download?")
-		.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-		@Override
-		public void onClick(DialogInterface dialog, int which) {
-			//Stop
-			
-		}
-
-		});*/
-
+			.setIcon(android.R.drawable.ic_dialog_alert)
+			.setTitle("Cancel")
+			.setMessage("Cancel file download?")
+			.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				//Stop
+				
+			}
+	
+			});*/
 			cancel(false);
 		}
 	}
@@ -112,20 +110,20 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 		long downloaded = 0;
 		try {
 			_url = urls[0];
-			connection =  (HttpURLConnection)urls[0].openConnection();
-			connection.setRequestProperty ("User-agent", "iTunes/10.2");
-			connection.connect();
+			_connection =  (HttpURLConnection)urls[0].openConnection();
+			_connection.setRequestProperty ("User-agent", "iTunes/3");
+			_connection.connect();
 			// Make sure response code is in the 200 range.
-			if (connection.getResponseCode() / 100 != 2) {
-				Log.e(TAG,"Can't connect. code "+connection.getResponseCode());
+			if (_connection.getResponseCode() / 100 != 2) {
+				Log.e(TAG,"Can't connect. code "+_connection.getResponseCode());
 			throw new IOException();
 			}
-			long contentLength = connection.getContentLength();
+			long contentLength = _connection.getContentLength();
 			if (contentLength < 1) {
 				Log.e(TAG,"Invalid contentlength.");
 			throw new IOException();
 			}
-			BufferedInputStream in = new BufferedInputStream(connection.getInputStream());
+			BufferedInputStream in = new BufferedInputStream(_connection.getInputStream());
 			StringBuilder fixedName = new StringBuilder();
 			for (int c=0; c<_title.length(); c++) { // Make a valid name:
 				if (VALIDCHARS.indexOf(_title.charAt(c))>-1) {

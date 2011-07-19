@@ -1,6 +1,7 @@
 package com.tunes.viewer;
 
 import java.lang.reflect.Method;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -14,6 +15,7 @@ import android.text.ClipboardManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,11 +23,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.EditText;
-import android.widget.Toast;
 
 public class TunesViewerActivity extends Activity {
 
@@ -47,18 +49,17 @@ public class TunesViewerActivity extends Activity {
 		WebSettings s = _web.getSettings();
 		s.setJavaScriptEnabled(true);
 		s.setPluginsEnabled(true);
-		s.setUserAgentString("iTunes/10.2");
+		s.setUserAgentString("iTunes/10.3");
 		s.setSupportZoom(true);
 		s.setBuiltInZoomControls(true);
 		s.setUseWideViewPort(false); //disables horizontal scroll
-		//findViewById(R.id.WVScroll).setHorizontalScrollBarEnabled(true);
-		//findViewById(R.id.WVScroll).setVerticalScrollBarEnabled(true);
-		//registerForContextMenu(_web);
+		
 		_myWVC =  new MyWebViewClient(getApplicationContext(),this,_web);
 		_web.addJavascriptInterface(new JSInterface(this), "DOWNLOADINTERFACE");
 		_web.setWebViewClient(_myWVC);
 		_web.setWebChromeClient(new MyWebChromeClient(this));
 		_web.requestFocus(View.FOCUS_DOWN);
+		
 		if (this.getIntent().getData()==null) { //no specified url.
 			_myWVC.shouldOverrideUrlLoading(_web, "http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewGrouping?id=27753");
 		}
@@ -73,13 +74,9 @@ public class TunesViewerActivity extends Activity {
 				}
 			}
 			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count,
-					int after) {	
-			}
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 			@Override
-			public void onTextChanged(CharSequence s, int start, int before,
-					int count) {
-			}
+			public void onTextChanged(CharSequence s, int start, int before, int count) {}
 		});
 		findViewById(R.id.findPrevious).setOnClickListener(new OnClickListener() {
 			@Override
@@ -159,11 +156,23 @@ public class TunesViewerActivity extends Activity {
 		case R.id.menuRefresh:
 			_myWVC.refresh();
 			return true;
-		case R.id.menuCopy:
-			ClipboardManager c = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
+		case R.id.menuShare:
+			String url = _web.getUrl();
+			if (url.startsWith("http")) {
+				url = "itms"+url.substring(4);
+			}
+			Intent share = new Intent(Intent.ACTION_SEND);
+			share.setType("text/plain");
+			share.putExtra(Intent.EXTRA_TEXT, url);
+			share.putExtra(Intent.EXTRA_SUBJECT, getTitle());
+			share.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			share = Intent.createChooser(share, getString(R.string.share));
+			startActivity(share);
+			
+			/*ClipboardManager c = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
 			String url = _web.getUrl();
 			c.setText(url);
-			Toast.makeText(_AppContext, "Copied "+url, 4000).show();
+			Toast.makeText(_AppContext, "Copied "+url, 4000).show();*/
 			return true;
 		case R.id.menuForward:
 			_myWVC.goForward();
@@ -174,6 +183,7 @@ public class TunesViewerActivity extends Activity {
 			_myWVC.clearInfo();
 			return true;
 		case R.id.menuFindText:
+			//Show hidden text so it will be searched:
 			_web.loadUrl("javascript:divs = document.getElementsByTagName('div'); for (i=0; i<divs.length; i++) {divs[i].style.display='block';}");
 			findViewById(R.id.findLayout).setVisibility(View.VISIBLE);
 			findViewById(R.id.findLayout).requestFocus(View.FOCUS_DOWN);
@@ -196,7 +206,7 @@ public class TunesViewerActivity extends Activity {
 			.setPositiveButton("Copy Text", new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					ClipboardManager c = (ClipboardManager)getSystemService(getApplicationContext().CLIPBOARD_SERVICE);
+					ClipboardManager c = (ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
 					c.setText(source);
 				}
 			})
@@ -215,7 +225,7 @@ public class TunesViewerActivity extends Activity {
 			.setPositiveButton("Copy Text", new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					ClipboardManager c = (ClipboardManager)getSystemService(getApplicationContext().CLIPBOARD_SERVICE);
+					ClipboardManager c = (ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
 					c.setText(cookies);
 				}
 			})
@@ -240,9 +250,7 @@ public class TunesViewerActivity extends Activity {
 				  }
 			  }
 			});
-			alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int which) {}
-			});
+			alert.setNegativeButton("Cancel", null);
 			alert.show();
 			return true;
 		case R.id.home:
@@ -292,7 +300,7 @@ public class TunesViewerActivity extends Activity {
 			this.getIntent().setData(null);
 		}
 		//_web.requestFocus(View.FOCUS_DOWN);
-   }
+	}
 
 	@Override
 	protected void onDestroy() {

@@ -9,6 +9,7 @@ import android.widget.Toast;
 public class MyWebChromeClient extends WebChromeClient {
 	
 	private Activity activity;
+	
 	public MyWebChromeClient(Activity a) {
 		//Called with the main activity as param 
 		activity = a;
@@ -16,10 +17,10 @@ public class MyWebChromeClient extends WebChromeClient {
 	
 	@Override
 	public boolean onJsAlert(WebView view, String url, String message, final android.webkit.JsResult result) {
-	  Log.d("alert", message);
-	  Toast.makeText(activity.getApplicationContext(), message, 3000).show();
-	  result.confirm();
-	  return true;
+		Log.d("alert", message);
+		Toast.makeText(activity.getApplicationContext(), message, 3000).show();
+		result.confirm();
+		return true;
 	};
 	
 	/**

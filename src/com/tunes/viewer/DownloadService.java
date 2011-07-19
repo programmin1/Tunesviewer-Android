@@ -17,7 +17,7 @@ public class DownloadService extends Service {
 	
 	private static final String TAG = "DownloaderService";
 	private ArrayList<DownloaderTask> myDownloaders = new ArrayList<DownloaderTask>();
- 
+
 	@Override
 	public void onStart(Intent intent, int startId) {
 		super.onStart(intent, startId);
@@ -49,7 +49,7 @@ public class DownloadService extends Service {
 			}
 		}
 		//Toast.makeText(getApplicationContext(), "Started Download", 1000).show();
-    }
+	}
 	
 	@Override
 	public void onDestroy() {
@@ -60,5 +60,4 @@ public class DownloadService extends Service {
 		}
 	}
 	
- 
 }

@@ -56,7 +56,7 @@ public class Notifier {
 		notificationIntent = PendingIntent.getService(_context, 0, returnIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 		
 		if (ongoing) {
-			lowerTitle = _url;
+			lowerTitle = "Tap to cancel download.";
 		} else {
 			lowerTitle = "Done.";
 		}
@@ -90,7 +90,7 @@ public class Notifier {
 	}
 	
 	/**
-	 * Called when this download has finished, convert to a new non-ongoing notif.
+	 * Called when this download has finished, convert to a new non-ongoing notification.
 	 */
 	public void showDone() {
 		notificationManager.cancel(_NOTIFICATION_ID);

@@ -5,7 +5,7 @@
     <string name="download_title">Download</string>
     <string name="menuSearch">Search</string>
     <string name="menuHome">Home</string>
-    <string name="menuCopyUrl">Copy Page Url</string>
+    <string name="menuShareUrl">Share Page</string>
     <string name="menuFindText">Find on Page</string>
     <string name="menuClear">Clear History &amp; Cookies</string>
     <string name="menuPrefs">Settings</string>
@@ -168,8 +168,7 @@ function fixTransparent(objects) {
 	}
 }
 
-document.onload= new function() {
-	console.log(document.title);
+function setTitle() {
 	if (document.title=='') {
 		if (document.getElementsByTagName('h1').length > 0) {
 			window.DOWNLOADINTERFACE.setTitle(document.getElementsByTagName('h1')[0].innerHTML);
@@ -179,6 +178,11 @@ document.onload= new function() {
 	} else {
 		window.DOWNLOADINTERFACE.setTitle(document.title);
 	}
+}
+
+document.onload= new function() {
+	console.log(document.title);
+	setTitle();
 	iTunes = new player();
 	
 	as = document.getElementsByTagName('a');

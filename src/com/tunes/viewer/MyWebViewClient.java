@@ -138,8 +138,7 @@ public class MyWebViewClient extends WebViewClient {
 		String ua = _prefs.getString("UserAgent", callerContext.getString(R.string.defaultUA));
 		System.setProperty("http.agent", ua);
 		view.getSettings().setUserAgentString(ua);
-		//view.requestFocus(View.FOCUS_DOWN);
-		view.stopLoading();
+		view.stopLoading();//stop previous load.
 		activity.setTitle("Loading...");
 		// Clicked link, so clear forward and add this to "back".
 		Forward.clear();
@@ -341,10 +340,11 @@ public class MyWebViewClient extends WebViewClient {
 			} catch (IOException e) {
 				// Show error
 				synchronized (_view) {
-					final String msg = e.getMessage();
+					final String msg = "Error: "+e.getMessage();
 					activity.runOnUiThread(new Runnable() {
 						public void run() {
 							Toast.makeText(callerContext, msg, Toast.LENGTH_LONG).show();
+							_web.loadUrl("javascript:setTitle()");
 						}
 					});
 				}
