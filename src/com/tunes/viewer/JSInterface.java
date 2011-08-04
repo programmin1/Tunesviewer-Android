@@ -87,6 +87,33 @@ public class JSInterface {
 		_context.loadUrl(url);
 	}
 	
+	public void subscribe(String url) {
+		try {
+			if (!url.startsWith("itpc") && url.indexOf("://")>-1) {
+				url = "itpc"+url.substring(url.indexOf("://"));
+			}
+			Intent i = new Intent(Intent.ACTION_VIEW);
+			i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			i.setData(Uri.parse(url));
+			_context.startActivity(i);
+		} catch (ActivityNotFoundException e) {
+			new AlertDialog.Builder(_context)
+			.setIcon(android.R.drawable.ic_dialog_alert)
+			.setTitle("No Podcatcher")
+			.setMessage("No podcast app found to handle this link. You must install a podcast manager app such as Swallowcatcher to subscribe.")
+			.setPositiveButton("Install", new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					Intent web = new Intent(Intent.ACTION_VIEW);
+					web.setData(Uri.parse("http://f-droid.org/repository/browse/?fdid=com.webworxshop.swallowcatcher"));
+					_context.startActivity(web);
+				}
+			})
+			.setNegativeButton("Cancel", null)
+			.show();
+		}
+	}
+	
 	/**
 	 * Sets the activity's title.
 	 * @param title

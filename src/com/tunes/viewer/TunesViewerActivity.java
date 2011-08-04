@@ -173,11 +173,6 @@ public class TunesViewerActivity extends Activity {
 			share.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			share = Intent.createChooser(share, getString(R.string.share));
 			startActivity(share);
-			
-			/*ClipboardManager c = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
-			String url = _web.getUrl();
-			c.setText(url);
-			Toast.makeText(_AppContext, "Copied "+url, 4000).show();*/
 			return true;
 		case R.id.menuForward:
 			_myWVC.goForward();

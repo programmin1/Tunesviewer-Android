@@ -384,6 +384,10 @@ public class ItunesXmlParser extends DefaultHandler {
 					html.append("<br>");
 					html.append(map.get("description"));
 					html.append("</div>");
+					if (map.containsKey("podcast-feed-url")) {
+						html.append("<p style='text-align:left;'><a href='javascript:;' onclick=\"window.DOWNLOADINTERFACE.subscribe(this.getAttribute('url'))\" url=\""
+						 + map.get("podcast-feed-url").replace("\"", "&quot;") + "\">Subscribe</a></p>");
+					}
 				} else if (type.equals("podcast-episode")) {
 					//html.append("<script>function downloadit(title,name) { console.log('download-it'); console.log(title); console.log(name); window.DOWNLOADINTERFACE.download(title,name); }</script>\n");
 					if (map.containsKey("url") && map.get("url").equals(_url.toString())) {
