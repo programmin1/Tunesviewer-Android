@@ -136,6 +136,8 @@ public class TunesViewerActivity extends Activity {
 		MenuItem forward = menu.findItem(R.id.menuForward);
 		if (_web != null && forward != null) {
 			forward.setEnabled(_myWVC.canGoForward());
+			menu.findItem(R.id.menuStop).setVisible(_myWVC.isLoading());
+			menu.findItem(R.id.menuRefresh).setVisible(!_myWVC.isLoading());
 		}
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		boolean debugMode = (prefs!= null && prefs.getBoolean("debug", false));
@@ -155,6 +157,9 @@ public class TunesViewerActivity extends Activity {
 			return true;
 		case R.id.menuRefresh:
 			_myWVC.refresh();
+			return true;
+		case R.id.menuStop:
+			_myWVC.stop();
 			return true;
 		case R.id.menuShare:
 			String url = _web.getUrl();

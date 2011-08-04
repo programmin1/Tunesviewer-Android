@@ -10,6 +10,8 @@ import java.net.URLConnection;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Stack;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -38,7 +40,18 @@ import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 public class MyWebViewClient extends WebViewClient {
-		
+	
+	//One WebLoader at a time.
+	private Executor executor = Executors.newSingleThreadExecutor();
+	
+	private final int BACK = -1;
+	private final int REFRESH = 0;
+	private final int FORWARD = 1;
+	private final int NEWURL = 2;
+	
+	// True when loading, can be set to false to cancel (See makeString function)
+	private boolean isLoading;
+	
 	private final String TAG = "WVC";
 	private Context callerContext;
 	private TunesViewerActivity activity;
@@ -67,6 +80,20 @@ public class MyWebViewClient extends WebViewClient {
 	}
 	
 	/**
+	 * Stops current downloading of page.
+	 */
+	public void stop() {
+		isLoading = false;
+	}
+	/**
+	 * Returns true when page is loading.
+	 * @return
+	 */
+	public boolean isLoading() {
+		return isLoading;
+	}
+	
+	/**
 	 * Returns true when goBack() will work.
 	 * @return
 	 */
@@ -77,9 +104,12 @@ public class MyWebViewClient extends WebViewClient {
 	 * Goes backward, or causes exception if canGoBack() is false.
 	 */
 	public void goBack() {
-		Forward.push(_web.getUrl());
-		String url = Back.pop();
-		new Thread(new WebLoader(_web,url,this)).start();
+		//Forward.push(_web.getUrl());
+		//String url = Back.pop();
+		//new Thread(new WebLoader(_web,Back.peek(),this,BACK)).start();
+		if (!isLoading) {
+			executor.execute(new WebLoader(_web,Back.peek(),this,BACK));
+		}
 	}
 	/**
 	 * Returns true when goForward() will work.
@@ -92,15 +122,21 @@ public class MyWebViewClient extends WebViewClient {
 	 * Goes forward, or causes exception is canGoForward() is false.
 	 */
 	public void goForward() {
-		Back.push(_web.getUrl());
-		new Thread(new WebLoader(_web,Forward.pop(),this)).start();
+		//Back.push(_web.getUrl());
+		//new Thread(new WebLoader(_web,Forward.peek(),this,FORWARD)).start();
+		if (!isLoading) {
+			executor.execute(new WebLoader(_web,Forward.peek(),this,FORWARD));
+		}
 	}
 	/**
 	 * Refreshes the WebView, no change to back/forward stack.
 	 */
 	public void refresh() {
 		if (_web.getUrl() != null) {
-			new Thread(new WebLoader(_web,_web.getUrl(),this)).start();
+			//new Thread(new WebLoader(_web,_web.getUrl(),this,0)).start();
+			if (!isLoading) {
+				executor.execute(new WebLoader(_web,_web.getUrl(),this,REFRESH));
+			}
 		}
 	}
 	
@@ -140,12 +176,8 @@ public class MyWebViewClient extends WebViewClient {
 		view.getSettings().setUserAgentString(ua);
 		view.stopLoading();//stop previous load.
 		activity.setTitle("Loading...");
-		// Clicked link, so clear forward and add this to "back".
-		Forward.clear();
-		if (view.getUrl() != null) {
-			Back.push(view.getUrl());
-		}
-		new Thread(new WebLoader(view,url,this)).start();
+		//new Thread(new WebLoader(view,url,this,0)).start();
+		executor.execute(new WebLoader(view,url,this,NEWURL));
 		return true;
 	}
 	
@@ -212,6 +244,9 @@ public class MyWebViewClient extends WebViewClient {
 		String line = null;
 		while ((line = reader.readLine()) != null) {
 			sb.append(line + "\n");
+			if (!isLoading) {//stopped
+				throw new IOException();
+			}
 			/* Doesn't work here for some reason.
 			length += line.length()+1;
 			final int prog = (length*100)/totalLength;
@@ -241,10 +276,21 @@ public class MyWebViewClient extends WebViewClient {
 		private WebView _view;
 		private String _url;
 		private String _download;
+		private String previousURL;
+		private int _cmd; // Back/forward
 		private MyWebViewClient caller;
-		public WebLoader(WebView v,String u, MyWebViewClient caller) {
+		/**
+		 * Constructs runnable that will download URL u and display in Webview v.
+		 * @param v
+		 * @param u
+		 * @param caller
+		 * @param cmd int FORWARD/BACK or 0 no change
+		 */
+		public WebLoader(WebView v,String u, MyWebViewClient caller, int cmd) {
+			_cmd = cmd;
 			_view = v;
 			_url = u;
+			previousURL = v.getUrl();
 			this.caller = caller;
 			activity.setProgressBarIndeterminateVisibility(true);
 		}
@@ -311,7 +357,7 @@ public class MyWebViewClient extends WebViewClient {
 					synchronized (_view) {
 						_view.post(new Runnable() {
 							public void run() {
-								prepareView(_view);
+								prepareView(_view,_cmd);
 								_view.loadDataWithBaseURL(_url,data,"text/html","UTF-8",_url);
 							}
 						});
@@ -328,6 +374,7 @@ public class MyWebViewClient extends WebViewClient {
 		
 		@Override
 		public void run() {
+			isLoading = true;
 			boolean worked;
 			try {
 				worked = load();
@@ -357,7 +404,7 @@ public class MyWebViewClient extends WebViewClient {
 					_download = null;
 					_view.post(new Runnable() {
 						public void run() {
-							prepareView(_view);
+							prepareView(_view,_cmd);
 							_view.loadDataWithBaseURL(_url,data,"text/html","UTF-8",_url);
 						}
 					});
@@ -365,16 +412,43 @@ public class MyWebViewClient extends WebViewClient {
 			} catch (FactoryConfigurationError e) {
 				e.printStackTrace();
 			}
-			synchronized (activity) {//reset title
+			//In all cases, finish with...
+			synchronized (activity) {//reset title, JS interface will change title if needed.
 				activity.runOnUiThread(new Runnable() {
 					public void run() {
 						activity.setProgressBarIndeterminateVisibility(false);
 					}
 				});
 			}
+			isLoading = false;
 		}
 	
-		private void prepareView(WebView view) {
+		/**
+		 * Called on successful load, updates back/forward stack and sets some view prefs.
+		 * @param view
+		 * @param cmd - int BACK, FORWARD, NEWURL or 0 for refresh.
+		 */
+		private void prepareView(WebView view, int cmd) {
+			if (cmd != REFRESH) {
+				// Update back and forward stacks.
+				synchronized (Back) {
+					synchronized (Forward) {
+						if (cmd==BACK) {
+							Forward.push(view.getUrl());
+							Back.pop();
+						} else if (cmd==FORWARD) {
+							Back.push(view.getUrl());
+							Forward.pop();
+						} else if (cmd==NEWURL) {
+							// Clicked link, so clear forward and add this to "back".
+							Forward.clear();
+							if (view.getUrl() != null) {
+								Back.push(view.getUrl());
+							}
+						}
+					}
+				}
+			}
 			//No need for history, this has custom history handler.
 			_view.clearHistory();
 			//If preference set, disable image loading:

@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.text.ClipboardManager;
 import android.util.AttributeSet;
@@ -21,13 +22,25 @@ public class Viewer extends WebView {
 	private static final int ID_SHARELINK = 3;
 	private static final int ID_OPENLINK = 2;
 	private static final int ID_COPY = 4;
+	
+	//Stop the 'double tap to zoom' toast that doesn't apply here anyway:
+	private static final String PREF_FILE = "WebViewSettings";
+	private static final String DOUBLE_TAP_TOAST_COUNT = "double_tap_toast_count";
 
 	public Viewer(Context context) {
 		super(context);
+		SharedPreferences prefs = context.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
+		if (prefs.getInt(DOUBLE_TAP_TOAST_COUNT, 1) > 0) {
+		    prefs.edit().putInt(DOUBLE_TAP_TOAST_COUNT, 0).commit();
+		}
 	}
 	
 	public Viewer(Context context, AttributeSet atts) {
 		super(context,atts);
+		SharedPreferences prefs = context.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
+		if (prefs.getInt(DOUBLE_TAP_TOAST_COUNT, 1) > 0) {
+		    prefs.edit().putInt(DOUBLE_TAP_TOAST_COUNT, 0).commit();
+		}
 	}
 	
 	protected void onCreateContextMenu(ContextMenu menu) {
