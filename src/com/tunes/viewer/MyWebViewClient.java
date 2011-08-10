@@ -12,6 +12,7 @@ import java.security.cert.X509Certificate;
 import java.util.Stack;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.zip.GZIPInputStream;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -171,9 +172,10 @@ public class MyWebViewClient extends WebViewClient {
 	 * Determines load behavior on "click".
 	 */
 	public boolean shouldOverrideUrlLoading(WebView view, String url) {
+		Log.d(TAG,"shouldOverrideUrlLoading");
 		String ua = _prefs.getString("UserAgent", callerContext.getString(R.string.defaultUA));
 		System.setProperty("http.agent", ua);
-		view.getSettings().setUserAgentString(ua);
+		//view.getSettings().setUserAgentString(ua); may cause crash
 		view.stopLoading();//stop previous load.
 		activity.setTitle("Loading...");
 		//new Thread(new WebLoader(view,url,this,0)).start();
@@ -185,30 +187,30 @@ public class MyWebViewClient extends WebViewClient {
 	 * Trust every server - don't check for any certificate
 	 */
 	private static void trustAllHosts() {
-			// Create a trust manager that does not validate certificate chains
-			TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
-					public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-							return new java.security.cert.X509Certificate[] {};
-					}
+		// Create a trust manager that does not validate certificate chains
+		TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
+				public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+						return new java.security.cert.X509Certificate[] {};
+				}
 
-					public void checkClientTrusted(X509Certificate[] chain,
-									String authType) throws CertificateException {
-					}
+				public void checkClientTrusted(X509Certificate[] chain,
+								String authType) throws CertificateException {
+				}
 
-					public void checkServerTrusted(X509Certificate[] chain,
-									String authType) throws CertificateException {
-					}
-			} };
+				public void checkServerTrusted(X509Certificate[] chain,
+								String authType) throws CertificateException {
+				}
+		} };
 
-			// Install the all-trusting trust manager
-			try {
-					SSLContext sc = SSLContext.getInstance("TLS");
-					sc.init(null, trustAllCerts, new java.security.SecureRandom());
-					HttpsURLConnection
-									.setDefaultSSLSocketFactory(sc.getSocketFactory());
-			} catch (Exception e) {
-					e.printStackTrace();
-			}
+		// Install the all-trusting trust manager
+		try {
+				SSLContext sc = SSLContext.getInstance("TLS");
+				sc.init(null, trustAllCerts, new java.security.SecureRandom());
+				HttpsURLConnection
+								.setDefaultSSLSocketFactory(sc.getSocketFactory());
+		} catch (Exception e) {
+				e.printStackTrace();
+		}
 	}
 	
 
@@ -238,14 +240,14 @@ public class MyWebViewClient extends WebViewClient {
 	 * @throws IOException
 	 */
 	private String makeString(InputStream is, int totalLength) throws IOException {
-		int length = 0;
 		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 		StringBuilder sb = new StringBuilder();
 		String line = null;
 		while ((line = reader.readLine()) != null) {
 			sb.append(line + "\n");
 			if (!isLoading) {//stopped
-				throw new IOException();
+				
+				throw new IOException("Stopped.");
 			}
 			/* Doesn't work here for some reason.
 			length += line.length()+1;
@@ -276,7 +278,7 @@ public class MyWebViewClient extends WebViewClient {
 		private WebView _view;
 		private String _url;
 		private String _download;
-		private String previousURL;
+		//private String previousURL;
 		private int _cmd; // Back/forward
 		private MyWebViewClient caller;
 		/**
@@ -290,7 +292,7 @@ public class MyWebViewClient extends WebViewClient {
 			_cmd = cmd;
 			_view = v;
 			_url = u;
-			previousURL = v.getUrl();
+			//previousURL = v.getUrl();
 			this.caller = caller;
 			activity.setProgressBarIndeterminateVisibility(true);
 		}
@@ -315,13 +317,19 @@ public class MyWebViewClient extends WebViewClient {
 				trustAllHosts(); // stop javax.net.ssl.SSLException: Not trusted server certificate
 			}
 			URLConnection conn = u.openConnection();
+			conn.addRequestProperty("Accept-Encoding", "gzip");
 			_CM.setCookies(conn);
 			conn.connect();
 			_CM.storeCookies(conn);
 			length = conn.getContentLength();
 			
+			InputStream input = conn.getInputStream();
+
+			if ("gzip".equals(conn.getContentEncoding())) {
+				input = new GZIPInputStream(input);
+			}
 			// Download xml/html to parse:
-			_download = makeString(conn.getInputStream(),length); 
+			_download = makeString(input,length); 
 			synchronized (caller) {
 				caller._originalDownload = _download;
 			}
@@ -374,53 +382,55 @@ public class MyWebViewClient extends WebViewClient {
 		
 		@Override
 		public void run() {
-			isLoading = true;
-			boolean worked;
-			try {
-				worked = load();
-				if (!worked) {
+			synchronized(_view) {
+				isLoading = true;
+				boolean worked;
+				try {
 					worked = load();
-					if (!worked) { //max 2 redirects.
-						load();
+					if (!worked) {
+						worked = load();
+						if (!worked) { //max 2 redirects.
+							load();
+						}
 					}
+				} catch (IOException e) {
+					// Show error
+					synchronized (_view) {
+						final String msg = "Error: "+e.getMessage();
+						activity.runOnUiThread(new Runnable() {
+							public void run() {
+								Toast.makeText(callerContext, msg, Toast.LENGTH_LONG).show();
+								_web.loadUrl("javascript:setTitle()");
+							}
+						});
+					}
+				} catch (ParserConfigurationException e) {
+					e.printStackTrace();
+				} catch (SAXException e) {
+					//Not XML, show the downloaded html directly in browser:
+					synchronized (_view) {
+						final String data = _download;
+						_download = null;
+						_view.post(new Runnable() {
+							public void run() {
+								prepareView(_view,_cmd);
+								_view.loadDataWithBaseURL(_url,data,"text/html","UTF-8",_url);
+							}
+						});
+					}
+				} catch (FactoryConfigurationError e) {
+					e.printStackTrace();
 				}
-			} catch (IOException e) {
-				// Show error
-				synchronized (_view) {
-					final String msg = "Error: "+e.getMessage();
+				//In all cases, finish with...
+				synchronized (activity) {//reset title, JS interface will change title if needed.
 					activity.runOnUiThread(new Runnable() {
 						public void run() {
-							Toast.makeText(callerContext, msg, Toast.LENGTH_LONG).show();
-							_web.loadUrl("javascript:setTitle()");
+							activity.setProgressBarIndeterminateVisibility(false);
 						}
 					});
 				}
-			} catch (ParserConfigurationException e) {
-				e.printStackTrace();
-			} catch (SAXException e) {
-				//Not XML, show the downloaded html directly in browser:
-				synchronized (_view) {
-					final String data = _download;
-					_download = null;
-					_view.post(new Runnable() {
-						public void run() {
-							prepareView(_view,_cmd);
-							_view.loadDataWithBaseURL(_url,data,"text/html","UTF-8",_url);
-						}
-					});
-				}
-			} catch (FactoryConfigurationError e) {
-				e.printStackTrace();
+				isLoading = false;
 			}
-			//In all cases, finish with...
-			synchronized (activity) {//reset title, JS interface will change title if needed.
-				activity.runOnUiThread(new Runnable() {
-					public void run() {
-						activity.setProgressBarIndeterminateVisibility(false);
-					}
-				});
-			}
-			isLoading = false;
 		}
 	
 		/**

@@ -30,7 +30,7 @@ import java.text.*;
 
 public class IansCookieManager {
         
-    private Map store;
+    private Map<String, Map> store;
 
     private static final String SET_COOKIE = "Set-Cookie";
     private static final String COOKIE_VALUE_DELIMITER = ";";
@@ -68,15 +68,15 @@ public class IansCookieManager {
 	String domain = getDomainFromHost(conn.getURL().getHost());
 	
 	
-	Map domainStore; // this is where we will store cookies for this domain
+	Map<String, Map<String, String>> domainStore; // this is where we will store cookies for this domain
 	
 	// now let's check the store to see if we have an entry for this domain
 	if (store.containsKey(domain)) {
 	    // we do, so lets retrieve it from the store
-	    domainStore = (Map)store.get(domain);
+	    domainStore = (Map<String, Map<String, String>>)store.get(domain);
 	} else {
 	    // we don't, so let's create it and put it in the store
-	    domainStore = new HashMap();
+	    domainStore = new HashMap<String, Map<String, String>>();
 	    store.put(domain, domainStore);    
 	}
 	
@@ -88,7 +88,7 @@ public class IansCookieManager {
 	String headerName=null;
 	for (int i=1; (headerName = conn.getHeaderFieldKey(i)) != null; i++) {
 	    if (headerName.equalsIgnoreCase(SET_COOKIE)) {
-		Map cookie = new HashMap();
+		Map<String, String> cookie = new HashMap();
 		StringTokenizer st = new StringTokenizer(conn.getHeaderField(i), COOKIE_VALUE_DELIMITER);
 		
 		// the specification dictates that the first name/value pair
@@ -97,16 +97,20 @@ public class IansCookieManager {
 		
 		if (st.hasMoreTokens()) {
 		    String token  = st.nextToken();
-		    String name = token.substring(0, token.indexOf(NAME_VALUE_SEPARATOR));
-		    String value = token.substring(token.indexOf(NAME_VALUE_SEPARATOR) + 1, token.length());
-		    domainStore.put(name, cookie);
-		    cookie.put(name, value);
+		    if (token.indexOf(NAME_VALUE_SEPARATOR) >-1) {
+			    String name = token.substring(0, token.indexOf(NAME_VALUE_SEPARATOR));
+			    String value = token.substring(token.indexOf(NAME_VALUE_SEPARATOR) + 1, token.length());
+			    domainStore.put(name, cookie);
+			    cookie.put(name, value);
+		    }
 		}
     
 		while (st.hasMoreTokens()) {
 		    String token  = st.nextToken();
-		    cookie.put(token.substring(0, token.indexOf(NAME_VALUE_SEPARATOR)).toLowerCase(), token.substring(token.indexOf(NAME_VALUE_SEPARATOR) + 1, token.length()));
-		}
+		    if (token.indexOf(NAME_VALUE_SEPARATOR) >-1) {
+		    	cookie.put(token.substring(0, token.indexOf(NAME_VALUE_SEPARATOR)).toLowerCase(), token.substring(token.indexOf(NAME_VALUE_SEPARATOR) + 1, token.length()));
+		    }
+		   }
 	    }
 	}
     }

@@ -65,8 +65,10 @@ public class Viewer extends WebView {
 					getContext().startActivity(Intent.createChooser(share, getContext().getString(R.string.share)));
 					return true;
 				case ID_OPENLINK:
-					Intent browser = new Intent(Intent.ACTION_VIEW);
-					browser.setData(Uri.parse(result.getExtra()));
+					Intent browser = new Intent(Intent.ACTION_VIEW,Uri.parse(result.getExtra()));
+					//For some reason, it still doesn't work correctly when opening link in email, then selecting open-in-browser here.
+					//It just shows the previous page, and won't let you go back
+					browser.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK + Intent.FLAG_GRANT_READ_URI_PERMISSION);
 					getContext().startActivity(browser);
 					return true;
 				case ID_COPY:

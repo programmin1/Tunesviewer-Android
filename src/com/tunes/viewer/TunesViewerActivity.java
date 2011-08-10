@@ -36,6 +36,7 @@ public class TunesViewerActivity extends Activity {
 	private WebView _web;
 	//private DownloadViewer myDownloader;
 	private MyWebViewClient _myWVC;
+	private String originalUA;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -47,9 +48,17 @@ public class TunesViewerActivity extends Activity {
 		//set(R.id.mainWebView) = new WebView(this);
 		_web = (WebView) findViewById(R.id.mainWebView);
 		WebSettings s = _web.getSettings();
+		originalUA = s.getUserAgentString();
+		if (originalUA.indexOf("AppleWebKit") > -1) {
+			/*Must have webkit-version-info or else there will be many
+			variable 'a' not found errors on the 'mouseover' of download links in full version,
+			which seems to trigger a bug and crash webkit in 2.2.2 AppleWebKit/533.1.*/
+			s.setUserAgentString("iTunes/10.4 "+originalUA.substring(originalUA.indexOf("AppleWebKit")));
+		} else {
+			s.setUserAgentString("iTunes/10.4");
+		}
 		s.setJavaScriptEnabled(true);
 		s.setPluginsEnabled(true);
-		s.setUserAgentString("iTunes/10.3");
 		s.setSupportZoom(true);
 		s.setBuiltInZoomControls(true);
 		s.setUseWideViewPort(false); //disables horizontal scroll

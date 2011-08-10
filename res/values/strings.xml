@@ -191,6 +191,15 @@ document.onload= new function() {
 	fixTransparent(document.getElementsByTagName('h2'));
 	fixTransparent(as);
 	
+	//Fix hr tag in select tag, it will crash the program, for example, when tapping dropdown by the download item.
+	// see https://code.google.com/p/android/issues/detail?id=17622
+	hrs = document.getElementsByTagName('hr');
+	for (hr in hrs) {
+	 if (hrs[hr].parentNode.tagName.toLowerCase()=='select') {
+	   hrs[hr].parentNode.removeChild(hrs[hr]);
+	 }
+	}
+	
 buttons = document.getElementsByTagName('button');
 for (i=0; i&lt;buttons.length; i++) {
 	if (buttons[i].getAttribute('subscribe-podcast-url')!=null) {

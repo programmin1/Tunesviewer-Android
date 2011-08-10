@@ -20,6 +20,9 @@ public class DownloadService extends Service {
 
 	@Override
 	public void onStart(Intent intent, int startId) {
+		if (intent==null) {
+			return;
+		}
 		super.onStart(intent, startId);
 		
 		String url = intent.getStringExtra("url");

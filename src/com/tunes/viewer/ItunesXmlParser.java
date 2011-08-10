@@ -270,8 +270,19 @@ public class ItunesXmlParser extends DefaultHandler {
 		assert(elname.equals(thisEl.name));
 		
 		// Elements handler. Mirror image of the one in StartElement
-		if (!ignoring && !elname.equals("FontStyle")) {
-			if (lastElement.equals("key")) {
+		if (!ignoring) {
+			if (elname.equals("FontStyle")) {
+				if ("default".equals(thisEl.atts.get("styleName"))) {
+					//Set default text style. This is important, for example, if it's white text on black!
+					html.append("<style> * {color: ");
+					html.append(thisEl.atts.get("color"));
+					html.append("; font-family: ");
+					html.append(thisEl.atts.get("font"));
+					html.append("; font-size: ");
+					html.append(thisEl.atts.get("size"));
+					html.append(";} </style>");
+				}
+			} else if (lastElement.equals("key")) {
 				if (docStack.size()==2 && docStack.peek().name.equals("dict") && lastValue.equals("title")) {
 					//special case - <plist><dict><key>title</key>...
 					html.append("<h1>");
