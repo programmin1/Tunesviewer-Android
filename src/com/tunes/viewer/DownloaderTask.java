@@ -13,12 +13,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.StatFs;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
+import android.net.wifi.WifiManager.WifiLock;
 
 /**
  * A class to handle a download and its notification.
@@ -36,13 +39,16 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	private String _ErrMSG = "";
 	private File _outFile;
 	private ArrayList<DownloaderTask> _alltasks;
+	private WifiLock _wifiLock;
 	//boolean success = false;
 	
 	// The last updated percent downloaded.
-	int lastProgress;
+	int _lastProgress;
 	
 	public DownloaderTask(Context c, ArrayList<DownloaderTask> t, String title, URL url, int ID) {
-		lastProgress = -1;
+		WifiManager wm = (WifiManager)c.getSystemService(Context.WIFI_SERVICE);
+		_wifiLock = wm.createWifiLock(WifiManager.WIFI_MODE_FULL, "Tunesviewer Download");
+		_lastProgress = -1;
 		_ID = ID;
 		_url = url;
 		_context = c;
@@ -109,6 +115,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	protected Long doInBackground(URL... urls) {
 		long downloaded = 0;
 		try {
+			_wifiLock.acquire();
 			_url = urls[0];
 			_connection =  (HttpURLConnection)urls[0].openConnection();
 			_connection.setRequestProperty ("User-agent", "iTunes/10.4");
@@ -164,6 +171,8 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 			_ErrMSG = "Download error: "+e.getMessage();
 			publishProgress(0);
 			cancel(false);
+		} finally {
+			_wifiLock.release();
 		}
 		return null;
 	}
@@ -185,10 +194,10 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	@Override
 	protected void onProgressUpdate(Integer... values) {
 		if (_ErrMSG.equals("")) {
-			if (values[0]!=lastProgress) {
+			if (values[0]!=_lastProgress) {
 				_notify.progressUpdate(values[0]);
 				Log.d(TAG,String.valueOf(values[0]));
-				lastProgress = values[0];
+				_lastProgress = values[0];
 			}
 		} else {
 			Toast.makeText(_context, _ErrMSG, Toast.LENGTH_LONG).show();

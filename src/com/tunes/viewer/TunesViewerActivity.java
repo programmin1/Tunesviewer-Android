@@ -15,7 +15,6 @@ import android.text.ClipboardManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,7 +22,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -52,11 +50,12 @@ public class TunesViewerActivity extends Activity {
 		if (originalUA.indexOf("AppleWebKit") > -1) {
 			/*Must have webkit-version-info or else there will be many
 			variable 'a' not found errors on the 'mouseover' of download links in full version,
-			which seems to trigger a bug and crash webkit in 2.2.2 AppleWebKit/533.1.*/
+			which seems to trigger a bug and crash webkit in 2.2.2 AppleWebKit/533.1?*/
 			s.setUserAgentString("iTunes/10.4 "+originalUA.substring(originalUA.indexOf("AppleWebKit")));
 		} else {
 			s.setUserAgentString("iTunes/10.4");
 		}
+		s.setUserAgentString("iTunes/10.4");
 		s.setJavaScriptEnabled(true);
 		s.setPluginsEnabled(true);
 		s.setSupportZoom(true);
@@ -76,7 +75,7 @@ public class TunesViewerActivity extends Activity {
 			@Override
 			public void afterTextChanged(Editable s) {
 				_web.computeScroll();
-				if (s.toString().equals("")) {	
+				if (s.toString().equals("")) {
 					_web.clearMatches();
 				} else {
 					_web.findAll(s.toString());

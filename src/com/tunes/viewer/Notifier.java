@@ -7,7 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 
 /**
- * Notification manager class, handles the notification with % complete and estimated time remaining.
+ * Notification manager class, handles a notification with % complete and estimated time remaining.
  */
 public class Notifier {
 	

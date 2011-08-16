@@ -152,14 +152,6 @@ public class ItunesXmlParser extends DefaultHandler {
 		innerText = new StringBuilder(200);
 		media = new StringBuilder(200);
 		docStack = new Stack<StackElement>();
-		/*not efficient:
-		HandledNames = new HashMap<String,Boolean>();
-		HandledNames.put("action",true);
-		HandledNames.put("items",true);
-		HandledNames.put("item-metadata",true);
-		HandledNames.put("tabs",true);
-		HandledNames.put("squishes",true);
-		HandledNames.put("content",true);*/
 		
 		redirectPage = "";
 		lastElement = "";
@@ -290,7 +282,7 @@ public class ItunesXmlParser extends DefaultHandler {
 					html.append("</h1>");
 				} else if (!docStack.empty() && !isHandled(docStack.peek())) {
 					/** Mobile mode
-					 * It goes in seperate subMap, so it won't overwrite, for example:
+					 * It goes in separate subMap, so it won't overwrite, for example:
 					 * <key>url</key><string/>
 					 * <key>artwork-url</key><dict>
 					 *  <key>url</key><string (imageurl)/> <- this should be stored in subMap.

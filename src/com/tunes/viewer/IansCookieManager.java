@@ -47,7 +47,7 @@ public class IansCookieManager {
 
     public IansCookieManager() {
 
-	store = new HashMap();
+	store = new HashMap<String, Map>();
 	dateFormat = new SimpleDateFormat(DATE_FORMAT);
     }
     
