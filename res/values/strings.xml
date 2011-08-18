@@ -48,7 +48,7 @@
     	<item>0</item>
     </string-array>
     <string name="defaultImg">0</string>
-    <string name="defaultDL">/sdcard/</string>
+    <string name="defaultDL">/sdcard/download</string>
     
     <string name="prefAdvTitle">Show Debug menus</string>
     <string name="prefAdvSummary">Enable view-source menu items</string>
@@ -136,13 +136,13 @@ function player () {
 		alert('podcastdownload');
 		console.log(obj.getAttribute('description'));
 		console.log(obj.getAttribute('episode-url'));
-		window.DOWNLOADINTERFACE.download(obj.getAttribute('description'),obj.getAttribute('episode-url'));
+		window.DOWNLOADINTERFACE.download(obj.getAttribute('description'), document.title ,obj.getAttribute('episode-url'));
 		alert(obj.getAttribute('episode-url'))
 	};
 	/*This may mess up normal operation by opening two identical files with different urls, duplicate notification, also
 	webview crashing.
 	this.doAnonymousDownload = function(obj) {
-		window.DOWNLOADINTERFACE.download(obj.itemName,obj.url);
+		window.DOWNLOADINTERFACE.download(obj.itemName, document.title, obj.url);
 		}*/
 }
 
@@ -185,6 +185,17 @@ document.onload= new function() {
 	setTitle();
 	iTunes = new player();
 	
+	
+	abs = document.getElementsByClassName('absolute');
+	for (a in abs) {
+		try {
+			abs[a].style.position='absolute';
+			abs[a].parentNode.style.position='relative';
+			abs[a].parentNode.style.display='block';
+		} catch (e) {}	
+	}
+	
+	
 	as = document.getElementsByTagName('a');
 	for (a in as) {as[a].target=''}
 	fixTransparent(document.getElementsByTagName('h1'));
@@ -210,7 +221,7 @@ for (i=0; i&lt;buttons.length; i++) {
 		{location.href=this.getAttribute('anonymous-download-url');},true);
 	} else if (buttons[i].getAttribute('episode-url')!=null) {
 		buttons[i].addEventListener('click',function ()
-		{ window.DOWNLOADINTERFACE.download(this.getAttribute('title'),this.getAttribute('episode-url')); },true);
+		{ window.DOWNLOADINTERFACE.download(this.getAttribute('title'), document.title, this.getAttribute('episode-url')); },true);
 	}
 }
 if (document.location.hash=='') {

@@ -35,10 +35,10 @@ public class MyWebChromeClient extends WebChromeClient {
 	}
 	
 	// Webkit messages already logged with tag "Web Console".
-	/*
+	
 	public void addMessageToConsole(String message, int lineNumber, String sourceID)  
 	{
-		//Log.d("WebKit", sourceID + ": Line " + Integer.toString(lineNumber) + " : " + message);  
-	}*/
+		Log.d("WebKi", sourceID + ": Line " + Integer.toString(lineNumber) + " : " + message);  
+	}
 
 }

@@ -266,6 +266,13 @@ public class TunesViewerActivity extends Activity {
 			//_web.loadUrl("http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewGrouping?id=27753");
 			_myWVC.shouldOverrideUrlLoading(_web, "http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewGrouping?id=27753");
 			return true;
+		/*case R.id.menuShow:
+			 Intent i = new Intent();
+			   i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			   i.setData(Uri.parse("file://sdcard/i"));
+			   i.setAction(Intent.ACTION_VIEW);
+			   startActivity(Intent.createChooser(i, "SelectFolder"));
+			return true;*/
 		case R.id.menuPrefs:
 			startActivity(new Intent(this,PrefsActivity.class));
 			return true;

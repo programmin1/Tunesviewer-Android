@@ -35,7 +35,7 @@ public class ItunesXmlParser extends DefaultHandler {
 	private final boolean _debug = false;
 
 	// HTML style and scripts before and after the media list: (Main styles are in strings.xml)
-	private static final String PRE_MEDIA = "<script>function downloadit(title,name) { console.log('download-it'); console.log(title); console.log(name); window.DOWNLOADINTERFACE.download(title,name); }</script>\n"+
+	private static final String PRE_MEDIA = "<script>function downloadit(title,name) { console.log('download-it'); console.log(title); console.log(name); window.DOWNLOADINTERFACE.download(title, document.title ,name); }</script>\n"+
 	"<style>* {font-family: Helvetica, Arial;}\n"+
 	"tr.dl > td {background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0.48, rgb(215,239,245)), color-stop(1, white));}\n"+
 	"tr.selection {background:gold;}\n"+
@@ -75,6 +75,7 @@ public class ItunesXmlParser extends DefaultHandler {
 	private String _reference;
 	// The url of the page.
 	private URL _url;
+	private String _title;
 	
 	private Context context;
 	
@@ -240,6 +241,11 @@ public class ItunesXmlParser extends DefaultHandler {
 				html.append("\" alt=\"");
 				html.append(atts.getValue("alt"));
 				html.append("\">");
+			// Without special position css, Textview title in View will sometimes show up twice.
+			} else if (elname.equals("TextView") && thisEl.atts.containsKey("headingLevel")) {
+				html.append("<TextView class=\"absolute\" style=\"left:"+thisEl.atts.get("leftInset")+"; top:"+thisEl.atts.get("topInset")+";\">");
+			/*} else if (elname.equals("View")) {
+				html.append("<View style=\"position:relative;\">");*/
 			} else if (!(elname.equals("string") || elname.equals("key") || elname.equals("MenuItem"))) {
 				//Text shown:
 				html.append("<");
@@ -274,12 +280,17 @@ public class ItunesXmlParser extends DefaultHandler {
 					html.append(thisEl.atts.get("size"));
 					html.append(";} </style>");
 				}
+			} else if (elname.equals("title")) {
+				_title = innerText.toString();
 			} else if (lastElement.equals("key")) {
+			
 				if (docStack.size()==2 && docStack.peek().name.equals("dict") && lastValue.equals("title")) {
 					//special case - <plist><dict><key>title</key>...
 					html.append("<h1>");
 					html.append(innerText);
 					html.append("</h1>");
+					_title = innerText.toString();
+					html.append("<script>document.title=\""+_title.replace("&amp;", "&").replace("\"", "\\\"")+"\";</script>");
 				} else if (!docStack.empty() && !isHandled(docStack.peek())) {
 					/** Mobile mode
 					 * It goes in separate subMap, so it won't overwrite, for example:
@@ -372,7 +383,10 @@ public class ItunesXmlParser extends DefaultHandler {
 					html.append("\" onclick=\"window.DOWNLOADINTERFACE.go(this.getAttribute('url'))\"><img style='float:left; padding:3px;' src=\"");
 					html.append(subMap.get("url"));
 					html.append("\"><font size='+2'>");
-					html.append(map.get("title"));
+					if (map.containsKey("title")) {
+						//_title = map.get("title");seen multiple times for some pages.
+						html.append(map.get("title"));
+					}
 					if (subMap.containsKey("label")) {
 						html.append(" ["+subMap.get("label")+"]");
 					}
@@ -399,7 +413,7 @@ public class ItunesXmlParser extends DefaultHandler {
 					}
 					html.append("<div class='media' "+extra+" onclick='toggle(this.nextSibling)'>");
 					//stoppropagation to prevent clicking container, then download:
-					html.append("<a class='media' style='float:right' onclick=\"window.event.stopPropagation();window.DOWNLOADINTERFACE.download(this.getAttribute('title'),this.getAttribute('url'));\" title=\"");
+					html.append("<a class='media' style='float:right' onclick=\"window.event.stopPropagation();window.DOWNLOADINTERFACE.download(this.getAttribute('title'), document.title, this.getAttribute('url'));\" title=\"");
 					html.append(map.get("title").replace("\"", "&quot;"));
 					html.append("\" url=\"");
 					html.append(subMap.get("asset-url").replace("\"", "&quot;"));
@@ -687,5 +701,9 @@ public class ItunesXmlParser extends DefaultHandler {
 			out.append(">");
 			return out.toString();
 		}
+	}
+
+	public String getTitle() {
+		return _title.replace("&amp;", "&");
 	}
 }

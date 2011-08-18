@@ -29,7 +29,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -340,7 +339,8 @@ public class MyWebViewClient extends WebViewClient {
 			factory.setValidating(false);
 			SAXParser saxParser= factory.newSAXParser();
 			ItunesXmlParser parser = new ItunesXmlParser(
-				u,callerContext,_view.getWidth(),Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(callerContext).getString("ImgPref", "0")));
+				u,callerContext,_view.getWidth()
+				,Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(callerContext).getString("ImgPref", "0")));
 			XMLReader xr = saxParser.getXMLReader();
 			xr.setContentHandler(parser);
 			InputSource is = new InputSource(new StringReader(_download));
@@ -356,17 +356,19 @@ public class MyWebViewClient extends WebViewClient {
 					Log.d(TAG,"Name "+parser.getSingleName());
 					Intent intent = new Intent(callerContext,DownloadService.class);
 					intent.putExtra("url", parser.getUrls().get(0));
+					intent.putExtra("podcast", parser.getTitle());
 					intent.putExtra("name",parser.getSingleName());
 					callerContext.startService(intent);
 				} else {
 					// Load converted html:
-					final String data = /*encode*/(parser.getHTML());
+					final String data = parser.getHTML();
 					_download = null;
 					synchronized (_view) {
 						_view.post(new Runnable() {
 							public void run() {
 								prepareView(_view,_cmd);
 								_view.loadDataWithBaseURL(_url,data,"text/html","UTF-8",_url);
+								Log.d(TAG,"WebLoader Loaded into WebView.");
 							}
 						});
 					}

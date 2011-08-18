@@ -9,7 +9,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -32,7 +34,8 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	private int _ID;
 	private static final String TAG = "DownloadService";
 	private HttpURLConnection _connection;
-	private Context _context;
+	private DownloadService _context;
+	private String _podcast;
 	private String _title;
 	private URL _url;
 	private final String VALIDCHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 $%`-_@{}~!#().";
@@ -45,13 +48,14 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	// The last updated percent downloaded.
 	int _lastProgress;
 	
-	public DownloaderTask(Context c, ArrayList<DownloaderTask> t, String title, URL url, int ID) {
+	public DownloaderTask(DownloadService c, ArrayList<DownloaderTask> t, String title, String podcast, URL url, int ID) {
 		WifiManager wm = (WifiManager)c.getSystemService(Context.WIFI_SERVICE);
 		_wifiLock = wm.createWifiLock(WifiManager.WIFI_MODE_FULL, "Tunesviewer Download");
 		_lastProgress = -1;
 		_ID = ID;
 		_url = url;
 		_context = c;
+		_podcast = podcast;
 		_title = title;
 		_alltasks = t;
 	}
@@ -84,7 +88,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 		if (s && !isCancelled()/* && notifClicked*/) {//success
 			openFile();
 		} else if (notifClicked) {
-			/*new AlertDialog.Builder(_context)
+			/*new AlertDialog.Builder(_context)_context doesn't work, getcontext and getapplicationcontext don't work either!?
 			.setIcon(android.R.drawable.ic_dialog_alert)
 			.setTitle("Cancel")
 			.setMessage("Cancel file download?")
@@ -92,10 +96,10 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				//Stop
-				
+				cancel(false);
 			}
 	
-			});*/
+			}).setNegativeButton("No", null).show();*/
 			cancel(false);
 		}
 	}
@@ -131,40 +135,43 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 			throw new IOException();
 			}
 			BufferedInputStream in = new BufferedInputStream(_connection.getInputStream());
-			StringBuilder fixedName = new StringBuilder();
-			for (int c=0; c<_title.length(); c++) { // Make a valid name:
-				if (VALIDCHARS.indexOf(_title.charAt(c))>-1) {
-					fixedName.append(_title.charAt(c));
-				}
-			}
+			
 			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(_context);
-			_outFile = new File(prefs.getString("DownloadDirectory",_context.getString(R.string.defaultDL))
-					, fixedName.toString()+ItunesXmlParser.fileExt(_url.toString()));
-			if (_outFile.exists() && _outFile.length() == contentLength) {
-				onPostExecute(contentLength); //Done. Already downloaded.
-			} else if (true) {//(connection.getContentLength()==-1 || available(outFile) <= connection.getContentLength()) {
-				//unfortunately checking for room causes crash. Why?
-				_outFile.createNewFile();
-				FileOutputStream file = new FileOutputStream(_outFile);
-				BufferedOutputStream out = new BufferedOutputStream(file);
-				int Byte;
-				while ((Byte = in.read()) != -1 && !isCancelled()) {
-					out.write(Byte);
-					downloaded++;
-					if (downloaded % 1024 == 0) {
-						publishProgress((int) ((downloaded/ (float)contentLength)*100));
+			String downloadDir = prefs.getString("DownloadDirectory",_context.getString(R.string.defaultDL));
+			File directory = new File(downloadDir,clean(_podcast)); 
+			if (directory.mkdirs() || directory.isDirectory()) {
+				_outFile = new File(downloadDir
+						, clean(_podcast) +"/"+ clean(_title)+ItunesXmlParser.fileExt(_url.toString()));
+				if (_outFile.exists() && _outFile.length() == contentLength) {
+					onPostExecute(contentLength); //Done. Already downloaded.
+				} else if (true) {//(connection.getContentLength()==-1 || available(outFile) <= connection.getContentLength()) {
+					//unfortunately checking for room causes crash. Why?
+					_outFile.createNewFile();
+					FileOutputStream file = new FileOutputStream(_outFile);
+					BufferedOutputStream out = new BufferedOutputStream(file);
+					int Byte;
+					while ((Byte = in.read()) != -1 && !isCancelled()) {
+						out.write(Byte);
+						downloaded++;
+						if (downloaded % 1024 == 0) {
+							publishProgress((int) ((downloaded/ (float)contentLength)*100));
+						}
 					}
-				}
-				out.flush();
-				if (isCancelled()) {
-						_outFile.delete();
+					out.flush();
+					if (isCancelled()) {
+							_outFile.delete();
+					} else {
+						//success = true;
+					}
+					in.close();
+					out.close();
 				} else {
-					//success = true;
+					_ErrMSG = "Not enough room!";
 				}
-				in.close();
-				out.close();
-			} else {
-				_ErrMSG = "Not enough room!";
+			} else { // Couldn't create, and directory doesn't exist.
+				_ErrMSG = "Couldn't create directory, perhaps there is no free space?";
+				publishProgress(0);
+				cancel(false);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -177,6 +184,16 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 		return null;
 	}
 	
+	private String clean(String name) {
+		StringBuilder fixedName = new StringBuilder(name.length());
+		for (int c=0; c<name.length(); c++) { // Make a valid name:
+			if (VALIDCHARS.indexOf(name.charAt(c))>-1) {
+				fixedName.append(name.charAt(c));
+			}
+		}
+		return fixedName.toString().trim();
+	}
+
 	@Override
 	protected void onCancelled() {
 		_alltasks.remove(this);

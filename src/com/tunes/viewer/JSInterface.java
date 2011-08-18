@@ -28,9 +28,10 @@ public class JSInterface {
 	 * @param title
 	 * @param url
 	 */
-	public void download(String title, String url) {
+	public void download(String title, String podcast, String url) {
 		Intent intent = new Intent(_context,DownloadService.class);
 		intent.putExtra("url", url);
+		intent.putExtra("podcast", podcast);
 		intent.putExtra("name",title);
 		_context.startService(intent);
 	}
