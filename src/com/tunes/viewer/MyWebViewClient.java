@@ -462,10 +462,12 @@ public class MyWebViewClient extends WebViewClient {
 				}
 			}
 			//No need for history, this has custom history handler.
-			_view.clearHistory();
-			//If preference set, disable image loading:
-			String pref = PreferenceManager.getDefaultSharedPreferences(callerContext).getString("ImgPref", "0");
-			_view.getSettings().setBlockNetworkImage(pref.equals("-1"));
+			synchronized(_view) {
+				_view.clearHistory();
+				//If preference set, disable image loading:
+				String pref = PreferenceManager.getDefaultSharedPreferences(callerContext).getString("ImgPref", "0");
+				_view.getSettings().setBlockNetworkImage(pref.equals("-1"));
+			}
 		}
 	}
 	

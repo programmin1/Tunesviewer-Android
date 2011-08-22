@@ -37,10 +37,10 @@ public class ItunesXmlParser extends DefaultHandler {
 	// HTML style and scripts before and after the media list: (Main styles are in strings.xml)
 	private static final String PRE_MEDIA = "<script>function downloadit(title,name) { console.log('download-it'); console.log(title); console.log(name); window.DOWNLOADINTERFACE.download(title, document.title ,name); }</script>\n"+
 	"<style>* {font-family: Helvetica, Arial;}\n"+
-	"tr.dl > td {background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0.48, rgb(215,239,245)), color-stop(1, white));}\n"+
+	"tr.dl > td {}\n"+
 	"tr.selection {background:gold;}\n"+
 	"tr.selection > td {background-image:-webkit-gradient(linear, left bottom, left top, color-stop(0.48, #FEFF52), color-stop(1, gold));}</style>"+
-	"<table width='100%' border='1' bgcolor='white' cellspacing=\"1\" cellpadding=\"3\"><tr bgcolor='CCCCCC'><td><b>Name</b></td><td><b>Author</b></td><td><b>Duration</b></td><td><b>Comment</b></td><td><b>Download</b></td></tr>\n";
+	"<table width='100%' border='1' cellspacing=\"1\" cellpadding=\"3\"><tr><td><b>Name</b></td><td><b>Author</b></td><td><b>Duration</b></td><td><b>Comment</b></td><td><b>Download</b></td></tr>\n";
 	private static final String POST_MEDIA = "</table>";
 	private static final String TAG = "parser";
 	
@@ -69,7 +69,8 @@ public class ItunesXmlParser extends DefaultHandler {
 	
 	private ArrayList<String> urls;
 	private String singleName;
-	//private HashMap<String,Boolean> HandledNames;
+	//Next element's style.
+	private String nextElStyle;
 	
 	// The specific item-id.
 	private String _reference;
@@ -130,6 +131,7 @@ public class ItunesXmlParser extends DefaultHandler {
 	public ItunesXmlParser(URL url, Context c, int width, int imgPref) {
 		_url = url;
 		_reference = "";
+		nextElStyle = "";
 		if (url.getQuery() != null) {
 			String[] queries = url.getQuery().split("&");
 			for (String q : queries) {
@@ -222,7 +224,7 @@ public class ItunesXmlParser extends DefaultHandler {
 			} else if (elname.equals("HBoxView")) {
 				html.append("<!--HBox--><table><tr>");
 			} else if (elname.equals("VBoxView")) {
-				html.append("<!--VBox--><table>");
+				html.append("<!--VBox--><table width='100%'>");
 			} else if (elname.equals("GotoURL") || elname.equals("OpenURL")) {
 				html.append("<a href=\"");
 				html.append(atts.getValue("url"));
@@ -241,9 +243,16 @@ public class ItunesXmlParser extends DefaultHandler {
 				html.append("\" alt=\"");
 				html.append(atts.getValue("alt"));
 				html.append("\">");
-			// Without special position css, Textview title in View will sometimes show up twice.
+				// Without special position css, Textview title in View will sometimes show up twice.
 			} else if (elname.equals("TextView") && thisEl.atts.containsKey("headingLevel")) {
-				html.append("<TextView class=\"absolute\" style=\"left:"+thisEl.atts.get("leftInset")+"; top:"+thisEl.atts.get("topInset")+";\">");
+				html.append("<TextView class=\"absolute\" ");
+				if (!nextElStyle.equals("")) {
+					html.append(nextElStyle);
+					html.append("; left:"+thisEl.atts.get("leftInset")+"; top:"+thisEl.atts.get("topInset")+";\">");
+					nextElStyle = "";
+				} else {
+					html.append("style=\"left:"+thisEl.atts.get("leftInset")+"; top:"+thisEl.atts.get("topInset")+";\">");
+				}
 			/*} else if (elname.equals("View")) {
 				html.append("<View style=\"position:relative;\">");*/
 			} else if (!(elname.equals("string") || elname.equals("key") || elname.equals("MenuItem"))) {
@@ -282,6 +291,10 @@ public class ItunesXmlParser extends DefaultHandler {
 				}
 			} else if (elname.equals("title")) {
 				_title = innerText.toString();
+			} else if (elname.equals("PictureButtonView")
+			            && thisEl.atts.containsKey("mask") && thisEl.atts.get("mask").indexOf("masks/outline_box.png") >-1) {
+				//Set style without ending quote " .
+				nextElStyle = " style=\"border-width:1px; border-style:solid; border-radius: 2px; padding: 2px; border-color:"+thisEl.atts.get("color");
 			} else if (lastElement.equals("key")) {
 			
 				if (docStack.size()==2 && docStack.peek().name.equals("dict") && lastValue.equals("title")) {

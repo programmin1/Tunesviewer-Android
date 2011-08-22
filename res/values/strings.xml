@@ -85,7 +85,7 @@ h2 {text-align:left;}
 h3 {text-align:left;}
 div {text-align:left;}
 * {font-family: Helvetica, Arial;}
-div.media { background-color:#77FF77;
+div.media {
  width=100%;border-radius:10px; border-color:white; border-style:solid; border-width:2px; padding:10px;}
 span.preview {display:inline-block; background-repeat:no-repeat; background-position:center; padding:5px; vertical-align:middle; width:22px; height:22px; background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAALmSURBVDiNrdVLbExRGAfw/33OmDZIxqDo4lYQYSEWJMJGIojUQk1RJBWpjXdIbi2ICJHxXFjYiu2NSiw8EqRUPDJBionScqnxGpppp/d27j3n3HMsmo5Oqq0+TnJ2J7/v/53vJEcSQmDbhTnPhRCNhAUnLdPOYhyWDAA+ZYtXLFy0W1OV9i3nZh+LJ4yScYEBoHLpqtDRLbtKl8xbUK+rSnrz2Yr98YShjxkWCKBpHdi4fOWE+k07Jy+aPfeUrinp6jPGjnjCUMYEM94Jl7QgEu7C1pXrSg5tqI3NLzcuhTTVjieMqnjCkEYMQwSFEjTIwvVTmFSaR93aqpK962vKK8pmXQnraks8YaweEcw5A+e83w7g0wxy+WZEJzHsqdxcWrdm49wZ0di17RfnPI8njGVDwZIQAvGEIU7vqIPrtw5+EDJ0bRpCahnef/2E64/vu67nJD3CDlim3TwofGJ7LVz/w7AtSpKCsFaGkDodqc+t/Mazxjyh3j2PssOWaReSFeBjNTVwfXtY+G8BFRP0mdCVqWi2W/itZJNHOWkgNDhimXa6AB+proLrt/833LdkSUckVA5VjuJFW4rdbX5CgOC02neAMB+UsVHAEphCAIUi4AwQgIBAAaaMjAiWJAURfTp0NYY3nz/yxtc3PRbQBsJ6r+JvYkpAWTCU1QtCQlifgrAWQ+v3b/zBm4d5Qv17hAVFwytKzIZMLCGkTURYj6H9VweaUrfdPOlJEsb/+dz6JfYGvQpNiSCsR/Gj08HTd4+cXN55Txnfa5n248Fi9IMHDk+RQwhpE5F1CJJtL51O1/lGA77PMu07Q7RWDPvMAwt6YVlSoakR5PIcr962Or+7u7MsEAcBNFimLYZDi2BKfXDBIcsaHE/g7de0k+ly8wEXJoCrlmkPP9l/JqY+fAq0/ezuyXT1EC7EcSFw2TJtMhJwAJz60uVlcpQJIc5ygfOWabujAYtgRZZe/MyRRs4xbp/pHxoMnL5j5aIcAAAAAElFTkSuQmCC);}
 
@@ -188,10 +188,15 @@ document.onload= new function() {
 	
 	abs = document.getElementsByClassName('absolute');
 	for (a in abs) {
-		try {
+		try {//Styling for titles.
 			abs[a].style.position='absolute';
 			abs[a].parentNode.style.position='relative';
 			abs[a].parentNode.style.display='block';
+			abs[a].style.fontWeight = 'bold';
+			if (abs[a].parentNode.parentNode.parentNode.parentNode.parentNode.tagName.toLowerCase()=='table') {
+				abs[a].parentNode.parentNode.parentNode.parentNode.parentNode.style.width='100%';
+			}
+			//abs[a].innerHTML = abs[a].innerHTML.trim().replace(/\\ /g,'&amp;nbsp;');
 		} catch (e) {}	
 	}
 	

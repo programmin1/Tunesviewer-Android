@@ -91,8 +91,13 @@ public class Viewer extends WebView {
 			menu.add(0, ID_OPENLINK, 0, "Open in Browser").setOnMenuItemClickListener(handler);
 		} else if (result.getType() == HitTestResult.EMAIL_TYPE) { //email address
 			Intent email = new Intent(android.content.Intent.ACTION_SEND);
-			email .putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{"webmaster@website.com"});
+			email.setType("text/plain");
+			email .putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{result.getExtra()});
 			getContext().startActivity(email);
+		} else if (result.getType() == HitTestResult.PHONE_TYPE) {
+	        /*String number = "tel:"+result.getExtra().trim();
+	        Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.parse(number)); 
+	        getContext().startActivity(callIntent);*/
 		}
 		menu.add(0,ID_COPY,0,"Select & Copy Text").setOnMenuItemClickListener(handler);
 	}
