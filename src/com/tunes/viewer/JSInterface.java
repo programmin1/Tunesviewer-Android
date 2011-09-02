@@ -103,7 +103,7 @@ public class JSInterface {
 			.setIcon(android.R.drawable.ic_dialog_alert)
 			.setTitle("No Podcatcher")
 			.setMessage("No podcast app found to handle this link! You must install a podcast manager app that handles itpc:// links, to subscribe.")
-			.setNegativeButton("Done", null)
+			.setNegativeButton("OK", null)
 			.show();
 		}
 	}

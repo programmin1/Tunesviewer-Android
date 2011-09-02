@@ -30,6 +30,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -398,12 +399,19 @@ public class MyWebViewClient extends WebViewClient {
 					worked = false;
 				}
 			} else { //non text url, send to downloader.
-				Log.e(TAG,"Non text");
-				Intent intent = new Intent(caller.callerContext,DownloadService.class);
-				intent.putExtra("url", _url);
-				intent.putExtra("podcast", "");
-				intent.putExtra("name", _url);
-				caller.callerContext.startService(intent);
+				try {
+					Log.e(TAG,"Non text");
+					Intent intent = new Intent(caller.callerContext,DownloadService.class);
+					intent.putExtra("url", _url);
+					intent.putExtra("podcast", "");
+					intent.putExtra("name", _url);
+					caller.callerContext.startService(intent);
+					worked = true;
+					//Set title back to normal.
+					_view.loadUrl("javascript:setTitle()");
+				} catch (ActivityNotFoundException e) {
+					Toast.makeText(callerContext, "No app found to handle this file.", Toast.LENGTH_LONG).show();
+				}
 			}
 			return worked;
 		}

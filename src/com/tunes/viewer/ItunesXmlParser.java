@@ -131,6 +131,7 @@ public class ItunesXmlParser extends DefaultHandler {
 	 */
 	public ItunesXmlParser(URL url, Context c, int width, int imgPref) {
 		_url = url;
+		_title = "";
 		_reference = "";
 		nextHeaderBorder = "";
 		if (url.getQuery() != null) {
