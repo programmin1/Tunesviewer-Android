@@ -69,8 +69,9 @@ public class ItunesXmlParser extends DefaultHandler {
 	
 	private ArrayList<String> urls;
 	private String singleName;
-	//Next element's style.
-	private String nextElStyle;
+	
+	//When non-empty, this is color of border of a heading.
+	private String nextHeaderBorder;
 	
 	// The specific item-id.
 	private String _reference;
@@ -131,7 +132,7 @@ public class ItunesXmlParser extends DefaultHandler {
 	public ItunesXmlParser(URL url, Context c, int width, int imgPref) {
 		_url = url;
 		_reference = "";
-		nextElStyle = "";
+		nextHeaderBorder = "";
 		if (url.getQuery() != null) {
 			String[] queries = url.getQuery().split("&");
 			for (String q : queries) {
@@ -246,15 +247,14 @@ public class ItunesXmlParser extends DefaultHandler {
 				// Without special position css, Textview title in View will sometimes show up twice.
 			} else if (elname.equals("TextView") && thisEl.atts.containsKey("headingLevel")) {
 				html.append("<TextView class=\"absolute\" ");
-				if (!nextElStyle.equals("")) {
-					html.append(nextElStyle);
+				if (!nextHeaderBorder.equals("")) { //bordered heading style:
+					html.append(" style=\"border-width:1px; border-style:solid; border-radius: 2px; padding: 2px; border-color:");
+					html.append(nextHeaderBorder);
 					html.append("; left:"+thisEl.atts.get("leftInset")+"; top:"+thisEl.atts.get("topInset")+";\">");
-					nextElStyle = "";
+					nextHeaderBorder = "";
 				} else {
 					html.append("style=\"left:"+thisEl.atts.get("leftInset")+"; top:"+thisEl.atts.get("topInset")+";\">");
 				}
-			/*} else if (elname.equals("View")) {
-				html.append("<View style=\"position:relative;\">");*/
 			} else if (!(elname.equals("string") || elname.equals("key") || elname.equals("MenuItem"))) {
 				//Text shown:
 				html.append("<");
@@ -294,7 +294,7 @@ public class ItunesXmlParser extends DefaultHandler {
 			} else if (elname.equals("PictureButtonView")
 			            && thisEl.atts.containsKey("mask") && thisEl.atts.get("mask").indexOf("masks/outline_box.png") >-1) {
 				//Set style without ending quote " .
-				nextElStyle = " style=\"border-width:1px; border-style:solid; border-radius: 2px; padding: 2px; border-color:"+thisEl.atts.get("color");
+				nextHeaderBorder = thisEl.atts.get("color");
 			} else if (lastElement.equals("key")) {
 			
 				if (docStack.size()==2 && docStack.peek().name.equals("dict") && lastValue.equals("title")) {
@@ -468,7 +468,9 @@ public class ItunesXmlParser extends DefaultHandler {
 			} else if (elname.equals("VBoxView")) {
 				html.append("</table>");
 			} else if (elname.equals("GotoURL") || elname.equals("OpenURL")) {
-				html.append(innerText);
+				if (!innerText.toString().trim().equals("TELL A FRIEND")) {//Page wouldn't work.
+					html.append(innerText);
+				}
 				html.append("</a>");
 			} else if (elname.equals("PictureView")) {
 				html.append("</img>");

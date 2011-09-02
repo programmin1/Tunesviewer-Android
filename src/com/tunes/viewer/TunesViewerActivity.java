@@ -314,7 +314,6 @@ public class TunesViewerActivity extends Activity {
 			// Clear data so it won't go here again after another activity runs, and user returns here.
 			this.getIntent().setData(null);
 		}
-		//_web.requestFocus(View.FOCUS_DOWN);
 	}
 
 	@Override
