@@ -8,14 +8,10 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.StatFs;
@@ -145,7 +141,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 				if (_outFile.exists() && _outFile.length() == contentLength) {
 					onPostExecute(contentLength); //Done. Already downloaded.
 				} else if (true) {//(connection.getContentLength()==-1 || available(outFile) <= connection.getContentLength()) {
-					//unfortunately checking for room causes crash. Why?
+					//TODO: unfortunately checking for room causes crash. Why?
 					_outFile.createNewFile();
 					FileOutputStream file = new FileOutputStream(_outFile);
 					BufferedOutputStream out = new BufferedOutputStream(file);
@@ -198,6 +194,11 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	protected void onCancelled() {
 		_alltasks.remove(this);
 		_notify.finish();
+		try {
+			_outFile.delete();
+		} catch (Exception e) {
+			System.err.println(e);
+		}
 	}
 	
 	protected File getFile() {
