@@ -37,6 +37,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	private URL _url;
 	private final String VALIDCHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 $%`-_@{}~!#().";
 	private String _ErrMSG = "";
+	private String _sizeStr = "";
 	private File _outFile;
 	private ArrayList<DownloaderTask> _alltasks;
 	private WifiLock _wifiLock;
@@ -126,9 +127,10 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 			// Make sure response code is in the 200 range.
 			if (_connection.getResponseCode() / 100 != 2) {
 				Log.e(TAG,"Can't connect. code "+_connection.getResponseCode());
-			throw new IOException();
+				throw new IOException();
 			}
 			final long contentLength = _connection.getContentLength();
+			_sizeStr = filesize(contentLength);
 			if (contentLength < 1) {
 				Log.e(TAG,"Invalid contentlength.");
 				throw new IOException();
@@ -224,7 +226,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	protected void onProgressUpdate(Integer... values) {
 		if (_ErrMSG.equals("")) {
 			if (values[0]!=_lastProgress) {
-				_notify.progressUpdate(values[0]);
+				_notify.progressUpdate(values[0],_sizeStr);
 				Log.d(TAG,String.valueOf(values[0]));
 				_lastProgress = values[0];
 			}

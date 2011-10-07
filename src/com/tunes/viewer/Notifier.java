@@ -71,7 +71,7 @@ public class Notifier {
 	 * Updates the notification's display with percent progress.
 	 * @param progress
 	 */
-	public void progressUpdate(int progress) {
+	public void progressUpdate(int progress, String sizeStr) {
 		/*******  To calculate time remaining ********
 		 * Assuming elapsedTime / fullTime = percentdownloaded / 100,
 		 * fullTime = 100*elapsedTime / percentdownloaded.
@@ -79,7 +79,7 @@ public class Notifier {
 		if (progress > 0) {
 			long fullTime = 100*elapsedTime()/progress;
 			String remaining = ItunesXmlParser.timeval(String.valueOf(fullTime - elapsedTime()));
-			CharSequence contentText = progress + "% ("+remaining+") Tap to cancel download.";
+			CharSequence contentText = progress + "% of "+sizeStr+" ("+remaining+") Tap to cancel download.";
 			notification.setLatestEventInfo(_context, _title, contentText, notificationIntent);
 			notificationManager.notify(_NOTIFICATION_ID, notification);
 		}
