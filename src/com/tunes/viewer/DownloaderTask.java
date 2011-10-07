@@ -14,6 +14,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.os.StatFs;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -39,6 +40,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	private File _outFile;
 	private ArrayList<DownloaderTask> _alltasks;
 	private WifiLock _wifiLock;
+	private Handler _handler;
 	//boolean success = false;
 	
 	// The last updated percent downloaded.
@@ -54,6 +56,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 		_podcast = podcast;
 		_title = title;
 		_alltasks = t;
+		_handler = new Handler();
 	}
 	
 	/**
@@ -125,10 +128,18 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 				Log.e(TAG,"Can't connect. code "+_connection.getResponseCode());
 			throw new IOException();
 			}
-			long contentLength = _connection.getContentLength();
+			final long contentLength = _connection.getContentLength();
 			if (contentLength < 1) {
 				Log.e(TAG,"Invalid contentlength.");
-			throw new IOException();
+				throw new IOException();
+			} else {
+				_handler.post(new Runnable() {// necessary for gui call in thread.
+					@Override
+					public void run() {
+						Toast.makeText(_context.getApplicationContext(), 
+							"Started downloading "+filesize(contentLength), Toast.LENGTH_LONG).show();
+					}
+				});
 			}
 			BufferedInputStream in = new BufferedInputStream(_connection.getInputStream());
 			
@@ -237,6 +248,20 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	public static long available(File f) {
 		StatFs stat = new StatFs(f.getPath());
 		return (long)stat.getBlockSize() * (long)stat.getAvailableBlocks();
+	}
+	
+	public static String filesize(long size) {
+		final int MB = 1048576;
+		final int KB = 1024;
+		String output;
+		if (size >= MB) {
+			output = Math.round(size/(double)MB*10)/10.0+" MB";
+		} else if (size >= KB) {
+			output = Math.round(size/(double)KB*10)/10.0+" KB";
+		} else {
+			output = size + " B";
+		}
+		return output;
 	}
 
 	
