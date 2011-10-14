@@ -338,79 +338,81 @@ public class MyWebViewClient extends WebViewClient {
 			_CM.setCookies(conn);
 			conn.connect();
 			_CM.storeCookies(conn);
-			length = conn.getContentLength();
 			Log.d(TAG,"mime: "+conn.getContentType());
-			if (conn.getContentType().startsWith("text")) {
-				InputStream input = conn.getInputStream();
-	
-				if ("gzip".equals(conn.getContentEncoding())) {
-					input = new GZIPInputStream(input);
-				}
-				// Download xml/html to parse:
-				_download = makeString(input,length); 
-				synchronized (caller) {
-					caller._originalDownload = _download;
-				}
-				// Remove unneeded XML declaration that may cause errors on some pages:
-				_download = _download.replace("<?","<!--").replace("?>", "-->");
-				
-				SAXParserFactory factory = SAXParserFactory.newInstance();
-				factory.setValidating(false);
-				SAXParser saxParser= factory.newSAXParser();
-				ItunesXmlParser parser = new ItunesXmlParser(
-					u,callerContext,_view.getWidth()
-					,Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(callerContext).getString("ImgPref", "0")));
-				XMLReader xr = saxParser.getXMLReader();
-				xr.setContentHandler(parser);
-				InputSource is = new InputSource(new StringReader(_download));
-				long startMS = System.currentTimeMillis();
-				xr.parse(is);
-				long endMS = System.currentTimeMillis();
-				Log.i(TAG,"PARSING XML TOOK "+(endMS-startMS)+" MS.");
-				if (parser.getRedirect().equals("")) {
-					// No redirect for this page
-					if (parser.getUrls().size()==1) {
-						// Single-file description, call downloader:
-						Log.d(TAG,"DL "+parser.getUrls().get(0));
-						Log.d(TAG,"Name "+parser.getSingleName());
-						Intent intent = new Intent(callerContext,DownloadService.class);
-						intent.putExtra("url", parser.getUrls().get(0));
-						intent.putExtra("podcast", parser.getTitle());
-						intent.putExtra("name",parser.getSingleName());
-						callerContext.startService(intent);
-					} else {
-						// Load converted html:
-						final String data = parser.getHTML();
-						_download = null;
-						synchronized (_view) {
-							_view.post(new Runnable() {
-								public void run() {
-									prepareView(_view,_cmd);
-									_view.loadDataWithBaseURL(_url,data,"text/html","UTF-8",_url);
-									Log.d(TAG,"WebLoader Loaded into WebView.");
-								}
-							});
-						}
+			length = conn.getContentLength();
+			if (conn.getContentType()!=null) {
+				if (conn.getContentType().startsWith("text")) {
+					InputStream input = conn.getInputStream();
+		
+					if ("gzip".equals(conn.getContentEncoding())) {
+						input = new GZIPInputStream(input);
 					}
-					worked = true;
-				} else {
-					// Redirect:
-					_url = parser.getRedirect();
-					worked = false;
-				}
-			} else { //non text url, send to downloader.
-				try {
-					Log.e(TAG,"Non text");
-					Intent intent = new Intent(caller.callerContext,DownloadService.class);
-					intent.putExtra("url", _url);
-					intent.putExtra("podcast", "");
-					intent.putExtra("name", _url);
-					caller.callerContext.startService(intent);
-					worked = true;
-					//Set title back to normal.
-					_view.loadUrl("javascript:setTitle()");
-				} catch (ActivityNotFoundException e) {
-					Toast.makeText(callerContext, "No app found to handle this file.", Toast.LENGTH_LONG).show();
+					// Download xml/html to parse:
+					_download = makeString(input,length); 
+					synchronized (caller) {
+						caller._originalDownload = _download;
+					}
+					// Remove unneeded XML declaration that may cause errors on some pages:
+					_download = _download.replace("<?","<!--").replace("?>", "-->");
+					
+					SAXParserFactory factory = SAXParserFactory.newInstance();
+					factory.setValidating(false);
+					SAXParser saxParser= factory.newSAXParser();
+					ItunesXmlParser parser = new ItunesXmlParser(
+						u,callerContext,_view.getWidth()
+						,Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(callerContext).getString("ImgPref", "0")));
+					XMLReader xr = saxParser.getXMLReader();
+					xr.setContentHandler(parser);
+					InputSource is = new InputSource(new StringReader(_download));
+					long startMS = System.currentTimeMillis();
+					xr.parse(is);
+					long endMS = System.currentTimeMillis();
+					Log.i(TAG,"PARSING XML TOOK "+(endMS-startMS)+" MS.");
+					if (parser.getRedirect().equals("")) {
+						// No redirect for this page
+						if (parser.getUrls().size()==1) {
+							// Single-file description, call downloader:
+							Log.d(TAG,"DL "+parser.getUrls().get(0));
+							Log.d(TAG,"Name "+parser.getSingleName());
+							Intent intent = new Intent(callerContext,DownloadService.class);
+							intent.putExtra("url", parser.getUrls().get(0));
+							intent.putExtra("podcast", parser.getTitle());
+							intent.putExtra("name",parser.getSingleName());
+							callerContext.startService(intent);
+						} else {
+							// Load converted html:
+							final String data = parser.getHTML();
+							_download = null;
+							synchronized (_view) {
+								_view.post(new Runnable() {
+									public void run() {
+										prepareView(_view,_cmd);
+										_view.loadDataWithBaseURL(_url,data,"text/html","UTF-8",_url);
+										Log.d(TAG,"WebLoader Loaded into WebView.");
+									}
+								});
+							}
+						}
+						worked = true;
+					} else {
+						// Redirect:
+						_url = parser.getRedirect();
+						worked = false;
+					}
+				} else { //non text url, send to downloader.
+					try {
+						Log.e(TAG,"Non text");
+						Intent intent = new Intent(caller.callerContext,DownloadService.class);
+						intent.putExtra("url", _url);
+						intent.putExtra("podcast", "");
+						intent.putExtra("name", _url);
+						caller.callerContext.startService(intent);
+						worked = true;
+						//Set title back to normal.
+						_view.loadUrl("javascript:setTitle()");
+					} catch (ActivityNotFoundException e) {
+						Toast.makeText(callerContext, "No app found to handle this file.", Toast.LENGTH_LONG).show();
+					}
 				}
 			}
 			return worked;
