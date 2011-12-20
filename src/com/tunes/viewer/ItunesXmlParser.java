@@ -601,14 +601,18 @@ public class ItunesXmlParser extends DefaultHandler {
 	 * @return lowercase string.
 	 */
 	public static String fileExt(String url) {
-		String ext = url.substring(url.lastIndexOf(".") );
-		if (ext.indexOf("?")>-1) {
-			ext = ext.substring(0,ext.indexOf("?"));
+		if (url.lastIndexOf(".") == -1) {
+			return null;
+		} else {
+			String ext = url.substring(url.lastIndexOf(".") );
+			if (ext.indexOf("?")>-1) {
+				ext = ext.substring(0,ext.indexOf("?"));
+			}
+			if (ext.indexOf("%")>-1) {
+				ext = ext.substring(0,ext.indexOf("%"));
+			}
+			return ext.toLowerCase();
 		}
-		if (ext.indexOf("%")>-1) {
-			ext = ext.substring(0,ext.indexOf("%"));
-		}
-		return ext.toLowerCase();
 	}
 	
 	/**

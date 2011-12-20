@@ -11,9 +11,11 @@ import java.util.ArrayList;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.IntentSender.SendIntentException;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.StatFs;
 import android.preference.PreferenceManager;
@@ -35,7 +37,8 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	private String _podcast;
 	private String _title;
 	private URL _url;
-	private final String VALIDCHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 $%`-_@{}~!#().";
+	// Valid characters a file may have. Note that Android chokes on files with a #, and can't find their type.
+	private final String VALIDCHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 $%`-_@{}~!().";
 	private String _ErrMSG = "";
 	private String _sizeStr = "";
 	private File _outFile;
@@ -66,7 +69,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	private void openFile() {
 		MimeTypeMap myMime = MimeTypeMap.getSingleton();
 
-		Intent newIntent = new Intent(android.content.Intent.ACTION_VIEW);
+		Intent newIntent = new Intent(Intent.ACTION_VIEW);
 		String mimeType = myMime.getMimeTypeFromExtension(ItunesXmlParser.fileExt(getFile().toString()).substring(1));
 		newIntent.setDataAndType(Uri.fromFile(getFile()),mimeType);
 		newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -148,13 +151,14 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(_context);
 			String downloadDir = prefs.getString("DownloadDirectory",_context.getString(R.string.defaultDL));
 			File directory = new File(downloadDir,clean(_podcast)); 
-			if (directory.mkdirs() || directory.isDirectory()) {
+			if (directory.mkdirs() || directory.isDirectory()) { //Folder created or already existed.
 				_outFile = new File(downloadDir
 						, clean(_podcast) +"/"+ clean(_title)+ItunesXmlParser.fileExt(_url.toString()));
 				if (_outFile.exists() && _outFile.length() == contentLength) {
 					onPostExecute(contentLength); //Done. Already downloaded.
 				} else if (true) {//(connection.getContentLength()==-1 || available(outFile) <= connection.getContentLength()) {
 					//TODO: unfortunately checking for room causes crash. Why?
+					//Download the file:
 					_outFile.createNewFile();
 					FileOutputStream file = new FileOutputStream(_outFile);
 					BufferedOutputStream out = new BufferedOutputStream(file);
@@ -174,6 +178,9 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 					}
 					in.close();
 					out.close();
+					new MediaScannerWrapper(_context, _outFile.toString(), "audio/mp3").scan();
+					_context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
+							Uri.parse("file://"+ Environment.getExternalStorageDirectory())));
 				} else {
 					_ErrMSG = "Not enough room!";
 				}
