@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -51,11 +52,11 @@ public class TunesViewerActivity extends Activity {
 			/*Must have webkit-version-info or else there will be many
 			variable 'a' not found errors on the 'mouseover' of download links in full version,
 			which seems to trigger a bug and crash webkit in 2.2.2 AppleWebKit/533.1?*/
-			s.setUserAgentString("iTunes/10.4 "+originalUA.substring(originalUA.indexOf("AppleWebKit")));
+			s.setUserAgentString("iTunes/10.5 "+originalUA.substring(originalUA.indexOf("AppleWebKit")));
 		} else {
-			s.setUserAgentString("iTunes/10.4");
+			s.setUserAgentString("iTunes/10.5");
 		}
-		s.setUserAgentString("iTunes/10.4");
+		s.setUserAgentString("iTunes/10.5");
 		s.setJavaScriptEnabled(true);
 		s.setPluginsEnabled(true);
 		s.setSupportZoom(true);
@@ -276,6 +277,15 @@ public class TunesViewerActivity extends Activity {
 		case R.id.menuPrefs:
 			startActivity(new Intent(this,PrefsActivity.class));
 			return true;
+		case R.id.menuAbout:
+			String versionName;
+			try {
+				versionName = getApplicationContext().getPackageManager().getPackageInfo(getApplicationContext().getPackageName(), 0 ).versionName;
+				_myWVC.shouldOverrideUrlLoading(_web, "http://tunesviewer.sourceforge.net/checkversionmobile.php?version="+versionName);
+			} catch (NameNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		default:
 			return super.onOptionsItemSelected(item);
 		}

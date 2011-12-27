@@ -25,7 +25,7 @@
     	<item>Mobile (Faster, low-bandwidth)</item>
     </string-array>
     <string-array name="UAvalues">
-    	<item>iTunes/10.3</item>
+    	<item>iTunes/10.5</item>
     	<!-- <item>iTunes-iPad-M/3.2</item> -->
     	<item>iTunes-iPhone/1.2.0</item>
     </string-array>
@@ -117,4 +117,6 @@ function iTSVideoPreviewWithObject (obj) {
 	as = document.getElementsByTagName("a");
 	for (a in as) {as[a].target=""};
      -->
+    
+    <string name="about">About</string>
 </resources>

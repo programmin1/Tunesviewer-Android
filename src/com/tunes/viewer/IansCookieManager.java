@@ -197,8 +197,8 @@ public class IansCookieManager {
     public String toString() {
     	return store.toString();
     }
-    
-    public static void main(String[] args) { 
+    /* example use
+    public static void main(String[] args) {
 	IansCookieManager cm = new IansCookieManager();
 	try {
 	    URL url = new URL("http://www.hccp.org/test/cookieTest.jsp");
@@ -210,7 +210,7 @@ public class IansCookieManager {
 	} catch (IOException ioe) {
 	    ioe.printStackTrace();
 	}
-    }
+    }*/
     
 }
 	

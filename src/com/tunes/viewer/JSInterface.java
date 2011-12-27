@@ -87,7 +87,7 @@ public class JSInterface {
 	}
 	
 	/**
-	 * Fix access-denied redirection failure.
+	 * Fix access-denied redirection failure for preview.
 	 * @param url
 	 * @return working url
 	 */
@@ -95,44 +95,46 @@ public class JSInterface {
 		String output = url;
 		BufferedReader in = null;
 		try {
-		HttpClient client = new DefaultHttpClient();
-		HttpGet request = new HttpGet();
-		request.setHeader("User-agent", "stagefright/1.2.0");
-		request.setURI(new URI(url));
-		HttpResponse response = client.execute(request);
-		
-		Log.i(TAG,"response "+response.getStatusLine().getStatusCode()/100);
-		if (response.getStatusLine().getStatusCode()/100 != 2) {
-			in = new BufferedReader(
-					new InputStreamReader(response.getEntity().getContent()));
-			StringBuffer sb = new StringBuffer();
-			String line = "";
-			while ((line = in.readLine()) != null) {
-				sb.append(line+"\n");
-			}
-			SAXParserFactory factory = SAXParserFactory.newInstance();
-			factory.setValidating(false);
-			SAXParser saxParser= factory.newSAXParser();
-			Gettext parser = new Gettext();
-			XMLReader xr = saxParser.getXMLReader();
-			//Use the response html, with <p> replaced because it breaks xml:
-			InputSource is = new InputSource(new StringReader(sb.toString().replace("<P>", "").replace("<p>", "")));
-			xr.setContentHandler(parser);
-			xr.parse(is);
-			System.out.println(parser.out);
-			int last = parser.out.lastIndexOf("\" on this server.\nReference #");
-			int first = parser.out.indexOf("http:");
-			if (last != -1 && first != -1) {
-				String urlfail = parser.out.substring(first,last);
-				Pattern p = Pattern.compile("http://deimos3.apple.com/([a-zA-Z]*)/(.*)");
-				Matcher m = p.matcher(urlfail);
-				if (m.find()) {
-					output = "http://"+m.group(2);
+			HttpClient client = new DefaultHttpClient();
+			HttpGet request = new HttpGet();
+			request.setHeader("User-agent", "stagefright/1.2.0");
+			request.setURI(new URI(url));
+			HttpResponse response = client.execute(request);
+			
+			Log.i(TAG,"response "+response.getStatusLine().getStatusCode()/100);
+			if (response.getStatusLine().getStatusCode()/100 != 2) {
+				//Probably failed redirect.
+				in = new BufferedReader(
+						new InputStreamReader(response.getEntity().getContent()));
+				StringBuffer sb = new StringBuffer();
+				String line = "";
+				while ((line = in.readLine()) != null) {
+					sb.append(line+"\n");
+				}
+				SAXParserFactory factory = SAXParserFactory.newInstance();
+				factory.setValidating(false);
+				SAXParser saxParser= factory.newSAXParser();
+				Gettext parser = new Gettext();
+				XMLReader xr = saxParser.getXMLReader();
+				//Use the response html, with <p> replaced because it breaks xml:
+				InputSource is = new InputSource(new StringReader(sb.toString().replace("<P>", "").replace("<p>", "")));
+				xr.setContentHandler(parser);
+				xr.parse(is);
+				System.out.println(parser.out);
+				int last = parser.out.lastIndexOf("\" on this server.\nReference #");
+				int first = parser.out.indexOf("http:");
+				if (last != -1 && first != -1) {
+					String urlfail = parser.out.substring(first,last);
+					Pattern p = Pattern.compile("http://deimos3.apple.com/([a-zA-Z]*)/(.*)");
+					Matcher m = p.matcher(urlfail);
+					if (m.find()) {
+						//Last part of the url is direct url:
+						output = "http://"+m.group(2);
+					}
 				}
 			}
-		}
-		//Toast.makeText(_context, conn.getContentType(), 1000).show();
-		//if(conn.getContentEncoding())
+			//Toast.makeText(_context, conn.getContentType(), 1000).show();
+			//if(conn.getContentEncoding())
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

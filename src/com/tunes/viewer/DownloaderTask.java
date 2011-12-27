@@ -26,7 +26,7 @@ import android.net.wifi.WifiManager.WifiLock;
 
 /**
  * A class to handle a download and its notification.
- * @author Luke
+ * @author Luke Bryan
  */
 public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	private Notifier _notify;
@@ -121,11 +121,12 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	@Override
 	protected Long doInBackground(URL... urls) {
 		long downloaded = 0;
+		File directory;
 		try {
 			_wifiLock.acquire();
 			_url = urls[0];
 			_connection =  (HttpURLConnection)urls[0].openConnection();
-			_connection.setRequestProperty ("User-agent", "iTunes/10.4");
+			_connection.setRequestProperty ("User-agent", "iTunes/10.5");
 			_connection.connect();
 			// Make sure response code is in the 200 range.
 			if (_connection.getResponseCode() / 100 != 2) {
@@ -135,8 +136,8 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 			final long contentLength = _connection.getContentLength();
 			_sizeStr = filesize(contentLength);
 			if (contentLength < 1) {
-				Log.e(TAG,"Invalid contentlength.");
-				throw new IOException();
+				Log.e(TAG,"No contentlength.");
+				//throw new IOException();
 			} else {
 				_handler.post(new Runnable() {// necessary for gui call in thread.
 					@Override
@@ -147,13 +148,22 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 				});
 			}
 			BufferedInputStream in = new BufferedInputStream(_connection.getInputStream());
+			BufferedOutputStream out;
 			
 			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(_context);
 			String downloadDir = prefs.getString("DownloadDirectory",_context.getString(R.string.defaultDL));
-			File directory = new File(downloadDir,clean(_podcast)); 
+			if (clean(_podcast).equals("")) {
+				directory = new File(downloadDir);
+			} else {
+				directory = new File(downloadDir,clean(_podcast));
+			}
 			if (directory.mkdirs() || directory.isDirectory()) { //Folder created or already existed.
-				_outFile = new File(downloadDir
-						, clean(_podcast) +"/"+ clean(_title)+ItunesXmlParser.fileExt(_url.toString()));
+				if (_url.getHost().equals("sourceforge.net") && _url.getPath().startsWith("/projects/")) {
+					// Not an ordinary download, this is from the update page.
+					_outFile = new File(directory, "update.apk");
+				} else {
+					_outFile = new File(directory, clean(_title)+ItunesXmlParser.fileExt(_url.toString()));
+				}
 				if (_outFile.exists() && _outFile.length() == contentLength) {
 					onPostExecute(contentLength); //Done. Already downloaded.
 				} else if (true) {//(connection.getContentLength()==-1 || available(outFile) <= connection.getContentLength()) {
@@ -161,26 +171,28 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 					//Download the file:
 					_outFile.createNewFile();
 					FileOutputStream file = new FileOutputStream(_outFile);
-					BufferedOutputStream out = new BufferedOutputStream(file);
-					int Byte;
-					while ((Byte = in.read()) != -1 && !isCancelled()) {
-						out.write(Byte);
-						downloaded++;
-						if (downloaded % 1024 == 0) {
-							publishProgress((int) ((downloaded/ (float)contentLength)*100));
-						}
+					out = new BufferedOutputStream(file);
+					byte[] data = new byte[1024];
+					int count;
+					// Read in chunks, much more efficient than byte by byte, lower cpu usage.
+					while((count = in.read(data, 0, 1024)) != -1 && !isCancelled()) { //(Byte = in.read()) != -1 && !isCancelled()) {
+						out.write(data,0,count);
+						downloaded+=count;
+						publishProgress((int) ((downloaded/ (float)contentLength)*100));
 					}
 					out.flush();
 					if (isCancelled()) {
-							_outFile.delete();
+						_outFile.delete();
 					} else {
 						//success = true;
+						// Get metadata.
+						new MediaScannerWrapper(_context, _outFile.toString(), "audio/mp3").scan();
+						// Add to Android media player.
+						_context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
+								Uri.parse("file://"+ Environment.getExternalStorageDirectory())));
 					}
 					in.close();
 					out.close();
-					new MediaScannerWrapper(_context, _outFile.toString(), "audio/mp3").scan();
-					_context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
-							Uri.parse("file://"+ Environment.getExternalStorageDirectory())));
 				} else {
 					_ErrMSG = "Not enough room!";
 				}
@@ -200,6 +212,11 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 		return null;
 	}
 	
+	/**
+	 * Cleans a string to a valid file name.
+	 * @param name
+	 * @return name that will work as a file-name.
+	 */
 	private String clean(String name) {
 		StringBuilder fixedName = new StringBuilder(name.length());
 		for (int c=0; c<name.length(); c++) { // Make a valid name:
@@ -210,6 +227,9 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 		return fixedName.toString().trim();
 	}
 
+	/**
+	 * Cleans up file and download entry when cancelled.
+	 */
 	@Override
 	protected void onCancelled() {
 		_alltasks.remove(this);
@@ -229,6 +249,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	protected void onPreExecute() {
 		_notify = new Notifier(_context, _ID, _url.toString(), _title);
 	}
+	
 	@Override
 	protected void onProgressUpdate(Integer... values) {
 		if (_ErrMSG.equals("")) {
@@ -259,6 +280,11 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 		return (long)stat.getBlockSize() * (long)stat.getAvailableBlocks();
 	}
 	
+	/**
+	 * Returns readable file-size (such as "5 KB", "10 MB").
+	 * @param Size in bytes
+	 * @return String file-size
+	 */
 	public static String filesize(long size) {
 		final int MB = 1048576;
 		final int KB = 1024;

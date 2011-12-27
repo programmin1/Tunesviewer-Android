@@ -611,6 +611,9 @@ public class ItunesXmlParser extends DefaultHandler {
 			if (ext.indexOf("%")>-1) {
 				ext = ext.substring(0,ext.indexOf("%"));
 			}
+			if (ext.indexOf("/")>-1) {
+				ext = ext.substring(0,ext.indexOf("/"));
+			}
 			return ext.toLowerCase();
 		}
 	}

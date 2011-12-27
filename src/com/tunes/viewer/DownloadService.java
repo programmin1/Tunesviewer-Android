@@ -8,6 +8,13 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.widget.Toast;
 
+/**
+ * The downloader service, manages DownloaderTasks.
+ * When called, it opens selected file, or starts new download.
+ * 
+ * @author Luke Bryan
+ *
+ */
 public class DownloadService extends Service {
 
 	@Override
@@ -52,7 +59,6 @@ public class DownloadService extends Service {
 				e.printStackTrace();
 			}
 		}
-		//Toast.makeText(getApplicationContext(), "Started Download", 1000).show();
 	}
 	
 	@Override

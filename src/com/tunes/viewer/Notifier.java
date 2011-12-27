@@ -18,7 +18,7 @@ public class Notifier {
 	private int _NOTIFICATION_ID;
 	private String _url;
 	private String _title;
-	private long _started;
+	private long _started;//ms
 	
 	public Notifier(Context c, int NOTIF_ID, String url, String title) {
 		_NOTIFICATION_ID = NOTIF_ID;
@@ -85,6 +85,10 @@ public class Notifier {
 		}
 	}
 	
+	/**
+	 * Elapsed time from start of download, given in milliseconds.
+	 * @return
+	 */
 	private long elapsedTime() {
 		return System.currentTimeMillis()-_started;
 	}
