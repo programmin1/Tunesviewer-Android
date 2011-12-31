@@ -1,4 +1,4 @@
-package com.tunes.viewer;
+package com.tunes.viewer.FileDownload;
 import android.content.Context;
 import android.content.Intent;
 import android.media.MediaScannerConnection;

@@ -1,4 +1,4 @@
-package com.tunes.viewer;
+package com.tunes.viewer.WebView;
 
 import android.app.Activity;
 import android.util.Log;

@@ -1,4 +1,6 @@
-package com.tunes.viewer;
+package com.tunes.viewer.FileDownload;
+
+import com.tunes.viewer.ItunesXmlParser;
 
 import android.app.Notification;
 import android.app.NotificationManager;

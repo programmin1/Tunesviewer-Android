@@ -1,6 +1,9 @@
-package com.tunes.viewer;
+package com.tunes.viewer.WebView;
 
 import java.lang.reflect.Method;
+
+import com.tunes.viewer.R;
+import com.tunes.viewer.R.string;
 
 import android.content.Context;
 import android.content.Intent;

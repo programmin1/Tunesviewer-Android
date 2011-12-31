@@ -1,4 +1,4 @@
-package com.tunes.viewer;
+package com.tunes.viewer.FileDownload;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -8,6 +8,11 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+
+import com.tunes.viewer.ItunesXmlParser;
+import com.tunes.viewer.R;
+import com.tunes.viewer.R.string;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;

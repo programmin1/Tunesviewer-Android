@@ -1,4 +1,4 @@
-package com.tunes.viewer;
+package com.tunes.viewer.WebView;
 
 import java.net.*;
 import java.io.*;

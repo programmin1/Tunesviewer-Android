@@ -1,8 +1,10 @@
-package com.tunes.viewer;
+package com.tunes.viewer.FileDownload;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+
+
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;

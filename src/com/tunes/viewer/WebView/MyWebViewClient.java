@@ -1,4 +1,4 @@
-package com.tunes.viewer;
+package com.tunes.viewer.WebView;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -29,6 +29,14 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
+
+import com.tunes.viewer.ItunesXmlParser;
+import com.tunes.viewer.R;
+import com.tunes.viewer.TunesViewerActivity;
+import com.tunes.viewer.FileDownload.DownloadService;
+import com.tunes.viewer.R.id;
+import com.tunes.viewer.R.raw;
+import com.tunes.viewer.R.string;
 
 import android.content.ActivityNotFoundException;
 import android.content.Context;

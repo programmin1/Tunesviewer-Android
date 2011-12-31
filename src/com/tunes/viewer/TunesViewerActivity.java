@@ -2,6 +2,10 @@ package com.tunes.viewer;
 
 import java.lang.reflect.Method;
 
+import com.tunes.viewer.WebView.JSInterface;
+import com.tunes.viewer.WebView.MyWebChromeClient;
+import com.tunes.viewer.WebView.MyWebViewClient;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
