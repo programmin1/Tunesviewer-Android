@@ -73,8 +73,10 @@ public class Searcher extends Activity {
 		String ua = _prefs.getString("UserAgent", "");
 		if (ua.indexOf("-")>-1) {
 			//mobile mode
+			// http://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?displayIndex=2&entity=iTunesUCollection&term=Math&media=all#here
+			// http://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?displayIndex=2&entity=iTunesUMaterial&term=App&media=all#here
 			if (iTunesU && !podcast) {
-				gotourl = "itms://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?entity=iTunesUPodcast&term="+terms+"&media=all";
+				gotourl = "itms://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?entity=iTunesUCollection&term="+terms+"&media=all";
 			} else if (podcast && !iTunesU) {
 				gotourl = "itms://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?submit=media&term="+terms+"&media=podcast"; 
 			} else {
@@ -84,8 +86,8 @@ public class Searcher extends Activity {
 			if (podcast) {
 				gotourl = "itms://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?submit=media&term="+terms+"&media=podcast";
 			} else {
-				gotourl = "itms://search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?media=iTunesU&submit=media&term="
-				+terms;
+				gotourl = "itms://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?submit=media&restrict=true&term="
+				+terms+"&media=cobalt";
 			}
 			
 		}

@@ -7,6 +7,15 @@
               android:targetSdkVersion="11" />
 
     <application android:icon="@drawable/icon" android:label="@string/app_name">
+        <service android:name=".SamplePlugin">
+            <intent-filter>
+                <action android:name="android.webkit.PLUGIN" />
+                <data android:mimeType="application/itunes-plugin" android:scheme="http" />
+            </intent-filter>
+            <meta-data android:name="type" android:value="native" />
+            
+        </service>
+        
         <activity android:name=".TunesViewerActivity"
                   android:label="@string/app_name" android:configChanges="orientation" android:debuggable="true">
             <intent-filter>
@@ -23,6 +32,7 @@
  android:name="android.intent.category.BROWSABLE"></category>
                     <data android:scheme="itms"/>
                     <data android:scheme="itmss"/>
+                    
                 </intent-filter>
         </activity>
 	    <activity android:name=".Player" />

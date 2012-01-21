@@ -60,8 +60,9 @@ public class TunesViewerActivity extends Activity {
 		} else {
 			s.setUserAgentString("iTunes/10.5");
 		}
-		s.setUserAgentString("iTunes/10.5");
+		//s.setUserAgentString("iTunes/10.5");
 		s.setJavaScriptEnabled(true);
+		//s.setDomStorageEnabled(true);
 		s.setPluginsEnabled(true);
 		s.setSupportZoom(true);
 		s.setBuiltInZoomControls(true);

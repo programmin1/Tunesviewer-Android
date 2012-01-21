@@ -4,8 +4,8 @@
     android:layout_height="fill_parent"
     android:stretchColumns="0" android:orientation="vertical" android:gravity="bottom">
 
-     <com.tunes.viewer.Viewer weight="1" android:id="@+id/mainWebView" android:layout_gravity="top" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_above="@+id/findLayout">
-     </com.tunes.viewer.Viewer>
+     <com.tunes.viewer.WebView.Viewer weight="1" android:id="@+id/mainWebView" android:layout_gravity="top" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_above="@+id/findLayout">
+     </com.tunes.viewer.WebView.Viewer>
 
 	 <LinearLayout android:visibility="gone" android:layout_width="fill_parent" android:id="@+id/findLayout" android:orientation="horizontal" android:layout_gravity="bottom" android:layout_height="wrap_content" android:layout_alignParentBottom="true">
 	     <EditText android:layout_weight="4" android:layout_width="wrap_content" android:id="@+id/editFind" android:layout_height="wrap_content" android:text="" android:layout_gravity="bottom">
