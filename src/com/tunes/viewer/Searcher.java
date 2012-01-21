@@ -70,7 +70,7 @@ public class Searcher extends Activity {
 		String terms = Uri.encode(_text.getText().toString());//search terms
 		boolean iTunesU = ((CheckBox)findViewById(R.id.checkiTunesU)).isChecked();
 		boolean podcast = ((CheckBox)findViewById(R.id.checkPodcast)).isChecked();
-		String ua = _prefs.getString("UserAgent", "");
+		String ua = _prefs.getString("UserAgent", "iTunes-iPhone/1.2.0");// sometimes not initialized preference?
 		if (ua.indexOf("-")>-1) {
 			//mobile mode
 			// http://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?displayIndex=2&entity=iTunesUCollection&term=Math&media=all#here
