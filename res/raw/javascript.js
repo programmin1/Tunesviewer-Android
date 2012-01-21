@@ -28,12 +28,19 @@ function player () {
 		console.log(xml);
 		xml = new DOMParser().parseFromString(xml, "text/xml");
 		keys = xml.getElementsByTagName('key');
+		url = "";
+		name = "";
 		for (var i=0; i<keys.length; i++) {
 			if (keys[i].textContent=="URL") {//Goto the download url.
-				document.location = keys[i].nextSibling.textContent;
-				setTitle();
+				url = keys[i].nextSibling.textContent;
+				//document.location = keys[i].nextSibling.textContent;
+				//setTitle();
+			} else if (keys[i].textContent=="songName" || keys[i].textContent=="itemName") {
+				name = keys[i].nextSibling.textContent;
 			}
+			
 		}
+		window.DOWNLOADINTERFACE.download(name, document.title, url);
 	};
 	
 	this.doPodcastDownload = function(obj, number) {

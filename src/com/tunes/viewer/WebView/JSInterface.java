@@ -60,6 +60,12 @@ public class JSInterface {
 	 * @param url
 	 */
 	public void download(String title, String podcast, String url) {
+		if (title==null) {
+			title="Unknown";
+		}
+		if (podcast==null) {
+			 title="Unknown";
+		}
 		Intent intent = new Intent(_context,DownloadService.class);
 		intent.putExtra("url", url);
 		intent.putExtra("podcast", podcast);

@@ -361,6 +361,7 @@ public class MyWebViewClient extends WebViewClient {
 						caller._originalDownload = _download;
 					}
 					// Remove unneeded XML declaration that may cause errors on some pages:
+					// TODO: May cause problem with out-of-memory message.
 					_download = _download.replace("<?","<!--").replace("?>", "-->");
 					
 					SAXParserFactory factory = SAXParserFactory.newInstance();
