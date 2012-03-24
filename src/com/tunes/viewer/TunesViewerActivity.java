@@ -68,9 +68,9 @@ public class TunesViewerActivity extends Activity {
 		s.setSupportZoom(true);
 		s.setBuiltInZoomControls(true);
 		s.setUseWideViewPort(false); //disables horizontal scroll
-		if (Build.VERSION.SDK_INT >= 12) {
-			_web.getSettings().setDomStorageEnabled(true);
-		}
+		//if (Build.VERSION.SDK_INT >= 12) {
+			//_web.getSettings().setDomStorageEnabled(true);
+		//}
 		
 		_myWVC =  new MyWebViewClient(getApplicationContext(),this,_web);
 		_web.addJavascriptInterface(new JSInterface(this), "DOWNLOADINTERFACE");
