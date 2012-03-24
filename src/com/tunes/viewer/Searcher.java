@@ -76,7 +76,7 @@ public class Searcher extends Activity {
 			// http://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?displayIndex=2&entity=iTunesUCollection&term=Math&media=all#here
 			// http://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?displayIndex=2&entity=iTunesUMaterial&term=App&media=all#here
 			if (iTunesU && !podcast) {
-				gotourl = "itms://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?entity=iTunesUCollection&term="+terms+"&media=all";
+				gotourl = "itms://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?entity=iTunesUPodcast&term="+terms+"&media=all";
 			} else if (podcast && !iTunesU) {
 				gotourl = "itms://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?submit=media&term="+terms+"&media=podcast"; 
 			} else {
