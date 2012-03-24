@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.ClipboardManager;
@@ -67,6 +68,9 @@ public class TunesViewerActivity extends Activity {
 		s.setSupportZoom(true);
 		s.setBuiltInZoomControls(true);
 		s.setUseWideViewPort(false); //disables horizontal scroll
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ECLAIR_MR1) {
+			_web.getSettings().setDomStorageEnabled(true);
+		}
 		
 		_myWVC =  new MyWebViewClient(getApplicationContext(),this,_web);
 		_web.addJavascriptInterface(new JSInterface(this), "DOWNLOADINTERFACE");

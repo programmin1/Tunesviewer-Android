@@ -596,7 +596,7 @@ public class ItunesXmlParser extends DefaultHandler {
 	}
 	
 	/**
-	 * Returns the file extension of the url.
+	 * Returns the file extension of the url. (replaces .rtf with .zip)
 	 * @param url string.
 	 * @return lowercase string.
 	 */
@@ -614,7 +614,11 @@ public class ItunesXmlParser extends DefaultHandler {
 			if (ext.indexOf("/")>-1) {
 				ext = ext.substring(0,ext.indexOf("/"));
 			}
-			return ext.toLowerCase();
+			if (ext.toLowerCase().equals(".rtf")) {
+				return ".zip";
+			} else {
+				return ext.toLowerCase();
+			}
 		}
 	}
 	
