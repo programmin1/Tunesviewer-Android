@@ -264,7 +264,7 @@ public class MyWebViewClient extends WebViewClient {
 	 * @return String value.
 	 * @throws IOException
 	 */
-	private String makeString(InputStream is, int totalLength) throws IOException {
+	private StringBuilder makeString(InputStream is, int totalLength) throws IOException {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 		StringBuilder sb = new StringBuilder();
 		String line = null;
@@ -285,7 +285,7 @@ public class MyWebViewClient extends WebViewClient {
 			});*/
 		}
 		is.close();
-		return sb.toString();
+		return sb;
 	}
 	
 	/**
@@ -302,7 +302,7 @@ public class MyWebViewClient extends WebViewClient {
 	private class WebLoader implements Runnable {
 		private WebView _view;
 		private String _url;
-		private String _download;
+		private StringBuilder _download;
 		//private String previousURL;
 		private int _cmd; // Back/forward
 		private MyWebViewClient caller;
@@ -358,11 +358,19 @@ public class MyWebViewClient extends WebViewClient {
 					// Download xml/html to parse:
 					_download = makeString(input,length); 
 					synchronized (caller) {
-						caller._originalDownload = _download;
+						//caller._originalDownload = _download.toString();
 					}
 					// Remove unneeded XML declaration that may cause errors on some pages:
 					// TODO: May cause problem with out-of-memory message.
-					_download = _download.replace("<?","<!--").replace("?>", "-->");
+					//_download = _download.replace("<?","<!--").replace("?>", "-->");
+					int badindex = _download.indexOf("<?");
+					if (badindex != -1) {
+						_download.replace(badindex, badindex+2, "<!--");
+					}
+					badindex = _download.indexOf("?>");
+					if (badindex != -1) {
+						_download.replace(badindex, badindex+2, "-->");
+					}
 					
 					SAXParserFactory factory = SAXParserFactory.newInstance();
 					factory.setValidating(false);
@@ -372,7 +380,7 @@ public class MyWebViewClient extends WebViewClient {
 						,Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(callerContext).getString("ImgPref", "0")));
 					XMLReader xr = saxParser.getXMLReader();
 					xr.setContentHandler(parser);
-					InputSource is = new InputSource(new StringReader(_download));
+					InputSource is = new InputSource(new StringReader(_download.toString()));
 					long startMS = System.currentTimeMillis();
 					xr.parse(is);
 					long endMS = System.currentTimeMillis();
@@ -389,14 +397,19 @@ public class MyWebViewClient extends WebViewClient {
 							intent.putExtra("name",parser.getSingleName());
 							callerContext.startService(intent);
 						} else {
-							// Load converted html:
-							final String data = parser.getHTML();
+							// Inject js:
+							final StringBuilder data = new StringBuilder(parser.getHTML());
+							int endhead = data.indexOf("</head");
+							if (endhead >-1) {
+								data.replace(endhead,endhead,"<script>"+_javascript+"</script>");
+							}
 							_download = null;
+							// Load converted html:
 							synchronized (_view) {
 								_view.post(new Runnable() {
 									public void run() {
 										prepareView(_view,_cmd);
-										_view.loadDataWithBaseURL(_url,data,"text/html","UTF-8",_url);
+										_view.loadDataWithBaseURL(_url,data.toString(),"text/html","UTF-8",_url);
 										Log.d(TAG,"WebLoader Loaded into WebView.");
 									}
 								});
@@ -456,12 +469,18 @@ public class MyWebViewClient extends WebViewClient {
 				} catch (SAXException e) {
 					//Not XML, show the downloaded html directly in browser:
 					synchronized (_view) {
-						final String data = _download;
+						//final String data = _download;
+						// Inject js:
+						final StringBuilder data = _download;
+						int endhead = data.indexOf("</head>");
+						if (endhead >-1) {
+							data.replace(endhead, endhead, "<script>"+_javascript+"</script>");
+						}
 						_download = null;
 						_view.post(new Runnable() {
 							public void run() {
 								prepareView(_view,_cmd);
-								_view.loadDataWithBaseURL(_url,data,"text/html","UTF-8",_url);
+								_view.loadDataWithBaseURL(_url,data.toString(),"text/html","UTF-8",_url);
 							}
 						});
 					}

@@ -27,7 +27,7 @@ public class MyWebChromeClient extends WebChromeClient {
 	 * Catches progress events while the html is loading.
 	 */
 	public void onProgressChanged(WebView view, int progress) {
-		activity.setTitle(" Loading...");
+		//activity.setTitle(" Loading...");
 		activity.setProgress(progress * 100);
 		/*if(progress == 100) {
 			activity.setTitle(R.string.app_name);
