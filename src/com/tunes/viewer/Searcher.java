@@ -87,7 +87,7 @@ public class Searcher extends Activity {
 				gotourl = "itms://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?submit=media&term="+terms+"&media=podcast";
 			} else {
 				gotourl = "itms://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?submit=media&restrict=true&term="
-				+terms+"&media=cobalt";
+				+terms+"&media=iTunesU";
 			}
 			
 		}

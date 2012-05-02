@@ -41,6 +41,7 @@ public class TunesViewerActivity extends Activity {
 	//private DownloadViewer myDownloader;
 	private MyWebViewClient _myWVC;
 	private String originalUA;
+	final String UA = "iTunes/10.6.1 ";
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -57,9 +58,9 @@ public class TunesViewerActivity extends Activity {
 			/*Must have webkit-version-info or else there will be many
 			variable 'a' not found errors on the 'mouseover' of download links in full version,
 			which seems to trigger a bug and crash webkit in 2.2.2 AppleWebKit/533.1?*/
-			s.setUserAgentString("iTunes/10.5 "+originalUA.substring(originalUA.indexOf("AppleWebKit")));
+			s.setUserAgentString(UA+originalUA.substring(originalUA.indexOf("AppleWebKit")));
 		} else {
-			s.setUserAgentString("iTunes/10.5");
+			s.setUserAgentString(UA);
 		}
 		//s.setUserAgentString("iTunes/10.5");
 		s.setJavaScriptEnabled(true);

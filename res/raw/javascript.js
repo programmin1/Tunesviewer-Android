@@ -18,7 +18,18 @@ iTunes = { // All called from the page js:
 
 		return "";
 	},
-	
+
+/*	systemVersion: function() {
+		"use strict";
+		return "5.0";
+	},
+	mediaLibrary: {
+		containsAdamIDs : function(el) {
+			console.log(el);
+			return true;
+		}
+	},
+*/	
 
 	getPreferences: function() {
 		"use strict";
@@ -26,6 +37,8 @@ iTunes = { // All called from the page js:
 			pingEnabled: true
 		};
 	},
+	
+	installedSoftwareApplications: [],
 
 
 	doDialogXML: function (b, d) {
@@ -56,12 +69,14 @@ iTunes = { // All called from the page js:
 
 	showMediaPlayer: function (url_, showtype, title) {
 		"use strict";
+		console.log(url_);
 		playURL({url: url_});
 	},
 
 
 	openURL: function (url) {
 		"use strict";
+		console.log("openURL"+url);
 		location.href = url;
 		setTitle();
 	},
@@ -113,7 +128,8 @@ iTunes = { // All called from the page js:
 
 	doAnonymousDownload: function (obj) {
 		"use strict";
-		location.href = obj.url;
+		//location.href = obj.url;
+		doPodcastDownload(obj,0);
 	},
 
 
@@ -249,12 +265,13 @@ document.onpageshow = (function () {
 
 	// fix free-download links, mobile
 	for (i = 0; i < divs.length; i++) {
+		console.log("divs "+i+" "+divs[i]);
 		if (divs[i].getAttribute("download-url") !== null &&
 		    divs[i].textContent.indexOf("FREE") !== -1) {
 			console.log("TunesViewer: getting attribute: " + divs[i].getAttribute("download-url"));
 			removeListeners(divs[i].childNodes);
 			divs[i].innerHTML = "<button onclick='window.event.stopPropagation();location.href=\"" + divs[i].getAttribute("download-url") + "\";'>Download</button>";
-			divs[i].addEventListener('mouseDown', downloadMouseDownEvent(getAttribute('download-url')), false);
+			divs[i].addEventListener('mouseDown',function() {downloadMouseDownEvent(divs[i].getAttribute('download-url'))}, false);
 		}
 		if (divs[i].getAttribute("role") === "button" &&
 			divs[i].getAttribute("aria-label") === "Subscribe Free") {
@@ -314,7 +331,7 @@ document.onpageshow = (function () {
 	}
 	
 	// For some mobile html
-	abs = document.getElementsByClassName('absolute');
+	var abs = document.getElementsByClassName('absolute');
 	for (a in abs) {
 		try {//Styling for titles.
 			abs[a].style.position='absolute';

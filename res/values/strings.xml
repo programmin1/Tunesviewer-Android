@@ -25,7 +25,7 @@
     	<item>Mobile (Faster, low-bandwidth)</item>
     </string-array>
     <string-array name="UAvalues">
-    	<item>iTunes/10.5</item>
+    	<item>iTunes/10.6.1</item>
     	<!-- <item>iTunes-iPad-M/3.2</item> -->
     	<item>iTunes-iPhone/1.2.0</item>
     </string-array>
