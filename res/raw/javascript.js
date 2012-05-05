@@ -128,8 +128,8 @@ iTunes = { // All called from the page js:
 
 	doAnonymousDownload: function (obj) {
 		"use strict";
-		//location.href = obj.url;
-		doPodcastDownload(obj,0);
+		location.href = obj.url;
+		//this.doPodcastDownload(obj,0);
 	},
 
 
@@ -371,7 +371,7 @@ document.onpageshow = (function () {
 		if (divs[i].getAttribute('goto-url')!=null) {
 			divs[i].addEventListener('click',function () {console.log('goto'+this.getAttribute('goto-url')); location.href=this.getAttribute('goto-url')});
 			//fix width in landscape orientation: (broken?)
-			//document.body.style.maxWidth="100%";
+			document.body.style.maxWidth="100%";
 		}
 		if (divs[i].getAttribute("role")=="button" && divs[i].getAttribute("aria-label")=="SUBSCRIBE FREE") {
 			rss = "";
@@ -398,12 +398,12 @@ document.onpageshow = (function () {
 	
 	//Fix hr tag in select tag, it will crash the program, for example, when tapping dropdown by the download item.
 	// see https://code.google.com/p/android/issues/detail?id=17622
-	/*hrs = document.getElementsByTagName('hr');
+	hrs = document.getElementsByTagName('hr');
 	for (hr in hrs) {
 	 if (hrs[hr].parentNode.tagName.toLowerCase()=='select') {
 	   hrs[hr].parentNode.removeChild(hrs[hr]);
 	 }
-	}*/
+	}
 
 	// Fix selectable text, and search form height
 	css = document.createElement("style");

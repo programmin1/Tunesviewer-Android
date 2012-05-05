@@ -211,8 +211,8 @@ public class JSInterface {
 	public void subscribe(String url) {
 		try {
 			//Change it to itpc://url.
-			if (!url.startsWith("itpc") && url.indexOf("://")>-1) {
-				url = "itpc"+url.substring(url.indexOf("://"));
+			if (!url.startsWith("feed") && url.indexOf("://")>-1) {
+				url = "feed"+url.substring(url.indexOf("://"));
 			}
 			Intent i = new Intent(Intent.ACTION_VIEW);
 			i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
