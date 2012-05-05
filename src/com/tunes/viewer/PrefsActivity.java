@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -31,7 +32,7 @@ public class PrefsActivity extends PreferenceActivity implements OnSharedPrefere
 			String key) {
 		if (key.equals(DL)) {
 			Log.d(TAG,_prefs.getString(DL, ""));
-			final File dir = new File(sharedPreferences.getString(DL, "/sdcard/"));
+			final File dir = new File(sharedPreferences.getString(DL, Environment.getExternalStorageDirectory().getPath() ));
 			final SharedPreferences p = sharedPreferences;
 			if (!dir.exists()) {
 				//Set it back to default.

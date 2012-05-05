@@ -13,6 +13,7 @@ import com.tunes.viewer.ItunesXmlParser;
 import com.tunes.viewer.R;
 import com.tunes.viewer.R.string;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -33,6 +34,7 @@ import android.net.wifi.WifiManager.WifiLock;
  * A class to handle a download and its notification.
  * @author Luke Bryan
  */
+@TargetApi(3)
 public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	private Notifier _notify;
 	private int _ID;

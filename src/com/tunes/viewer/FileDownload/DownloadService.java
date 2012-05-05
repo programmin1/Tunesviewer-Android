@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.ArrayList;
 
 
+import android.annotation.TargetApi;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
@@ -17,6 +18,7 @@ import android.widget.Toast;
  * @author Luke Bryan
  *
  */
+@TargetApi(3)
 public class DownloadService extends Service {
 
 	@Override

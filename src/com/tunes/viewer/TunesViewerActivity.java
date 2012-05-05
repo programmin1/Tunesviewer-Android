@@ -6,6 +6,7 @@ import com.tunes.viewer.WebView.JSInterface;
 import com.tunes.viewer.WebView.MyWebChromeClient;
 import com.tunes.viewer.WebView.MyWebViewClient;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -33,6 +34,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.EditText;
 
+@TargetApi(3)
 public class TunesViewerActivity extends Activity {
 
 	private final String TAG = "Main";
