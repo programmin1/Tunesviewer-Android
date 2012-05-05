@@ -210,7 +210,7 @@ public class JSInterface {
 	 */
 	public void subscribe(String url) {
 		try {
-			//Change it to itpc://url.
+			//Change it to feed or itpc://url, to send automatically to podcatcher.
 			if (!url.startsWith("feed") && url.indexOf("://")>-1) {
 				url = "feed"+url.substring(url.indexOf("://"));
 			}

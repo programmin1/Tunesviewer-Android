@@ -199,11 +199,11 @@ public class MyWebViewClient extends WebViewClient {
 	 */
 	public boolean shouldOverrideUrlLoading(WebView view, String url) {
 		Log.d(TAG,"shouldOverrideUrlLoading");
-		if (url.startsWith("copyurl://")) {
+		if (url.startsWith("copyurl://")) { // JS Copy-clipboard interface
 			System.out.println("COPY "+url);
 			ClipboardManager clipboard = (ClipboardManager)callerContext.getSystemService(Context.CLIPBOARD_SERVICE);
 			clipboard.setText(url.substring(10));
-		} else {
+		} else { // Normal page load:
 			String ua = _prefs.getString("UserAgent", callerContext.getString(R.string.defaultUA));
 			System.setProperty("http.agent", ua);
 			//view.getSettings().setUserAgentString(ua); may cause crash
@@ -340,6 +340,7 @@ public class MyWebViewClient extends WebViewClient {
 		private boolean load() throws IOException, ParserConfigurationException, SAXException, FactoryConfigurationError {
 			int length;
 			boolean worked = false;
+			SharedPreferences myprefs = PreferenceManager.getDefaultSharedPreferences(callerContext);
 			if (_url.substring(0, 4).equals("itms")) {
 				_url = "http"+_url.substring(4);
 			}
@@ -364,8 +365,12 @@ public class MyWebViewClient extends WebViewClient {
 					}
 					// Download xml/html to parse:
 					_download = makeString(input,length); 
-					synchronized (caller) {
-						//caller._originalDownload = _download.toString();
+					if (myprefs.getBoolean("debug", false)) {
+						// When debug menus are open, save the string
+						// (although this might not be so good for memory use?)
+						synchronized (caller) {
+							caller._originalDownload = _download.toString();
+						}
 					}
 					// Remove unneeded XML declaration that may cause errors on some pages:
 					// TODO: May cause problem with out-of-memory message.
@@ -384,7 +389,7 @@ public class MyWebViewClient extends WebViewClient {
 					SAXParser saxParser= factory.newSAXParser();
 					ItunesXmlParser parser = new ItunesXmlParser(
 						u,callerContext,_view.getWidth()
-						,Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(callerContext).getString("ImgPref", "0")));
+						,Integer.valueOf(myprefs.getString("ImgPref", "0")));
 					XMLReader xr = saxParser.getXMLReader();
 					xr.setContentHandler(parser);
 					InputSource is = new InputSource(new StringReader(_download.toString()));

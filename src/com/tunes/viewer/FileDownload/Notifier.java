@@ -20,7 +20,7 @@ public class Notifier {
 	private int _NOTIFICATION_ID;
 	private String _url;
 	private String _title;
-	private long _started;//ms
+	private long _started;//millisecond time of download start.
 	
 	public Notifier(Context c, int NOTIF_ID, String url, String title) {
 		_NOTIFICATION_ID = NOTIF_ID;
