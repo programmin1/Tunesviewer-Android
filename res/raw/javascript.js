@@ -131,6 +131,7 @@ iTunes = { // All called from the page js:
 		console.log("Going to item description url");
 		// This will have title name etc. for the media:
 		location.href = obj.url;
+		setTitle();
 	},
 
 
@@ -266,7 +267,7 @@ document.onpageshow = (function () {
 			});
 		}
 		if (divs[i].getAttribute('goto-url')!=null) {
-			divs[i].addEventListener('click',function () {console.log('goto'+this.getAttribute('goto-url')); location.href=this.getAttribute('goto-url')});
+			divs[i].addEventListener('click',function () {console.log('goto'+this.getAttribute('goto-url')); location.href=this.getAttribute('goto-url'); setTitle();});
 			//fix width in landscape orientation: (broken?)
 			document.body.style.maxWidth="100%";
 		}
@@ -304,6 +305,7 @@ document.onpageshow = (function () {
 	clickEvent = function (rss) {
 		console.log("TunesViewer: click event listener: " + rss);
 		location.href = rss;
+		setTitle();
 	};
 
 	// FIXME: Should we change this to be a separate function "attached"
@@ -311,6 +313,7 @@ document.onpageshow = (function () {
 	downloadMouseDownEvent = function (downloadUrl) {
 		console.log('TunesViewer: opening: ' + downloadUrl);
 		location.href = downloadUrl;
+		setTitle();
 	};
 
 	// fix free-download links, mobile

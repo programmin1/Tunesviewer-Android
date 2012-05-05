@@ -119,7 +119,7 @@ public class JSInterface {
 			if (response.getStatusLine().getStatusCode()/100 != 2) {
 				//Probably failed redirect.
 				in = new BufferedReader(
-						new InputStreamReader(response.getEntity().getContent()));
+						new InputStreamReader(response.getEntity().getContent()),1024*4);
 				StringBuffer sb = new StringBuffer();
 				String line = "";
 				while ((line = in.readLine()) != null) {

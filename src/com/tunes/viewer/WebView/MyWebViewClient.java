@@ -272,7 +272,7 @@ public class MyWebViewClient extends WebViewClient {
 	 * @throws IOException
 	 */
 	private StringBuilder makeString(InputStream is, int totalLength) throws IOException {
-		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+		BufferedReader reader = new BufferedReader(new InputStreamReader(is),1024*8);
 		StringBuilder sb = new StringBuilder();
 		String line = null;
 		while ((line = reader.readLine()) != null) {

@@ -152,7 +152,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 					}
 				});
 			}
-			BufferedInputStream in = new BufferedInputStream(_connection.getInputStream());
+			BufferedInputStream in = new BufferedInputStream(_connection.getInputStream(),1024*2);
 			BufferedOutputStream out;
 			
 			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(_context);
@@ -176,7 +176,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 					//Download the file:
 					_outFile.createNewFile();
 					FileOutputStream file = new FileOutputStream(_outFile);
-					out = new BufferedOutputStream(file);
+					out = new BufferedOutputStream(file,(int)contentLength);
 					byte[] data = new byte[1024];
 					int count;
 					// Read in chunks, much more efficient than byte by byte, lower cpu usage.
