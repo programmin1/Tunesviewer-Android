@@ -128,8 +128,9 @@ iTunes = { // All called from the page js:
 
 	doAnonymousDownload: function (obj) {
 		"use strict";
+		console.log("Going to item description url");
+		// This will have title name etc. for the media:
 		location.href = obj.url;
-		//this.doPodcastDownload(obj,0);
 	},
 
 
@@ -219,6 +220,13 @@ document.onpageshow = (function () {
 	var as, a, css, divs, i, j, rss, previews, buttons, clickEvent, downloadMouseDownEvent, subscribePodcastClickEvent, disabledButtonClickEvent;
 	console.log("ONPAGESHOW");
 	setTitle();
+	
+	imgs = document.getElementsByTagName("img");
+	for (var i=0; i<imgs.length; i++) {
+		if (/*imgs[i].getAttribute("src")==null && */imgs[i].getAttribute("src-swap") != null) {
+			imgs[i].setAttribute("src",imgs[i].getAttribute("src-swap"));
+		}
+	}
 	// Fix <a target="external" etc.
 
 	// `as` is a list of anchors, `a` iterates over the list
@@ -234,6 +242,50 @@ document.onpageshow = (function () {
 		}
 	}
 
+	divs = document.getElementsByTagName("div");
+	for (var i=0; i<divs.length; i++) {
+		if (divs[i].getAttribute("download-url") != null && divs[i].textContent.indexOf("FREE")!=-1) {
+			console.log("Free download div, "+divs[i].getAttribute("download-url"));
+			removeListeners(divs[i].parentNode.parentNode);
+			removeListeners(divs[i].parentNode.childNodes);
+			removeListeners(divs[i].childNodes);
+			divs[i].innerHTML = "<a class='media' onclick=\"window.event.stopPropagation();window.DOWNLOADINTERFACE.download(this.getAttribute('title'), document.title, this.getAttribute('url'));\" title=\""
+				+divs[i].getAttribute("item-title")+"\" url=\""+divs[i].getAttribute("download-url")+"\";'>Download</a>";
+			//divs[i].addEventListener('mouseDown',function () {console.log('opening'+this.getAttribute('download-url'));
+			//                                              location.href = this.getAttribute('download-url'); });
+			//Unfortunately it seems some previews aren't working with this:
+			divs[i].parentNode.parentNode.addEventListener('click',function () {
+				console.log("preview working!");
+				//
+				// Enables previewing in courses by selecting the number to the left of the item.
+				// This could really be written better:
+				//
+				console.log(this.innerHTML);
+				console.log(this.childNodes[5].innerHTML);
+				window.DOWNLOADINTERFACE.preview("preview",this.childNodes[5].childNodes[1].getAttribute('download-url'));
+			});
+		}
+		if (divs[i].getAttribute('goto-url')!=null) {
+			divs[i].addEventListener('click',function () {console.log('goto'+this.getAttribute('goto-url')); location.href=this.getAttribute('goto-url')});
+			//fix width in landscape orientation: (broken?)
+			document.body.style.maxWidth="100%";
+		}
+		if (divs[i].getAttribute("role")=="button" && divs[i].getAttribute("aria-label")=="SUBSCRIBE FREE") {
+			rss = "";
+			console.log("subscribe-button");
+			removeListeners(divs[i].parentNode);
+			removeListeners(divs[i].parentNode.parentNode);
+			for (var j=0; j<divs.length; j++) {
+				if (divs[j].getAttribute("podcast-feed-url") != null) {
+					rss = divs[j].getAttribute("podcast-feed-url");
+					console.log("rss:"+rss);
+				}
+			}
+			divs[i].addEventListener('click', function () {console.log(rss);window.DOWNLOADINTERFACE.subscribe(rss);});
+			iTSCircularPreviewControl = function(a) {return 0}
+		}
+	}
+	
 	/* This fixes the color=transparent style on some headings.
 	 * Unfortunately, you can't use document.styleSheets' CSSRules/rules
 	 * property, since it's cross-domain:
@@ -246,8 +298,6 @@ document.onpageshow = (function () {
 	fixTransparent(document.getElementsByTagName("h2"));
 	fixTransparent(document.getElementsByTagName("div"));
 	fixTransparent(as);
-
-	divs = document.getElementsByTagName("div");
 
 	// FIXME: Should we change this to be a separate function "attached"
 	// to an object that is, finally, assigned to the onpageshow event?
@@ -343,56 +393,6 @@ document.onpageshow = (function () {
 			}
 			//abs[a].innerHTML = abs[a].innerHTML.trim().replace(/\ /g,'&nbsp;');
 		} catch (e) {}	
-	}
-	
-	divs = document.getElementsByTagName("div");
-	for (var i=0; i<divs.length; i++) {
-		if (divs[i].getAttribute("download-url") != null && divs[i].textContent.indexOf("FREE")!=-1) {
-			console.log("Free download div, "+divs[i].getAttribute("download-url"));
-			removeListeners(divs[i].parentNode.parentNode);
-			removeListeners(divs[i].parentNode.childNodes);
-			removeListeners(divs[i].childNodes);
-			divs[i].innerHTML = "<a class='media' onclick=\"window.event.stopPropagation();window.DOWNLOADINTERFACE.download(this.getAttribute('title'), document.title, this.getAttribute('url'));\" title=\""
-				+divs[i].getAttribute("item-title")+"\" url=\""+divs[i].getAttribute("download-url")+"\";'>Download</a>";
-			//divs[i].addEventListener('mouseDown',function () {console.log('opening'+this.getAttribute('download-url'));
-			//                                              location.href = this.getAttribute('download-url'); });
-			//Unfortunately it seems some previews aren't working with this:
-			divs[i].parentNode.parentNode.addEventListener('click',function () {
-				console.log("preview working!");
-				//
-				// Enables previewing in courses by selecting the number to the left of the item.
-				// This could really be written better:
-				//
-				console.log(this.innerHTML);
-				console.log(this.childNodes[5].innerHTML);
-				window.DOWNLOADINTERFACE.preview("preview",this.childNodes[5].childNodes[1].getAttribute('download-url'));
-			});
-		}
-		if (divs[i].getAttribute('goto-url')!=null) {
-			divs[i].addEventListener('click',function () {console.log('goto'+this.getAttribute('goto-url')); location.href=this.getAttribute('goto-url')});
-			//fix width in landscape orientation: (broken?)
-			document.body.style.maxWidth="100%";
-		}
-		if (divs[i].getAttribute("role")=="button" && divs[i].getAttribute("aria-label")=="SUBSCRIBE FREE") {
-			rss = "";
-			console.log("subscribe-button");
-			removeListeners(divs[i].parentNode);
-			removeListeners(divs[i].parentNode.parentNode);
-			for (var j=0; j<divs.length; j++) {
-				if (divs[j].getAttribute("podcast-feed-url") != null) {
-					rss = divs[j].getAttribute("podcast-feed-url");
-					console.log("rss:"+rss);
-				}
-			}
-			divs[i].addEventListener('click', function () {console.log(rss);window.DOWNLOADINTERFACE.subscribe(rss);});
-			iTSCircularPreviewControl = function(a) {return 0}
-		}
-	}
-	imgs = document.getElementsByTagName("img");
-	for (var i=0; i<imgs.length; i++) {
-		if (/*imgs[i].getAttribute("src")==null && */imgs[i].getAttribute("src-swap") != null) {
-			imgs[i].setAttribute("src",imgs[i].getAttribute("src-swap"));
-		}
 	}
 	
 	

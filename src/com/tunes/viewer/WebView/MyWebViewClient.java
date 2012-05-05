@@ -44,6 +44,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.preference.PreferenceManager;
+import android.text.ClipboardManager;
 import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -198,13 +199,19 @@ public class MyWebViewClient extends WebViewClient {
 	 */
 	public boolean shouldOverrideUrlLoading(WebView view, String url) {
 		Log.d(TAG,"shouldOverrideUrlLoading");
-		String ua = _prefs.getString("UserAgent", callerContext.getString(R.string.defaultUA));
-		System.setProperty("http.agent", ua);
-		//view.getSettings().setUserAgentString(ua); may cause crash
-		view.stopLoading();//stop previous load.
-		activity.setTitle("Loading...");
-		//new Thread(new WebLoader(view,url,this,0)).start();
-		executor.execute(new WebLoader(view,url,this,NEWURL));
+		if (url.startsWith("copyurl://")) {
+			System.out.println("COPY "+url);
+			ClipboardManager clipboard = (ClipboardManager)callerContext.getSystemService(Context.CLIPBOARD_SERVICE);
+			clipboard.setText(url.substring(10));
+		} else {
+			String ua = _prefs.getString("UserAgent", callerContext.getString(R.string.defaultUA));
+			System.setProperty("http.agent", ua);
+			//view.getSettings().setUserAgentString(ua); may cause crash
+			view.stopLoading();//stop previous load.
+			activity.setTitle("Loading...");
+			//new Thread(new WebLoader(view,url,this,0)).start();
+			executor.execute(new WebLoader(view,url,this,NEWURL));
+		}
 		return true;
 	}
 	
