@@ -43,6 +43,7 @@ import android.widget.Toast;
 /**
  * Javascript interface for the WebView
  * Note that all of these functions must be safe for untrusted input!
+ * They are called by the injected script found in res/raw/javascript.js.
  */
 public class JSInterface {
 
@@ -56,8 +57,9 @@ public class JSInterface {
 	
 	/**
 	 * Starts a media file download.
-	 * @param title
-	 * @param url
+	 * @param title - Title of this media
+	 * @param podcast - Name of the podcast this belongs to.
+	 * @param url - String for download url.
 	 */
 	public void download(String title, String podcast, String url) {
 		if (title==null) {
@@ -103,7 +105,7 @@ public class JSInterface {
 	 * @param url
 	 * @return working url
 	 */
-	public String doRedirect(String url) {
+	private String doRedirect(String url) {
 		String output = url;
 		BufferedReader in = null;
 		try {
@@ -202,6 +204,10 @@ public class JSInterface {
 		_context.loadUrl(url);
 	}
 	
+	/**
+	 * Tries to subscribe using a podcatcher.
+	 * @param url
+	 */
 	public void subscribe(String url) {
 		try {
 			//Change it to itpc://url.

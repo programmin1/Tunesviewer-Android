@@ -131,7 +131,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 			_wifiLock.acquire();
 			_url = urls[0];
 			_connection =  (HttpURLConnection)urls[0].openConnection();
-			_connection.setRequestProperty ("User-agent", "iTunes/10.5");
+			_connection.setRequestProperty ("User-agent", "iTunes/10.6.1");
 			_connection.connect();
 			// Make sure response code is in the 200 range.
 			if (_connection.getResponseCode() / 100 != 2) {

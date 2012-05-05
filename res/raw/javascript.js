@@ -87,7 +87,7 @@ iTunes = { // All called from the page js:
 		"use strict";
 		//console.log(xml);
 		xml = new DOMParser().parseFromString(xml, "text/xml");
-		keys = xml.getElementsByTagName('key');
+		var keys = xml.getElementsByTagName('key');
 		url = "";
 		name = "";
 		for (var i=0; i<keys.length; i++) {
@@ -270,7 +270,7 @@ document.onpageshow = (function () {
 		    divs[i].textContent.indexOf("FREE") !== -1) {
 			console.log("TunesViewer: getting attribute: " + divs[i].getAttribute("download-url"));
 			removeListeners(divs[i].childNodes);
-			divs[i].innerHTML = "<button onclick='window.event.stopPropagation();location.href=\"" + divs[i].getAttribute("download-url") + "\";'>Download</button>";
+			//divs[i].innerHTML = "<button onclick='window.event.stopPropagation();location.href=\"" + divs[i].getAttribute("download-url") + "\";'>Download</button>";
 			divs[i].addEventListener('mouseDown',function() {downloadMouseDownEvent(divs[i].getAttribute('download-url'))}, false);
 		}
 		if (divs[i].getAttribute("role") === "button" &&
@@ -348,19 +348,24 @@ document.onpageshow = (function () {
 	divs = document.getElementsByTagName("div");
 	for (var i=0; i<divs.length; i++) {
 		if (divs[i].getAttribute("download-url") != null && divs[i].textContent.indexOf("FREE")!=-1) {
-			console.log(divs[i].getAttribute("download-url"));
-
+			console.log("Free download div, "+divs[i].getAttribute("download-url"));
 			removeListeners(divs[i].parentNode.parentNode);
 			removeListeners(divs[i].parentNode.childNodes);
 			removeListeners(divs[i].childNodes);
 			divs[i].innerHTML = "<a class='media' onclick=\"window.event.stopPropagation();window.DOWNLOADINTERFACE.download(this.getAttribute('title'), document.title, this.getAttribute('url'));\" title=\""
 				+divs[i].getAttribute("item-title")+"\" url=\""+divs[i].getAttribute("download-url")+"\";'>Download</a>";
-			divs[i].addEventListener('mouseDown',function () {console.log('opening'+this.getAttribute('download-url'));
-			                                              location.href = this.getAttribute('download-url'); });
+			//divs[i].addEventListener('mouseDown',function () {console.log('opening'+this.getAttribute('download-url'));
+			//                                              location.href = this.getAttribute('download-url'); });
 			//Unfortunately it seems some previews aren't working with this:
-			divs[i].parentNode.parentNode.addEventListener('mouseDown',function () {
+			divs[i].parentNode.parentNode.addEventListener('click',function () {
 				console.log("preview working!");
-				window.DOWNLOADINTERFACE.preview("preview",this.childNodes[2].childNodes[0].getAttribute('download-url'));
+				//
+				// Enables previewing in courses by selecting the number to the left of the item.
+				// This could really be written better:
+				//
+				console.log(this.innerHTML);
+				console.log(this.childNodes[5].innerHTML);
+				window.DOWNLOADINTERFACE.preview("preview",this.childNodes[5].childNodes[1].getAttribute('download-url'));
 			});
 		}
 		if (divs[i].getAttribute('goto-url')!=null) {
@@ -385,7 +390,7 @@ document.onpageshow = (function () {
 	}
 	imgs = document.getElementsByTagName("img");
 	for (var i=0; i<imgs.length; i++) {
-		if (imgs[i].getAttribute("src")==null && imgs[i].getAttribute("src-swap") != null) {
+		if (/*imgs[i].getAttribute("src")==null && */imgs[i].getAttribute("src-swap") != null) {
 			imgs[i].setAttribute("src",imgs[i].getAttribute("src-swap"));
 		}
 	}
