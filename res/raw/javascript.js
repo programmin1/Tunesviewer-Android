@@ -70,7 +70,7 @@ iTunes = { // All called from the page js:
 	showMediaPlayer: function (url_, showtype, title) {
 		"use strict";
 		console.log(url_);
-		playURL({url: url_});
+		this.playURL({url: url_});
 	},
 
 
@@ -400,7 +400,7 @@ document.onpageshow = (function () {
 	// see https://code.google.com/p/android/issues/detail?id=17622
 	hrs = document.getElementsByTagName('hr');
 	for (hr in hrs) {
-	 if (hrs[hr].parentNode.tagName.toLowerCase()=='select') {
+	 if (hrs[hr].parentNode && hrs[hr].parentNode.tagName.toLowerCase()=='select') {
 	   hrs[hr].parentNode.removeChild(hrs[hr]);
 	 }
 	}

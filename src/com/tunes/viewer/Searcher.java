@@ -68,16 +68,19 @@ public class Searcher extends Activity {
 	public void search() {
 		String gotourl = null;
 		String terms = Uri.encode(_text.getText().toString());//search terms
-		boolean iTunesU = ((CheckBox)findViewById(R.id.checkiTunesU)).isChecked();
+		boolean Ucourse = ((CheckBox)findViewById(R.id.checkCourse)).isChecked();
+		boolean Ucollection = ((CheckBox)findViewById(R.id.checkCollection)).isChecked();
 		boolean podcast = ((CheckBox)findViewById(R.id.checkPodcast)).isChecked();
 		String ua = _prefs.getString("UserAgent", "iTunes-iPhone/1.2.0");// sometimes not initialized preference?
 		if (ua.indexOf("-")>-1) {
 			//mobile mode
 			// http://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?displayIndex=2&entity=iTunesUCollection&term=Math&media=all#here
 			// http://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?displayIndex=2&entity=iTunesUMaterial&term=App&media=all#here
-			if (iTunesU && !podcast) {
+			if (Ucollection && !podcast) {
 				gotourl = "itms://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?entity=iTunesUPodcast&term="+terms+"&media=all";
-			} else if (podcast && !iTunesU) {
+			} else if (Ucourse && !podcast) {
+				gotourl = "itms://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?entity=iTunesUCourse&term="+terms+"&media=all";
+			} else if (podcast && !Ucollection && !Ucourse) {
 				gotourl = "itms://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?submit=media&term="+terms+"&media=podcast"; 
 			} else {
 				gotourl = "itms://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?submit=media&restrict=true&term="+terms+"&media=all";

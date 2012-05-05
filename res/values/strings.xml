@@ -61,8 +61,10 @@
     <string name="NoActivity">No suitable app was found to view this file.</string>
     
     <!-- Searchbox -->
-    <string name="iTunesU">Search University Media</string>
-    <string name="Podcasts">Search Podcasts</string>
+    <string name="courses">University Courses</string>
+    <string name="collections">Collections</string>
+    <string name="podcasts">Podcasts</string>
+    <string name="search">Search</string>
     
     
     <!-- Other strings -->
