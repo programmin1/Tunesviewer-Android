@@ -178,7 +178,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 					//Download the file:
 					_outFile.createNewFile();
 					FileOutputStream file = new FileOutputStream(_outFile);
-					out = new BufferedOutputStream(file,(int)contentLength);
+					out = new BufferedOutputStream(file,1024*4); // too big of a buffer and it will crash, out-of-mem exception!
 					byte[] data = new byte[1024];
 					int count;
 					// Read in chunks, much more efficient than byte by byte, lower cpu usage.
@@ -282,7 +282,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	 * @param file
 	 * @return
 	 */
-	public static long available(File f) {
+	private static long available(File f) {
 		StatFs stat = new StatFs(f.getPath());
 		return (long)stat.getBlockSize() * (long)stat.getAvailableBlocks();
 	}

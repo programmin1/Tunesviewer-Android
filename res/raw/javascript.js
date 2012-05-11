@@ -318,7 +318,7 @@ document.onpageshow = (function () {
 
 	// fix free-download links, mobile
 	for (i = 0; i < divs.length; i++) {
-		console.log("divs "+i+" "+divs[i]);
+		//console.log("divs "+i+" "+divs[i]);
 		if (divs[i].getAttribute("download-url") !== null &&
 		    divs[i].textContent.indexOf("FREE") !== -1) {
 			console.log("TunesViewer: getting attribute: " + divs[i].getAttribute("download-url"));
