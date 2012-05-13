@@ -69,7 +69,7 @@ public class MyWebViewClient extends WebViewClient {
 	private IansCookieManager _CM = new IansCookieManager();
 	private SharedPreferences _prefs;
 	private StringBuilder _originalDownload = new StringBuilder(1);
-	private String _javascript; //from javascript.js
+	private String _javascript; //from res/raw/javascript.js
 	
 	//Back and Forward navigation stacks:
 	private Stack<String> Back = new Stack<String>();
@@ -84,7 +84,7 @@ public class MyWebViewClient extends WebViewClient {
 		InputStream inputStream = c.getResources().openRawResource(R.raw.javascript);
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		int i;
-		try {
+		try { // Read the Javascript file into memory.
 			i = inputStream.read();
 			while (i != -1) {
 				byteArrayOutputStream.write(i);

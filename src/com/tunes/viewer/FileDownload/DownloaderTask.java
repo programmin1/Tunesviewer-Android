@@ -195,8 +195,11 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 						// Get metadata.
 						new MediaScannerWrapper(_context, _outFile.toString(), "audio/mp3").scan();
 						// Add to Android media player.
-						_context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
+						if (prefs.getBoolean("mount", true)) {
+							_context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
 								Uri.parse("file://"+ Environment.getExternalStorageDirectory())));
+							Log.i(TAG,"Calling ACTION_MEDIA_MOUNTED");
+						}
 					}
 					in.close();
 					out.close();

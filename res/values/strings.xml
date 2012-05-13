@@ -19,6 +19,8 @@
     <string name="prefUASummary">Change user-agent to request pages.</string>
     <string name="prefDLTitle">Downloads Directory</string>
     <string name="prefDLSummary">Select a directory to download to.</string>
+    <string name="prefMountTitle">Mount SD After Download</string>
+    <string name="prefMountSummary">Adds downloaded media to music/video player, but stops current playing song.</string>
     <string-array name="UAarray">
     	<item>Full Page (Slower)</item>
     	<!-- <item>tablet</item> -->
