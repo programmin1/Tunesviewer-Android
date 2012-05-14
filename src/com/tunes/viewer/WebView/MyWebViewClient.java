@@ -487,6 +487,8 @@ public class MyWebViewClient extends WebViewClient {
 						int endhead = data.indexOf("</head>");
 						if (endhead >-1) {
 							data.replace(endhead, endhead, "<script>"+_javascript+"</script>");
+						} else {
+							Log.w(TAG, "No end head tag in this page, so not preinserting!!");
 						}
 						_download = null;
 						_view.post(new Runnable() {

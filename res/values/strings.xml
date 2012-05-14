@@ -20,15 +20,15 @@
     <string name="prefDLTitle">Downloads Directory</string>
     <string name="prefDLSummary">Select a directory to download to.</string>
     <string name="prefMountTitle">Mount SD After Download</string>
-    <string name="prefMountSummary">Adds downloaded media to music/video player, but stops current playing song.</string>
+    <string name="prefMountSummary">Necessary for adding downloaded media to music/video player on some devices, but may stop current playing song.</string>
     <string-array name="UAarray">
     	<item>Full Page (Slower)</item>
-    	<!-- <item>tablet</item> -->
+    	<item>Tablet not working?</item>
     	<item>Mobile (Faster, low-bandwidth)</item>
     </string-array>
     <string-array name="UAvalues">
     	<item>iTunes/10.6.1</item>
-    	<!-- <item>iTunes-iPad-M/3.2</item> -->
+    	<item>iTunes-iPad-M/3.2</item>
     	<item>iTunes-iPhone/1.2.0</item>
     </string-array>
     <string name="defaultUA">iTunes-iPhone/1.2.0</string>

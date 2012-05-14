@@ -18,11 +18,23 @@ iTunes = { // All called from the page js:
 
 		return "";
 	},
-
-/*	systemVersion: function() {
+/*
+	systemVersion: function() {
 		"use strict";
 		return "5.0";
 	},
+	createStorePage: function(url) {
+		console.log("open url "+url);
+	},
+	createPopOver: function(url) {
+		console.log("popover "+url);
+	},
+	addEventListener : document.addEventListener,
+	
+	protocol: {
+		clientIdentifier : " "
+	},
+
 	mediaLibrary: {
 		containsAdamIDs : function(el) {
 			console.log(el);

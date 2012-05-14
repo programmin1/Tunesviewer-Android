@@ -457,6 +457,9 @@ public class ItunesXmlParser extends DefaultHandler {
 					html.append("<br></div>");
 				} else if (map.containsKey("songName") || map.containsKey("itemName")) {
 					addMediaRow();
+				} else if (type.endsWith("-section") && map.containsKey("contents")) {
+					//Funny hybrid ipadpage that has htm in xml.
+					html.append(map.get("contents"));
 				}
 				//Done with it, don't let parent repeat:
 				map.clear();
@@ -700,7 +703,7 @@ public class ItunesXmlParser extends DefaultHandler {
 	private boolean isHandled(StackElement element) {
 		String keyid = element.atts.get(KEY);
 		//return keyid != null && HandledNames.containsKey(keyid);
-		return keyid != null && (keyid.equals("action") || keyid.equals("items") || keyid.equals("item-metadata") || keyid.equals("tabs") || keyid.equals("squishes") || keyid.equals("content"));
+		return keyid != null && (keyid.endsWith("section") || keyid.equals("action") || keyid.equals("items") || keyid.equals("item-metadata") || keyid.equals("tabs") || keyid.equals("squishes") || keyid.equals("content"));
 	}
 	
 	/**
