@@ -64,7 +64,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 		_ID = ID;
 		_url = url;
 		_context = c;
-		_podcast = podcast;
+		_podcast = (podcast != null) ? podcast : "";
 		_title = title;
 		_alltasks = t;
 		_handler = new Handler();
@@ -159,7 +159,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 			
 			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(_context);
 			String downloadDir = prefs.getString("DownloadDirectory",_context.getString(R.string.defaultDL));
-			if (clean(_podcast).equals("")) {
+			if (clean(_podcast).equals("")) {//NPE sometimes
 				directory = new File(downloadDir);
 			} else {
 				directory = new File(downloadDir,clean(_podcast));
