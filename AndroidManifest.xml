@@ -7,6 +7,9 @@
               android:targetSdkVersion="11" />
 
     <application android:icon="@drawable/icon" android:label="@string/app_name">
+        <provider android:name=".Bookmarks.BookmarkProvider"
+            android:authorities="com.tunes.viewer.bookmarks"
+        />
         <service android:name=".SamplePlugin">
             <intent-filter>
                 <action android:name="android.webkit.PLUGIN" />
@@ -35,11 +38,12 @@
                     
                 </intent-filter>
         </activity>
-	    <activity android:name=".Player" />
+	    <!-- <activity android:name=".Player" /> -->
 	    <activity android:name=".DownloadViewer" />
 	    <activity android:name=".PrefsActivity" />
 		<activity android:name=".Searcher" android:windowSoftInputMode="stateVisible"/>
 		<service android:name=".FileDownload.DownloadService"></service>
+		<activity android:name=".Bookmarks.BookmarkActivity"></activity>
     </application>
     
 <uses-permission android:name="android.permission.INTERNET"/>

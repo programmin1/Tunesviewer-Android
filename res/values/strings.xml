@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    
+    
+    <string name="live_folder_name">Bookmarks</string>
+    
 	<!-- Menu -->
     <string name="app_name">TunesViewer</string>
     <string name="download_title">Download</string>

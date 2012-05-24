@@ -2,6 +2,7 @@ package com.tunes.viewer;
 
 import java.lang.reflect.Method;
 
+import com.tunes.viewer.Bookmarks.BookmarkActivity;
 import com.tunes.viewer.WebView.JSInterface;
 import com.tunes.viewer.WebView.MyWebChromeClient;
 import com.tunes.viewer.WebView.MyWebViewClient;
@@ -284,6 +285,13 @@ public class TunesViewerActivity extends Activity {
 			   i.setAction(Intent.ACTION_VIEW);
 			   startActivity(Intent.createChooser(i, "SelectFolder"));
 			return true;*/
+		case R.id.menuBookmark:
+			Intent bkmarks = new Intent(TunesViewerActivity.this, BookmarkActivity.class);
+			bkmarks.setData(null);
+			bkmarks.putExtra("url", _web.getUrl());
+			bkmarks.putExtra("title", getTitle());
+			startActivity(bkmarks);
+			return true;
 		case R.id.menuPrefs:
 			startActivity(new Intent(this,PrefsActivity.class));
 			return true;
