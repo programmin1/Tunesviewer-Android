@@ -2,7 +2,7 @@ package com.tunes.viewer;
 
 import java.lang.reflect.Method;
 
-import com.tunes.viewer.Bookmarks.BookmarkActivity;
+import com.tunes.viewer.Bookmarks.BookmarksActivity;
 import com.tunes.viewer.WebView.JSInterface;
 import com.tunes.viewer.WebView.MyWebChromeClient;
 import com.tunes.viewer.WebView.MyWebViewClient;
@@ -273,6 +273,12 @@ public class TunesViewerActivity extends Activity {
 			alert.setNegativeButton("Cancel", null);
 			alert.show();
 			return true;
+		case R.id.menuBookmark:
+			Intent Bkmarks = new Intent(this,BookmarksActivity.class);
+			Bkmarks.putExtra("title", getTitle());
+			Bkmarks.putExtra("url", _web.getUrl());
+			startActivity(Bkmarks);
+			return true;
 		case R.id.home:
 			Log.d(TAG,"HOMEPAGE");
 			//_web.loadUrl("http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewGrouping?id=27753");
@@ -285,13 +291,6 @@ public class TunesViewerActivity extends Activity {
 			   i.setAction(Intent.ACTION_VIEW);
 			   startActivity(Intent.createChooser(i, "SelectFolder"));
 			return true;*/
-		case R.id.menuBookmark:
-			Intent bkmarks = new Intent(TunesViewerActivity.this, BookmarkActivity.class);
-			bkmarks.setData(null);
-			bkmarks.putExtra("url", _web.getUrl());
-			bkmarks.putExtra("title", getTitle());
-			startActivity(bkmarks);
-			return true;
 		case R.id.menuPrefs:
 			startActivity(new Intent(this,PrefsActivity.class));
 			return true;
