@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.tunes.viewer"
-      android:versionCode="9" android:versionName="0.9">
+      android:versionCode="10" android:versionName="0.9.1">
       <!-- Android tablet compatibility -->
 <uses-sdk android:minSdkVersion="3" 
               android:targetSdkVersion="11" />
