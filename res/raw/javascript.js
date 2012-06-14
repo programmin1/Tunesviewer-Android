@@ -43,7 +43,7 @@ iTunes = { // All called from the page js:
 	},
 */	
 
-	getPreferences: function() {
+	getPreferences: function () {
 		"use strict";
 		return {
 			pingEnabled: true
@@ -74,21 +74,21 @@ iTunes = { // All called from the page js:
 
 	playURL: function (input) {
 		"use strict";
-		window.DOWNLOADINTERFACE.preview('preview',input.url);
+		window.DOWNLOADINTERFACE.preview('preview', input.url);
 		return 'not 0';
 	},
 
 
-	showMediaPlayer: function (url_, showtype, title) {
+	showMediaPlayer: function (mediaurl, showtype, title) {
 		"use strict";
-		console.log(url_);
-		this.playURL({url: url_});
+		console.log(mediaurl);
+		this.playURL({url: mediaurl});
 	},
 
 
 	openURL: function (url) {
 		"use strict";
-		console.log("openURL"+url);
+		console.log("openURL" + url);
 		location.href = url;
 		setTitle();
 	},
@@ -99,9 +99,7 @@ iTunes = { // All called from the page js:
 		"use strict";
 		//console.log(xml);
 		xml = new DOMParser().parseFromString(xml, "text/xml");
-		var keys = xml.getElementsByTagName('key');
-		url = "";
-		name = "";
+		var keys = xml.getElementsByTagName('key'), url = "", name = "";
 		for (var i=0; i<keys.length; i++) {
 			if (keys[i].textContent=="URL") {//Goto the download url.
 				url = keys[i].nextSibling.textContent;
@@ -234,8 +232,8 @@ document.onpageshow = (function () {
 	console.log("ONPAGESHOW");
 	setTitle();
 	
-	imgs = document.getElementsByTagName("img");
-	for (var i=0; i<imgs.length; i++) {
+	var imgs = document.getElementsByTagName("img");
+	for (i=0; i<imgs.length; i++) {
 		if (/*imgs[i].getAttribute("src")==null && */imgs[i].getAttribute("src-swap") != null) {
 			imgs[i].setAttribute("src",imgs[i].getAttribute("src-swap"));
 		}
@@ -288,7 +286,7 @@ document.onpageshow = (function () {
 			console.log("subscribe-button");
 			removeListeners(divs[i].parentNode);
 			removeListeners(divs[i].parentNode.parentNode);
-			for (var j=0; j<divs.length; j++) {
+			for (j=0; j<divs.length; j++) {
 				if (divs[j].getAttribute("podcast-feed-url") != null) {
 					rss = divs[j].getAttribute("podcast-feed-url");
 					console.log("rss:"+rss);
@@ -413,8 +411,8 @@ document.onpageshow = (function () {
 	
 	//Fix hr tag in select tag, it will crash the program, for example, when tapping dropdown by the download item.
 	// see https://code.google.com/p/android/issues/detail?id=17622
-	hrs = document.getElementsByTagName('hr');
-	for (hr in hrs) {
+	var hrs = document.getElementsByTagName('hr');
+	for (var hr in hrs) {
 	 if (hrs[hr].parentNode && hrs[hr].parentNode.tagName.toLowerCase()=='select') {
 	   hrs[hr].parentNode.removeChild(hrs[hr]);
 	 }
