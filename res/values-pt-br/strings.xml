@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!-- Menu -->
+    <string name="app_name">TunesViewer</string>
+    <string name="download_title">Download</string>
+    <string name="menuSearch">Buscar</string>
+    <string name="menuHome">Home</string>
+    <string name="menuShareUrl">Compartilhar Página</string>
+    <string name="menuFindText">Encontrar Página</string>
+    <string name="menuClear">Limpar Histórico &amp; Cookies</string>
+    <string name="menuPrefs">Configurações</string>
+    <string name="menuGo">Copiar/Ir para URL</string>
+    <string name="menuSource">Ver Código-Fonte da Página</string>
+    <string name="menuOriginal">Ver Original</string>
+    <string name="menuCookies">Ver Cookies</string>
+    
+    <!-- Prefs -->
+    <string name="prefUATitle">Modo de Visualização</string>
+    <string name="prefUASummary">Alterar user-agent usado para requisitar páginas.</string>
+    <string name="prefDLTitle">Diretório para Downloads</string>
+    <string name="prefDLSummary">Selecione um diretório para salvar os seus downloads.</string>
+    <string name="prefMountTitle">Montar SD Depois do Download</string>
+    <string name="prefMountSummary">Necessário para adicionar mídia baixada para o player de música/vídeo em alguns aparelhos, mas pode parar de tocar a música atual.</string>
+    <string-array name="UAarray">
+    	<item>Página Completa (Mais devagar)</item>
+    	<!--<item>Tablet not working?</item>-->
+    	<item>Mobile (Mais rápido, conexão devagar)</item>
+    </string-array>
+    <string-array name="UAvalues">
+    	<item>iTunes/10.6.1</item>
+    	<!-- <item>iTunes-iPad-M/3.2</item>-->
+    	<item>iTunes-iPhone/1.2.0</item>
+    </string-array>
+    <string name="defaultUA">iTunes-iPhone/1.2.0</string>
+    
+    <string name="prefImgTitle">Tamanho da Imagem</string>
+    <string name="prefImgSummary">Tamanho de imagem preferido para modo de visualização mobile.</string>
+    <string-array name="ImgArray">
+    	<item>Sem Imagens</item>
+    	<item>Pequeno (55px)</item>
+    	<item>Médio (88px)</item>
+    	<item>Grande (176px)</item>
+    	<item>Qualquer tamanho</item>
+    </string-array>
+    <!-- Can't use integer-array, see http://code.google.com/p/android/issues/detail?id=2096 -->
+    <string-array name="ImgValues">
+    	<item>-1</item>
+    	<item>55</item>
+    	<item>88</item>
+    	<item>176</item>
+    	<item>0</item>
+    </string-array>
+    <string name="defaultImg">0</string>
+    <string name="defaultDL">/sdcard/download</string>
+    
+    <string name="prefAdvTitle">Mostrar menus para Debug</string>
+    <string name="prefAdvSummary">Habilitar itens de menu para ver código-fonte</string>
+    
+    <string name="prefInsertTitle">Script Adicional</string>
+    <string name="prefInsertSummary">Entre o JavaScript que rodará em cada página.</string>
+    
+    <string name="NoActivity">Não foi encontrada uma aplicação adequada para visualizar este arquivo.</string>
+    
+    <!-- Searchbox -->
+    <string name="courses">Cursos Universitários</string>
+    <string name="collections">Coleções</string>
+    <string name="podcasts">Podcasts</string>
+    <string name="search">Buscar</string>
+    
+    
+    <!-- Other strings -->
+    <string name="bookmarks">Favoritos</string>
+    
+    <string name="share">Compartilhar</string>
+    <string name="RatingStars">&lt;div style=\"background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAZCAYAAADE6YVjAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAPugAAD7oBsgpXUQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAARESURBVEiJrZNdbFRFFMf/Z2Z6d7tbWroVSks/IKWoD7U0tAKCqVYjiEj8ADTaQGKM8qA8+OADiTGGaBQTY3wwYnywFnlQMdAQVKIopKVWaIsgX0Wqttp2YZeybdne3Xtnjg/dpXRb7TZ6kpvM3Dnn/Ob/v+cSMyPdaGug1UTyU2b92LItfDTdOjEDgBAk3y9f8UEekWhqa6DZ/zsEQH2gaG1R7sInkb/g8UyAXkq3kNKxq62BLEHyj6oHj8xTGQraSLQfWB5l1oXLtnBkuvq0lBgXzwUKVgeUJweItUNKifzSjcq4tC2d+mmVtOwiS5Dor3n4YEDFzwMZAnBcaF8Nju+rG9HGKVz5PA//JyVGY2teYV2W8uQAHAXcUQBxSMRQULbBw5penLGSI++RALAQQAWASiLaftcjey1lnwWkA4DGErWBybobx758yDbGeYuZDwO4WLuN+ydBDr+DuQCeECSqSYhqY3QZCaVm55XFArfcZuXNq1K+/BVA5BBASeEJkK8KsZHLCPY2O+HgL2YofNED6GsEOqGNbgZwAkALHX03s2v+ojWlgTmLrczsImT4CyCsAMAaiP0JxIJAvA8QNytOQIwBrLlAxlzAWwQIH7R9BfZwD4avXnLDwTMm1NPardx4vDPDyl44u7gOiLQC4VMAXIBovBkAGEzcJ9d279hlRjoAZkiS8FvF8Jc/qtgd1Zd/P3ZVOTG9uevE7gVSyKWFZbUSIxcm9rp5Q1NAkuvklgFklyLU9YU582NjyBizgZgZX79GuVLI9iWrnimdU7JUIPRNIjvRwHUA5kRjHoMRAEhAqYnQvAcw+FcHHz/yYcQYs3zNq3zhxnQdfIVKhBCdd977bG6g4HZC+DuADWCPAtqkDsx4SAF4M8eGIu9+RILn0frtruuGedXaHXwSSBnhA9upUhC1VFUu8xUUFBOuXwaM+8+AZAgF+PIRCvWjrb05xsx1697gYzfMTP1Pml6mlUT0wz1LKtQsX+b0gEQMDo+g+fRZh5nXrd/JhybcITV5/U5uIabWYCg89i3SfIaGRiBZdKQCAEClvgAAdjHfJxTgpGFVIkgbaBeeqc4mQfa+QERERX4lZwTxSwnXMYumOptkl3ExXzts+RXNyC6/EnAdzvp8K82aVolxschSwlbaeFNHNxKNIzhkIz/Hi5xMa8KZFwA0acNcAuDMv0M0yv1epeGOWzUYdXCy95odHLaVFPSzNlxZkuszdxTlWFme8RaWEHY0ridBprJrcbalPNAag8M2vj93JfbVqQE9MBhr1A6KN35kqrWDW3tCo/ubOvv1T5euOqN2HNAaPilhXJROa5dkKtea1eFzYbs/EpMEajCM1+v3mJ5kztON3A1g0+6nqKI7GH3714HofYvn+SBBXtYomRbixHnfb0G7DoyPDePNzZ+ZvtScZNTv4dMA1nyyiWq6+qI7jOFawziVmvc34IoMnpJlbFoAAAAASUVORK5CYII=); height:25px; width:STARSpx;\"&gt;&lt;/div&gt;</string>
+    
+    <string name="about">Sobre</string>
+    
+    <!-- Styles only applicable for our generated mobile pages. 
+         Perhaps it would be good to move this to res/raw file? -->
+    <string name="MobileStyles" formatted="false">"&lt;script&gt;
+function toggle(el) {
+    if (el.style.display=='none') {
+        el.style.display = 'block';
+    } else {
+        el.style.display = 'none';
+    }
+}
+&lt;/script&gt;
+&lt;style&gt;
+h1 {margin:4px;font-size:1.5em; text-shadow: #999999 2px 2px 2px; text-align:center;}
+img.rounded {border-radius:5px; text-align:center}
+body {text-align:center;}
+tab {text-align:center;}
+h2 {text-align:left;}
+h3 {text-align:left;}
+div {text-align:left;}
+* {font-family: Helvetica, Arial;}
+div.media {background-color:#77FF77; /*disable border-radius:10px since it slows scrolling*/
+ width=100%; border-color:white; border-style:solid; border-width:2px; padding:10px;}
+span.preview {display:inline-block; background-repeat:no-repeat; background-position:center; padding:5px; vertical-align:middle; width:22px; height:22px; background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAALmSURBVDiNrdVLbExRGAfw/33OmDZIxqDo4lYQYSEWJMJGIojUQk1RJBWpjXdIbi2ICJHxXFjYiu2NSiw8EqRUPDJBionScqnxGpppp/d27j3n3HMsmo5Oqq0+TnJ2J7/v/53vJEcSQmDbhTnPhRCNhAUnLdPOYhyWDAA+ZYtXLFy0W1OV9i3nZh+LJ4yScYEBoHLpqtDRLbtKl8xbUK+rSnrz2Yr98YShjxkWCKBpHdi4fOWE+k07Jy+aPfeUrinp6jPGjnjCUMYEM94Jl7QgEu7C1pXrSg5tqI3NLzcuhTTVjieMqnjCkEYMQwSFEjTIwvVTmFSaR93aqpK962vKK8pmXQnraks8YaweEcw5A+e83w7g0wxy+WZEJzHsqdxcWrdm49wZ0di17RfnPI8njGVDwZIQAvGEIU7vqIPrtw5+EDJ0bRpCahnef/2E64/vu67nJD3CDlim3TwofGJ7LVz/w7AtSpKCsFaGkDodqc+t/Mazxjyh3j2PssOWaReSFeBjNTVwfXtY+G8BFRP0mdCVqWi2W/itZJNHOWkgNDhimXa6AB+proLrt/833LdkSUckVA5VjuJFW4rdbX5CgOC02neAMB+UsVHAEphCAIUi4AwQgIBAAaaMjAiWJAURfTp0NYY3nz/yxtc3PRbQBsJ6r+JvYkpAWTCU1QtCQlifgrAWQ+v3b/zBm4d5Qv17hAVFwytKzIZMLCGkTURYj6H9VweaUrfdPOlJEsb/+dz6JfYGvQpNiSCsR/Gj08HTd4+cXN55Txnfa5n248Fi9IMHDk+RQwhpE5F1CJJtL51O1/lGA77PMu07Q7RWDPvMAwt6YVlSoakR5PIcr962Or+7u7MsEAcBNFimLYZDi2BKfXDBIcsaHE/g7de0k+ly8wEXJoCrlmkPP9l/JqY+fAq0/ezuyXT1EC7EcSFw2TJtMhJwAJz60uVlcpQJIc5ygfOWabujAYtgRZZe/MyRRs4xbp/pHxoMnL5j5aIcAAAAAElFTkSuQmCC);}
+
+selection {background-color:gold;}
+b.media {line-height: 2em;}
+a.media {height: 1.5em;
+ line-height: 1.5em; vertical-align:middle;text-decoration: none;
+ border: 1px; border-radius:6px; border-color:gray; padding: 3px;border-style: solid;
+ background-image:-webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0%, #ffffff), color-stop(100%, #A2ABFF)); color:black}
+a.tab {vertical-align:middle;text-decoration: none; border: 1px; border-radius:6px; border-color:gray; padding: 5px;border-style: solid;background-image:-webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0%, #ffffff), color-stop(100%, #A2ABFF)); color:black}
+a.sel {background-image:-webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0%, #A2ABFF), color-stop(100%, #77AAFF));}
+div.link {border-style:solid; border-color:white; border-radius: 10px; padding: 5px; background-color:silver; margin:2px; overflow:auto;}
+font.separator {color: blue; padding: 2px; margin-top:4px; font-size:1.5em; text-shadow: #616161 2px 2px 4px;};
+  &lt;/style&gt;"</string>
+    
+</resources>
