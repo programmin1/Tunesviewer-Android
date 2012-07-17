@@ -349,6 +349,9 @@ public class TunesViewerActivity extends Activity {
 		super.onDestroy();
 	}
 	
+	/**
+	 * An onKeyDown listener for back (last page) and search (search).
+	 */
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if ((keyCode == KeyEvent.KEYCODE_BACK)) {
 			if (findViewById(R.id.findLayout).getVisibility() == View.VISIBLE) {

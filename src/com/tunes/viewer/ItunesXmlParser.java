@@ -604,13 +604,14 @@ public class ItunesXmlParser extends DefaultHandler {
 	 * @return lowercase string.
 	 */
 	public static String fileExt(String url) {
+		//May have strange urls like http://media.ccomrcdn.com/media/station_content/1674/JamesBondHeinekenVersion1_1333982114_19481.mp3?CPROG=PCAST&MARKET=NEWYORK-NY&NG_FORMAT=&SITE_ID=1674&STATION_ID=WAXQ-FM&PCAST_AUTHOR=Q104.3_New_York_City&PCAST_CAT=comedy&PCAST_TITLE=Jim_Kerr_Rock_and_Roll_Morning_Show_Parodies
+		if (url.indexOf("?")>-1) {
+			url = url.substring(0,url.indexOf("?"));
+		}
 		if (url.lastIndexOf(".") == -1) {
 			return null;
 		} else {
 			String ext = url.substring(url.lastIndexOf(".") );
-			if (ext.indexOf("?")>-1) {
-				ext = ext.substring(0,ext.indexOf("?"));
-			}
 			if (ext.indexOf("%")>-1) {
 				ext = ext.substring(0,ext.indexOf("%"));
 			}
