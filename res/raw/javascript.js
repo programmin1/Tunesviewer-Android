@@ -255,7 +255,7 @@ document.onpageshow = (function () {
 
 	divs = document.getElementsByTagName("div");
 	for (var i=0; i<divs.length; i++) {
-		if (divs[i].getAttribute("download-url") != null && divs[i].textContent.indexOf("FREE")!=-1) {
+		if (divs[i].getAttribute("download-url") != null && (divs[i].textContent.indexOf("FREE")!=-1 || divs[i].textContent.indexOf("Download")!=-1)) {
 			console.log("Free download div, "+divs[i].getAttribute("download-url"));
 			removeListeners(divs[i].parentNode.parentNode);
 			removeListeners(divs[i].parentNode.childNodes);

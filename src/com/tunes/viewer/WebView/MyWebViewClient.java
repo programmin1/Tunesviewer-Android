@@ -411,7 +411,7 @@ public class MyWebViewClient extends WebViewClient {
 						} else {
 							// Inject js:
 							final StringBuilder data = new StringBuilder(parser.getHTML());
-							int endhead = data.indexOf("</head");
+							int endhead = data.indexOf("<head>")+6;
 							if (endhead >-1) {
 								data.replace(endhead,endhead,"<script>"+_javascript+"</script>");
 							}
@@ -484,7 +484,7 @@ public class MyWebViewClient extends WebViewClient {
 						//final String data = _download;
 						// Inject js:
 						final StringBuilder data = _download;
-						int endhead = data.indexOf("</head>");
+						int endhead = data.indexOf("<head>")+6;
 						if (endhead >-1) {
 							data.replace(endhead, endhead, "<script>"+_javascript+"</script>");
 						} else {
