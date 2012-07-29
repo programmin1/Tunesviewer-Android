@@ -374,6 +374,7 @@ public class ItunesXmlParser extends DefaultHandler {
 				} else if (type.equals("review")) {
 					html.append("<div><br><b>");
 					appendStars(Float.valueOf(map.get("average-user-rating")));
+					html.append("<br>");
 					html.append(map.get("title"));
 					html.append("</b><br>");
 					html.append(map.get("text"));
