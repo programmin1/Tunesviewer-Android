@@ -1,6 +1,9 @@
 package com.tunes.viewer;
 //http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewGrouping?id=27753
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,6 +16,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import android.content.Context;
 import android.os.Debug;
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * iTunesU XML parser using Java SaxParser
@@ -34,7 +38,7 @@ public class ItunesXmlParser extends DefaultHandler {
 	//Turn on to enable original-source parsing also:
 	private final boolean _debug = false;
 
-	// HTML style and scripts before and after the media list: (Main styles are in strings.xml)
+	// HTML style and scripts before and after the full-page xml-converted media list: (Main styles are in strings.xml)
 	private static final String PRE_MEDIA = "<script>function downloadit(title,name) { console.log('download-it'); console.log(title); console.log(name); window.DOWNLOADINTERFACE.download(title, document.title ,name); }</script>\n"+
 	"<style>* {font-family: Helvetica, Arial;}\n"+
 	"tr.dl > td {}\n"+
@@ -43,6 +47,8 @@ public class ItunesXmlParser extends DefaultHandler {
 	"<table width='100%' border='1' cellspacing=\"1\" cellpadding=\"3\"><tr><td><b>Name</b></td><td><b>Author</b></td><td><b>Duration</b></td><td><b>Comment</b></td><td><b>Download</b></td></tr>\n";
 	private static final String POST_MEDIA = "</table>";
 	private static final String TAG = "parser";
+	
+	private static String mobileExtras;
 	
 	// Holds text inside or between the elements,
 	// this is printed out and reset at start-tag and end-tag.
@@ -145,6 +151,22 @@ public class ItunesXmlParser extends DefaultHandler {
 		this.context = c;
 		this.scrWidth = width;
 		_imgPrefSize = imgPref;
+		
+		InputStream inputStream = c.getResources().openRawResource(R.raw.mobile_extras);
+		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+		int i;
+		try { // Read the Javascript file into memory.
+			i = inputStream.read();
+			while (i != -1) {
+				byteArrayOutputStream.write(i);
+				i = inputStream.read();
+			}
+	      inputStream.close();
+	      mobileExtras = byteArrayOutputStream.toString();
+		} catch (IOException e) {
+			e.printStackTrace();
+			Toast.makeText(c, "Couldn't open Javascript.js", Toast.LENGTH_LONG).show();
+		}
 		if (_profiling) {
 			Debug.startMethodTracing("XML");
 		}
@@ -351,8 +373,7 @@ public class ItunesXmlParser extends DefaultHandler {
 					html.append("</div>");
 				} else if (type.equals("review")) {
 					html.append("<div><br><b>");
-					html.append(context.getString(R.string.RatingStars).replace(
-						"STARS", String.valueOf(125*(Float.valueOf(map.get("average-user-rating"))))));
+					appendStars(Float.valueOf(map.get("average-user-rating")));
 					html.append(map.get("title"));
 					html.append("</b><br>");
 					html.append(map.get("text"));
@@ -527,9 +548,10 @@ public class ItunesXmlParser extends DefaultHandler {
 	 * @param rating - 0 for 0 stars, 1.0 is 5-star.
 	 */
 	private void appendStars(Float rating) {
+		html.append("<div style=\"display:inline-block; background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAZCAYAAADE6YVjAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAPugAAD7oBsgpXUQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAARESURBVEiJrZNdbFRFFMf/Z2Z6d7tbWroVSks/IKWoD7U0tAKCqVYjiEj8ADTaQGKM8qA8+OADiTGGaBQTY3wwYnywFnlQMdAQVKIopKVWaIsgX0Wqttp2YZeybdne3Xtnjg/dpXRb7TZ6kpvM3Dnn/Ob/v+cSMyPdaGug1UTyU2b92LItfDTdOjEDgBAk3y9f8UEekWhqa6DZ/zsEQH2gaG1R7sInkb/g8UyAXkq3kNKxq62BLEHyj6oHj8xTGQraSLQfWB5l1oXLtnBkuvq0lBgXzwUKVgeUJweItUNKifzSjcq4tC2d+mmVtOwiS5Dor3n4YEDFzwMZAnBcaF8Nju+rG9HGKVz5PA//JyVGY2teYV2W8uQAHAXcUQBxSMRQULbBw5penLGSI++RALAQQAWASiLaftcjey1lnwWkA4DGErWBybobx758yDbGeYuZDwO4WLuN+ydBDr+DuQCeECSqSYhqY3QZCaVm55XFArfcZuXNq1K+/BVA5BBASeEJkK8KsZHLCPY2O+HgL2YofNED6GsEOqGNbgZwAkALHX03s2v+ojWlgTmLrczsImT4CyCsAMAaiP0JxIJAvA8QNytOQIwBrLlAxlzAWwQIH7R9BfZwD4avXnLDwTMm1NPardx4vDPDyl44u7gOiLQC4VMAXIBovBkAGEzcJ9d279hlRjoAZkiS8FvF8Jc/qtgd1Zd/P3ZVOTG9uevE7gVSyKWFZbUSIxcm9rp5Q1NAkuvklgFklyLU9YU582NjyBizgZgZX79GuVLI9iWrnimdU7JUIPRNIjvRwHUA5kRjHoMRAEhAqYnQvAcw+FcHHz/yYcQYs3zNq3zhxnQdfIVKhBCdd977bG6g4HZC+DuADWCPAtqkDsx4SAF4M8eGIu9+RILn0frtruuGedXaHXwSSBnhA9upUhC1VFUu8xUUFBOuXwaM+8+AZAgF+PIRCvWjrb05xsx1697gYzfMTP1Pml6mlUT0wz1LKtQsX+b0gEQMDo+g+fRZh5nXrd/JhybcITV5/U5uIabWYCg89i3SfIaGRiBZdKQCAEClvgAAdjHfJxTgpGFVIkgbaBeeqc4mQfa+QERERX4lZwTxSwnXMYumOptkl3ExXzts+RXNyC6/EnAdzvp8K82aVolxschSwlbaeFNHNxKNIzhkIz/Hi5xMa8KZFwA0acNcAuDMv0M0yv1epeGOWzUYdXCy95odHLaVFPSzNlxZkuszdxTlWFme8RaWEHY0ridBprJrcbalPNAag8M2vj93JfbVqQE9MBhr1A6KN35kqrWDW3tCo/ubOvv1T5euOqN2HNAaPilhXJROa5dkKtea1eFzYbs/EpMEajCM1+v3mJ5kztON3A1g0+6nqKI7GH3714HofYvn+SBBXtYomRbixHnfb0G7DoyPDePNzZ+ZvtScZNTv4dMA1nyyiWq6+qI7jOFawziVmvc34IoMnpJlbFoAAAAASUVORK5CYII=); height:25px; width:");
 		// Set width, with 25x25 star, 5-stars would be 125 * 1.0 = 125px.
-		html.append(context.getString(R.string.RatingStars).replace(
-			"STARS", String.valueOf(125*(rating))));
+		html.append(String.valueOf(125*(rating)));
+		html.append("px;\"></div></string>");
 	}
 	private void addLink(String text, String url, String image) {
 		html.append("<div class='link' onclick=\"window.DOWNLOADINTERFACE.go(this.getAttribute('url'))\" url=\"");
@@ -558,7 +580,7 @@ public class ItunesXmlParser extends DefaultHandler {
 		html.append(url.replace("\"", "&quot;"));
 		html.append("\">");
 		if (image != null) {
-			html.append("<img style='vertical-align: top; margin:2px; float:left; display:block;' src=\"");
+			html.append("<img style='vertical-align: top; margin:2px; margin-right:8px; float:left; display:block;' src=\"");
 			html.append(image.replace("\"", "&quot;"));
 			html.append("\"><strong>");
 		}
@@ -569,7 +591,6 @@ public class ItunesXmlParser extends DefaultHandler {
 		appendStars(rating);
 		html.append("<br>");
 		html.append(ratings);
-		
 		html.append("</div>");
 	}
 
@@ -708,7 +729,7 @@ public class ItunesXmlParser extends DefaultHandler {
 	
 	public void endDocument() throws SAXException {
 		//if mobile:
-		html.insert(0,context.getString(R.string.MobileStyles));
+		html.insert(0,mobileExtras);
 		//Add style to keep large images from going off the screen:
 		html.insert(0, "<style> img { max-width:"+(scrWidth-5)+"px; height:auto;}</style>");
 		original.append("<!-- (END DOC) -->");

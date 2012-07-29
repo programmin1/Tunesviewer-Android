@@ -246,7 +246,7 @@ document.onpageshow = (function () {
 		if (as.hasOwnProperty(a)) {
 			if (as[a].target === "_blank") {
 				as[a].target = "";
-				as[a].href = "web" + as[a].href;
+				//as[a].href = "web" + as[a].href;
 			} else if (as[a].target) {
 				as[a].target = "";
 			}
