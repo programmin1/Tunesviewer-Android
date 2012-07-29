@@ -345,10 +345,8 @@ public class ItunesXmlParser extends DefaultHandler {
 					//This is a redirect.
 					redirectPage = map.get("url");
 				} else if (type.equals("review-header")) {
-					// Set width, with 25x25 star, 5-stars would be 125 * 1.0 = 125px.
-					html.append(context.getString(R.string.RatingStars).replace(
-					  "STARS", String.valueOf(125*(Float.valueOf(map.get("average-user-rating"))))));
-					html.append("<div>");
+					appendStars(Float.valueOf(map.get("average-user-rating")));
+					html.append("<br><div>");
 					html.append(map.get("title"));
 					html.append("</div>");
 				} else if (type.equals("review")) {
@@ -388,7 +386,13 @@ public class ItunesXmlParser extends DefaultHandler {
 					}
 					html.append("</font></div>");
 				} else if (type.equals("link")) { //A link to page
-					addLink(map.get("title"), map.get("url"), subMap.get("url"));
+					if (map.get("average-user-rating") == null) {
+						addLink(map.get("title"), map.get("url"), subMap.get("url"));
+					} else {
+						addLink(map.get("title"), map.get("url"), subMap.get("url"),
+							map.get("title2"), Float.valueOf(map.get("average-user-rating")),
+							map.get("artist-name"));
+					}
 				} else if (type.equals("pagination")) {
 					addLink(map.get("title"), map.get("url"), null);
 				} else if (type.equals("podcast")) { // page info.
@@ -519,11 +523,14 @@ public class ItunesXmlParser extends DefaultHandler {
 	}
 	
 	/**
-	 * Appends a full-width link to the html.
-	 * @param text String to display
-	 * @param url String to go to
-	 * @param image String url, or null for no image.
+	 * Appends rating stars to html.
+	 * @param rating - 0 for 0 stars, 1.0 is 5-star.
 	 */
+	private void appendStars(Float rating) {
+		// Set width, with 25x25 star, 5-stars would be 125 * 1.0 = 125px.
+		html.append(context.getString(R.string.RatingStars).replace(
+			"STARS", String.valueOf(125*(rating))));
+	}
 	private void addLink(String text, String url, String image) {
 		html.append("<div class='link' onclick=\"window.DOWNLOADINTERFACE.go(this.getAttribute('url'))\" url=\"");
 		html.append(url.replace("\"", "&quot;"));
@@ -534,6 +541,35 @@ public class ItunesXmlParser extends DefaultHandler {
 			html.append("\">");
 		}
 		html.append(text);
+		html.append("</div>");
+	}
+	
+	/**
+	 * Appends a full-width link to the html.
+	 * @param text String to display
+	 * @param url String to go to
+	 * @param image String url, or null for no image.
+	 * @param ratings count
+	 * @param rating a string representing rating (0=0, 1.0=5-star).
+	 * @param author
+	 */
+	private void addLink(String text, String url, String image, String ratings, float rating, String author) {
+		html.append("<div class='link' onclick=\"window.DOWNLOADINTERFACE.go(this.getAttribute('url'))\" url=\"");
+		html.append(url.replace("\"", "&quot;"));
+		html.append("\">");
+		if (image != null) {
+			html.append("<img style='vertical-align: top; margin:2px; float:left; display:block;' src=\"");
+			html.append(image.replace("\"", "&quot;"));
+			html.append("\"><strong>");
+		}
+		html.append(text);
+		html.append("</strong><br>");
+		html.append(author);
+		html.append("<br>");
+		appendStars(rating);
+		html.append("<br>");
+		html.append(ratings);
+		
 		html.append("</div>");
 	}
 
