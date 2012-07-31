@@ -97,24 +97,26 @@ iTunes = { // All called from the page js:
 	/** Download a file described as XML */
 	addProtocol: function (xml) {
 		"use strict";
-		//console.log(xml);
-		xml = new DOMParser().parseFromString(xml, "text/xml");
-		var keys = xml.getElementsByTagName('key'), url = "", name = "";
-		for (var i=0; i<keys.length; i++) {
-			if (keys[i].textContent=="URL") {//Goto the download url.
-				url = keys[i].nextSibling.textContent;
-				//document.location = keys[i].nextSibling.textContent;
-				//setTitle();
-			} else if (keys[i].textContent=="songName" || keys[i].textContent=="itemName") {
-				name = keys[i].nextSibling.textContent;
+		//console.log('addProtocol called:'+xml);
+		if (xml.indexOf("<key>navbar</key>") === -1) {
+			xml = new DOMParser().parseFromString(xml, "text/xml");
+			var keys = xml.getElementsByTagName('key'), url = "", name = "";
+			for (var i=0; i<keys.length; i++) {
+				if (keys[i].textContent=="URL") {//Goto the download url.
+					url = keys[i].nextSibling.textContent;
+					//document.location = keys[i].nextSibling.textContent;
+					//setTitle();
+				} else if (keys[i].textContent=="songName" || keys[i].textContent=="itemName") {
+					name = keys[i].nextSibling.textContent;
+				}
+				
 			}
-			
+			window.DOWNLOADINTERFACE.download(name, document.title, url);
+			/*if (xml.indexOf("<key>navbar</key>") === -1) {
+				console.log("TunesViewer: adding download: " + xml);
+				location.href = "download://" + xml;
+			}*/
 		}
-		window.DOWNLOADINTERFACE.download(name, document.title, url);
-		/*if (xml.indexOf("<key>navbar</key>") === -1) {
-			console.log("TunesViewer: adding download: " + xml);
-			location.href = "download://" + xml;
-		}*/
 	},
 
 

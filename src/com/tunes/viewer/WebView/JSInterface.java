@@ -168,7 +168,9 @@ public class JSInterface {
 			try {
 				in.close();
 			} catch (IOException e) {
+				e.printStackTrace();
 			} catch (NullPointerException e) {
+				e.printStackTrace();
 			}
 		}
 		return output;

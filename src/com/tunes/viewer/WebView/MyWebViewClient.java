@@ -373,7 +373,6 @@ public class MyWebViewClient extends WebViewClient {
 						}
 					}
 					// Remove unneeded XML declaration that may cause errors on some pages:
-					// TODO: May cause problem with out-of-memory message.
 					//_download = _download.replace("<?","<!--").replace("?>", "-->");
 					int badindex = _download.indexOf("<?");
 					if (badindex != -1) {
@@ -408,6 +407,8 @@ public class MyWebViewClient extends WebViewClient {
 							intent.putExtra("podcast", parser.getTitle());
 							intent.putExtra("name",parser.getSingleName());
 							callerContext.startService(intent);
+							// reset "loading..." because it isn't:
+							_view.loadUrl("javascript:setTitle()");
 						} else {
 							// Inject js:
 							final StringBuilder data = new StringBuilder(parser.getHTML());

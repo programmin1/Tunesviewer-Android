@@ -59,7 +59,7 @@ public class DownloadService extends Service {
 				T.execute(new URL(intent.getStringExtra("url")));
 				myDownloaders.add(T);
 			} catch (MalformedURLException e) {
-				Toast.makeText(getApplicationContext(),"Invalid url",1000).show();
+				Toast.makeText(getApplicationContext(),"Download url is invalid",1000).show();
 				e.printStackTrace();
 			}
 		}
