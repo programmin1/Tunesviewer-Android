@@ -6,8 +6,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import com.tunes.viewer.ItunesXmlParser;
 import com.tunes.viewer.R;
@@ -52,6 +55,8 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	private ArrayList<DownloaderTask> _alltasks;
 	private WifiLock _wifiLock;
 	private Handler _handler;
+	private Timer _timer;
+
 	//boolean success = false;
 	
 	// The last updated percent downloaded.
@@ -135,6 +140,11 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 			_connection =  (HttpURLConnection)urls[0].openConnection();
 			_connection.setRequestProperty ("User-agent", "iTunes/10.6.1");
 			_connection.connect();
+			_connection.setConnectTimeout(1000*30);
+			_connection.setReadTimeout(1000*30);
+			//TODO: The above code doesn't keep it from sticking when connection's lost.
+			// see
+			
 			// Make sure response code is in the 200 range.
 			if (_connection.getResponseCode() / 100 != 2) {
 				Log.e(TAG,"Can't connect. code "+_connection.getResponseCode());
@@ -181,13 +191,20 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 					out = new BufferedOutputStream(file,1024*4); // too big of a buffer and it will crash, out-of-mem exception!
 					byte[] data = new byte[1024];
 					int count;
+					_timer = new Timer();
 					// Read in chunks, much more efficient than byte by byte, lower cpu usage.
 					while((count = in.read(data, 0, 1024)) != -1 && !isCancelled()) { //(Byte = in.read()) != -1 && !isCancelled()) {
 						out.write(data,0,count);
 						downloaded+=count;
 						publishProgress((int) ((downloaded/ (float)contentLength)*100));
+						_timer.cancel();
+						_timer = new Timer();
+						_timer.schedule(new Timeout(this), 1000*20);
 					}
+					_timer.cancel();
 					out.flush();
+					Log.w(TAG,"downloaded "+downloaded);
+					Log.w(TAG,"expected "+contentLength);
 					if (isCancelled()) {
 						_outFile.delete();
 					} else {
@@ -211,6 +228,11 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 				publishProgress(0);
 				cancel(false);
 			}
+		} catch (SocketTimeoutException e) {
+			e.printStackTrace();
+			_ErrMSG = "Download error: "+e.getMessage();
+			publishProgress(0);
+			cancel(false);
 		} catch (IOException e) {
 			e.printStackTrace();
 			_ErrMSG = "Download error: "+e.getMessage();
@@ -313,4 +335,19 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	public String toString() {
 		return _outFile.toString();
 	}
+	
 }
+
+class Timeout extends TimerTask {
+	private DownloaderTask _task;
+	
+	public Timeout(DownloaderTask task) {
+		_task = task;
+	}
+	
+	@Override
+	public void run() {
+		Log.w("DL","Timed out while downloading.");
+		_task.cancel(false);
+	}
+};
