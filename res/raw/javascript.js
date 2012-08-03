@@ -18,22 +18,40 @@ iTunes = { // All called from the page js:
 
 		return "";
 	},
-/*
+/*for tablet-mode, interferes with normal mode sometimes:
 	systemVersion: function() {
 		"use strict";
 		return "5.0";
 	},
+	
+	addEventListener: function(a,b,c) {
+	  console.log("addevent");
+	  console.log(a);
+	  console.log(b);
+	  console.log(c);
+	},
+	
+	device: {
+		mainScreenScale: 1.0
+	},
+	
+	protocol: "view",
+	
+	createWindow: function() {
+		return function() {
+			backViewController: {}
+		};
+	},
+
 	createStorePage: function(url) {
 		console.log("open url "+url);
 	},
 	createPopOver: function(url) {
 		console.log("popover "+url);
 	},
-	addEventListener : document.addEventListener,
 	
-	protocol: {
-		clientIdentifier : " "
-	},
+
+	addEventListener : document.addEventListener,
 
 	mediaLibrary: {
 		containsAdamIDs : function(el) {
@@ -41,6 +59,11 @@ iTunes = { // All called from the page js:
 			return true;
 		}
 	},
+
+	//protocol: {
+	//	clientIdentifier : " "
+	//},
+
 */	
 
 	getPreferences: function () {
@@ -81,7 +104,7 @@ iTunes = { // All called from the page js:
 
 	showMediaPlayer: function (mediaurl, showtype, title) {
 		"use strict";
-		console.log(mediaurl);
+		console.log("showMediaPlayer "+mediaurl);
 		this.playURL({url: mediaurl});
 	},
 
