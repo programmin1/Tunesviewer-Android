@@ -4,13 +4,17 @@ import android.app.Activity;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 
 import com.tunes.viewer.R;
+import com.tunes.viewer.Searcher;
+import com.tunes.viewer.TunesViewerActivity;
 
 import android.net.Uri;
 import android.opengl.Visibility;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -23,6 +27,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ResourceCursorAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * A database list based bookmarks list activity. 
@@ -98,22 +103,24 @@ public class BookmarksActivity extends ListActivity implements OnItemClickListen
         AdapterView.AdapterContextMenuInfo info;
         try {
              info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+             Cursor cursor = (Cursor) getListAdapter().getItem(info.position);
+             if (cursor == null) {
+                 // For some reason the requested item isn't available, do nothing
+                 Log.e(TAG,"No item selected?");
+             } else {
+     	
+     	        // Setup the menu header
+     	        menu.setHeaderTitle(cursor.getString(1));
+     	
+     	        // Add a menu item to delete the note
+     	        //menu.add(0, Menu.FIRST, 0, "Delete");
+     	        menu.add(0,1,1,R.string.delete);
+     	        menu.add(0,2,2,R.string.showFiles);
+             }
         } catch (ClassCastException e) {
             Log.e(TAG, "bad menuInfo", e);
             return;
         }
-
-        Cursor cursor = (Cursor) getListAdapter().getItem(info.position);
-        if (cursor == null) {
-            // For some reason the requested item isn't available, do nothing
-            return;
-        }
-
-        // Setup the menu header
-        menu.setHeaderTitle(cursor.getString(1));
-
-        // Add a menu item to delete the note
-        menu.add(0, Menu.FIRST, 0, "Delete");
     }
     
     @Override
@@ -125,15 +132,26 @@ public class BookmarksActivity extends ListActivity implements OnItemClickListen
             Log.e(TAG, "bad menuInfo", e);
             return false;
         }
-
+        Toast.makeText(getApplicationContext(), "show?"+item.getItemId(), 1000).show();
         switch (item.getItemId()) {
-            case Menu.FIRST: {
+        
+            case 1: {
                 // Delete the note that the context menu is for
                 //Uri noteUri = ContentUris.withAppendedId(getIntent().getData(), info.id);
                 dbHelper.deleteTitle(info.id);
 
                 listCursor.requery();
                 return true;
+            }
+            case 2: {
+            	Intent intent = new Intent(getApplicationContext(),MediaListActivity.class);
+            	Cursor cursor = (Cursor) getListAdapter().getItem(info.position);
+            	
+                if (cursor != null) {
+	            	intent.setData(Uri.parse(cursor.getString(1)));
+	    			startActivity(intent);
+                }
+    			return true;
             }
         }
         return false;

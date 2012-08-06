@@ -49,8 +49,8 @@ public class JSInterface {
 
 	private static final String TAG = "JS-Interface";
 	private TunesViewerActivity _context;
-	final String[] audioFormats = {".mp3",".m4a",".amr",".m4p",".aiff",".aif",".aifc"};
-	final String[] videoFormats = {".mp4",".m4v",".mov",".m4b"};
+	final static String[] audioFormats = {".mp3",".m4a",".amr",".m4p",".aiff",".aif",".aifc"};
+	final static String[] videoFormats = {".mp4",".m4v",".mov",".m4b"};
 	public JSInterface(TunesViewerActivity c) {
 		_context = c;
 	}
@@ -83,21 +83,28 @@ public class JSInterface {
 	public void preview(String title, String url) {
 		try {
 			url = doRedirect(url);
-			Intent i = new Intent(Intent.ACTION_VIEW);
-			String type = ItunesXmlParser.fileExt(url);
-			if (Arrays.asList(audioFormats).indexOf(type) > -1) {
-				i.setDataAndType(Uri.parse(url), "audio/*");
-			} else if (Arrays.asList(videoFormats).indexOf(type) > -1) {
-				i.setDataAndType(Uri.parse(url), "video/*");
-			} else {
-				i.setDataAndType(Uri.parse(url), "*/*");
-			}
-			_context.startActivity(i);
-
-			
+			previewIntent(url, _context);
 		} catch (ActivityNotFoundException e) {
 			Toast.makeText(_context, _context.getText(R.string.NoActivity), Toast.LENGTH_LONG).show();
 		}
+	}
+	
+	/**
+	 * General-purpose preview, calls preview intent for a given uri
+	 * @param uri
+	 * @param caller
+	 */
+	public static void previewIntent(String uri, Context caller) throws ActivityNotFoundException {
+		Intent i = new Intent(Intent.ACTION_VIEW);
+		String type = ItunesXmlParser.fileExt(uri);
+		if (Arrays.asList(audioFormats).indexOf(type) > -1) {
+			i.setDataAndType(Uri.parse(uri), "audio/*");
+		} else if (Arrays.asList(videoFormats).indexOf(type) > -1) {
+			i.setDataAndType(Uri.parse(uri), "video/*");
+		} else {
+			i.setDataAndType(Uri.parse(uri), "*/*");
+		}
+		caller.startActivity(i);
 	}
 	
 	/**
@@ -185,16 +192,16 @@ public class JSInterface {
 		final String source = src;
 		new AlertDialog.Builder(_context)
 		.setIcon(android.R.drawable.ic_dialog_info)
-		.setTitle("Page Source ("+source.length()+" chars.)")
+		.setTitle(_context.getString(R.string.sourceTitle).replace("%%", String.valueOf(source.length())))
 		.setMessage(source)
-		.setPositiveButton("Copy Text", new DialogInterface.OnClickListener() {
+		.setPositiveButton(android.R.string.copy, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				ClipboardManager cb = (ClipboardManager)_context.getSystemService(Context.CLIPBOARD_SERVICE);
 				cb.setText(source);
 			}
 		})
-		.setNegativeButton("Close", null)
+		.setNegativeButton(R.string.close, null)
 		.show();
 	}
 	
@@ -223,9 +230,9 @@ public class JSInterface {
 		} catch (ActivityNotFoundException e) {
 			new AlertDialog.Builder(_context)
 			.setIcon(android.R.drawable.ic_dialog_alert)
-			.setTitle("No Podcatcher")
-			.setMessage("No podcast app found to handle this link! You must install a podcast manager app that handles itpc:// links, to subscribe.")
-			.setNegativeButton("OK", null)
+			.setTitle(R.string.NoPodcatcher)
+			.setMessage(R.string.NoPodcatcherMessage)
+			.setNegativeButton(android.R.string.ok, null)
 			.show();
 		}
 	}

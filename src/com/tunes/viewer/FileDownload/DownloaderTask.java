@@ -160,7 +160,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 					@Override
 					public void run() {
 						Toast.makeText(_context.getApplicationContext(), 
-							"Started downloading "+filesize(contentLength), Toast.LENGTH_LONG).show();
+							_context.getText(R.string.startedDownloadingB)+filesize(contentLength), Toast.LENGTH_LONG).show();
 					}
 				});
 			}
@@ -230,12 +230,12 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 			}
 		} catch (SocketTimeoutException e) {
 			e.printStackTrace();
-			_ErrMSG = "Download error: "+e.getMessage();
+			_ErrMSG = _context.getText(R.string.DownloadError)+e.getMessage();
 			publishProgress(0);
 			cancel(false);
 		} catch (IOException e) {
 			e.printStackTrace();
-			_ErrMSG = "Download error: "+e.getMessage();
+			_ErrMSG = _context.getText(R.string.DownloadError)+e.getMessage();
 			publishProgress(0);
 			cancel(false);
 		} finally {

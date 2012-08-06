@@ -215,7 +215,7 @@ public class MyWebViewClient extends WebViewClient {
 			System.setProperty("http.agent", ua);
 			//view.getSettings().setUserAgentString(ua); may cause crash
 			view.stopLoading();//stop previous load.
-			activity.setTitle("Loading...");
+			activity.setTitle(R.string.loading);
 			//new Thread(new WebLoader(view,url,this,0)).start();
 			executor.execute(new WebLoader(view,url,this,NEWURL));
 		}
@@ -453,7 +453,7 @@ public class MyWebViewClient extends WebViewClient {
 						//Set title back to normal.
 						_view.loadUrl("javascript:setTitle()");
 					} catch (ActivityNotFoundException e) {
-						Toast.makeText(callerContext, "No app found to handle this file.", Toast.LENGTH_LONG).show();
+						Toast.makeText(callerContext, R.string.NoActivity, Toast.LENGTH_LONG).show();
 					}
 				}
 			}

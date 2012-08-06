@@ -46,6 +46,7 @@ public class TunesViewerActivity extends Activity {
 	private String originalUA;
 	final String UA = "iTunes/10.6.1 ";
 	
+	@TargetApi(7)
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		_AppContext = getApplicationContext();

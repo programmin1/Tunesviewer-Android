@@ -40,7 +40,7 @@ public class DbAdapter {
     private DatabaseHelper mDbHelper;
     private SQLiteDatabase mDb;
 	
-	private static final String CREATE_DB_TABLE_DATES = 
+	private static final String CREATE_DB_TABLE = 
 		"CREATE TABLE "+TABLE+" ("+ 
 			COL_ID +" INTEGER PRIMARY KEY AUTOINCREMENT, "+ 
 			COL_TITLE + " TEXT NOT NULL, " + 
@@ -55,7 +55,7 @@ public class DbAdapter {
 
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-			db.execSQL(CREATE_DB_TABLE_DATES);
+			db.execSQL(CREATE_DB_TABLE);
 		}
 
 		@Override
