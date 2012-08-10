@@ -441,6 +441,27 @@ public class MyWebViewClient extends WebViewClient {
 						_url = parser.getRedirect();
 						worked = false;
 					}
+				} else if (conn.getContentType().equals("application/json")) {
+					// Probably an error message, just display it:
+					InputStream input = conn.getInputStream();
+					
+					if ("gzip".equals(conn.getContentEncoding())) {
+						input = new GZIPInputStream(input);
+					}
+					// Download:
+					final StringBuilder error = makeString(input,length);
+					synchronized (_view) {
+						_view.post(new Runnable() {
+							public void run() {
+								Log.e(TAG,error.toString());
+								Toast.makeText(caller.callerContext, 
+										error, Toast.LENGTH_LONG).show();
+							}
+						});
+					}
+					worked = true;// download worked
+					//Set title back to normal.
+					_view.loadUrl("javascript:setTitle()");
 				} else { //non text url, send to downloader.
 					try {
 						Log.e(TAG,"Non text");
@@ -453,7 +474,11 @@ public class MyWebViewClient extends WebViewClient {
 						//Set title back to normal.
 						_view.loadUrl("javascript:setTitle()");
 					} catch (ActivityNotFoundException e) {
-						Toast.makeText(callerContext, R.string.NoActivity, Toast.LENGTH_LONG).show();
+						_view.post(new Runnable() {
+							public void run() {
+								Toast.makeText(callerContext, R.string.NoActivity, Toast.LENGTH_LONG).show();
+							}
+						});
 					}
 				}
 			}

@@ -112,12 +112,36 @@ public class MediaListActivity extends ListActivity {
 		//Don't need to switch on item.getItemId(), only one.
 		new File(path.get(info.position)).delete();
 		_adapter.remove(name.get(info.position));
+		/*Unfortunately JAudiotagger doesn't work.
+	 	try {
+			AudioFile f = AudioFileIO.read(new File(path.get(info.position)));
+			Tag tag = f.getTag();
+			String out = tag.getFirst(FieldKey.TITLE)+tag.getFirst(FieldKey.TRACK);
+			Toast.makeText(this, out, 10000).show();
+		} catch (CannotReadException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TagException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ReadOnlyFileException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidAudioFrameException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		*/
 		path.remove(info.position);
 		name.remove(info.position);
+		
 		return super.onContextItemSelected(item);
 	}
 
-	 @Override
+	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		String file = (path.get(position));
 		String title = name.get(position);

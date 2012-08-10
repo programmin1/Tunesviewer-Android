@@ -81,7 +81,7 @@
     <string name="loading">" Loading..."</string>
     
     <!-- Size of file added after this string: -->
-    <string name="startedDownloadingB">Started downloading </string><!-- filesize MB/KB -->
+    <string name="startedDownloadingB">"Started downloading "</string><!-- filesize MB/KB -->
     
     <string name="share">Share</string>
     <string name="sourceTitle">"Page Source (%% chars.)"</string>
