@@ -19,6 +19,7 @@ import android.net.Uri;
 import android.opengl.Visibility;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -57,6 +58,8 @@ public class MediaListActivity extends ListActivity {
 	private List<String> name = null;
 	private List<String> path = null;
 	private ArrayAdapter<String> _adapter;
+	private ArrayList<String> songs = new ArrayList<String>();
+	private File _folder;
 
     /** Called when the activity is first created. */
 	@Override
@@ -68,13 +71,13 @@ public class MediaListActivity extends ListActivity {
 		setContentView(R.layout.medialist);
 		name = new ArrayList<String>();
 		path = new ArrayList<String>();
-		File container = new File(prefs.getString(
+		_folder = new File(prefs.getString(
 				/*download directory*/
 				"DownloadDirectory", ""),
 				/*directory of this podcast page passed in intent:*/
 				podcast);
-		if (container.exists() && container.isDirectory()) {
-			File[] dir = container.listFiles();
+		if (_folder.exists() && _folder.isDirectory()) {
+			File[] dir = _folder.listFiles();
 			//Arrays.sort(dir);
 			for (File media : dir) {
 				if (!media.isDirectory()) {
@@ -93,6 +96,12 @@ public class MediaListActivity extends ListActivity {
 	public void onCreateContextMenu(ContextMenu menu, View v,
 			ContextMenuInfo menuInfo) {
 		AdapterView.AdapterContextMenuInfo info;
+		try {
+			updateSongList();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
         try {
              info = (AdapterView.AdapterContextMenuInfo) menuInfo;
  	        // Setup the menu header
@@ -106,13 +115,51 @@ public class MediaListActivity extends ListActivity {
         }
 	}
 	
+	public void updateSongList() throws IOException {
+        //Lets get the music from the DB so we have metadata
+        Uri media = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        
+
+        String[] columns = {
+                        MediaStore.Audio.Media._ID,                        // 0
+                        MediaStore.Audio.Media.ARTIST,                // 1
+                        MediaStore.Audio.Media.TITLE,                // 2
+                        MediaStore.Audio.Media.DATA,                // 3
+                        MediaStore.Audio.Media.DISPLAY_NAME,// 4
+                        MediaStore.Audio.Media.DURATION};        // 5
+
+        String selection = MediaStore.Audio.Media.DATA + " LIKE ?";
+
+        Cursor cursor = this.managedQuery(media,
+                        columns,
+                        selection,
+                        new String[] {_folder.getCanonicalPath().toString()+"%"},
+                        null);
+
+        while(cursor.moveToNext()){
+                songs.add(cursor.getString(0) + "||" +
+                                cursor.getString(1) + "||" +
+                                cursor.getString(2) + "||" +
+                                cursor.getString(3) + "||" +
+                                cursor.getString(4) + "||" +
+                                cursor.getString(5));
+        }
+	}
+
+	
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
 		//Don't need to switch on item.getItemId(), only one.
 		new File(path.get(info.position)).delete();
-		_adapter.remove(name.get(info.position));
+		_adapter.remove(name.get(info.position)); // removes a name, but not associated path!
+		path.remove(info.position);
+		//name.remove(info.position);
+		_adapter.notifyDataSetChanged();
+		Log.w("Items:",path.size()+","+name.size());
+		
 		/*Unfortunately JAudiotagger doesn't work.
+		  See https://java.net/jira/browse/JAUDIOTAGGER-303
 	 	try {
 			AudioFile f = AudioFileIO.read(new File(path.get(info.position)));
 			Tag tag = f.getTag();
@@ -135,8 +182,7 @@ public class MediaListActivity extends ListActivity {
 			e.printStackTrace();
 		}
 		*/
-		path.remove(info.position);
-		name.remove(info.position);
+		
 		
 		return super.onContextItemSelected(item);
 	}

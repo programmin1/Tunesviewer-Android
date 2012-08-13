@@ -43,13 +43,13 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	private int _ID;
 	private static final String TAG = "DownloadService";
 	private HttpURLConnection _connection;
-	private DownloadService _context;
+	DownloadService _context;
 	private String _podcast;
 	private String _title;
 	private URL _url;
 	// Valid characters a file may have. Note that Android chokes on files with a #, and can't find their type.
 	private final String VALIDCHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 $%`-_@{}~!().";
-	private String _ErrMSG = "";
+	String _ErrMSG = "";
 	private String _sizeStr = "";
 	private File _outFile;
 	private ArrayList<DownloaderTask> _alltasks;
@@ -99,8 +99,11 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	 * @param notifClicked
 	 */
 	public void doTapAction(boolean notifClicked) {
-		boolean s = getStatus().equals(AsyncTask.Status.FINISHED);
-		if (s && !isCancelled()/* && notifClicked*/) {//success
+		boolean finished = getStatus().equals(AsyncTask.Status.FINISHED);
+		if (finished && !isCancelled()/* && notifClicked*/) {//success
+			if (!notifClicked) {
+				Toast.makeText(_context, R.string.alreadyDownloaded, Toast.LENGTH_SHORT).show();
+			}
 			openFile();
 		} else if (notifClicked) {
 			/*new AlertDialog.Builder(_context)_context doesn't work, getcontext and getapplicationcontext don't work either!?
@@ -142,8 +145,6 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 			_connection.connect();
 			_connection.setConnectTimeout(1000*30);
 			_connection.setReadTimeout(1000*30);
-			//TODO: The above code doesn't keep it from sticking when connection's lost.
-			// see
 			
 			// Make sure response code is in the 200 range.
 			if (_connection.getResponseCode() / 100 != 2) {
@@ -152,18 +153,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 			}
 			final long contentLength = _connection.getContentLength();
 			_sizeStr = filesize(contentLength);
-			if (contentLength < 1) {
-				Log.e(TAG,"No contentlength.");
-				//throw new IOException();
-			} else {
-				_handler.post(new Runnable() {// necessary for gui call in thread.
-					@Override
-					public void run() {
-						Toast.makeText(_context.getApplicationContext(), 
-							_context.getText(R.string.startedDownloadingB)+filesize(contentLength), Toast.LENGTH_LONG).show();
-					}
-				});
-			}
+
 			BufferedInputStream in = new BufferedInputStream(_connection.getInputStream(),1024*2);
 			BufferedOutputStream out;
 			
@@ -187,10 +177,23 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 					//TODO: unfortunately checking for room causes crash. Why?
 					//Download the file:
 					_outFile.createNewFile();
+					if (contentLength < 1) {
+						Log.e(TAG,"No contentlength.");
+						//throw new IOException();
+					} else {
+						_handler.post(new Runnable() {// necessary for gui call in thread.
+							@Override
+							public void run() {
+								Toast.makeText(_context.getApplicationContext(), 
+									_context.getText(R.string.startedDownloadingB)+filesize(contentLength), Toast.LENGTH_LONG).show();
+							}
+						});
+					}
 					FileOutputStream file = new FileOutputStream(_outFile);
 					out = new BufferedOutputStream(file,1024*4); // too big of a buffer and it will crash, out-of-mem exception!
 					byte[] data = new byte[1024];
 					int count;
+					// Set timeout timer, so it doesn't get stuck on non-working download, resulting in incomplete file.
 					_timer = new Timer();
 					// Read in chunks, much more efficient than byte by byte, lower cpu usage.
 					while((count = in.read(data, 0, 1024)) != -1 && !isCancelled()) { //(Byte = in.read()) != -1 && !isCancelled()) {
@@ -347,6 +350,7 @@ class Timeout extends TimerTask {
 	
 	@Override
 	public void run() {
+		_task._ErrMSG = (String) _task._context.getText(R.string.DownloadErrorTimeout);
 		Log.w("DL","Timed out while downloading.");
 		_task.cancel(false);
 	}

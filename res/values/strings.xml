@@ -65,6 +65,7 @@
     <string name="NoPodcatcher">No Podcatcher</string>
     <string name="NoPodcatcherMessage">"No podcast app found to handle this link! You must install a podcast manager app that handles feed:// links, to subscribe."</string>
     <string name="DownloadError">Download Error: </string>
+    <string name="DownloadErrorTimeout">Download timeout. Network may be disconnected?</string>
     
     <!-- Searchbox -->
     <string name="courses">University Courses</string>
@@ -83,6 +84,7 @@
     <!-- Size of file added after this string: -->
     <string name="startedDownloadingB">"Started downloading "</string><!-- filesize MB/KB -->
     
+    <string name="alreadyDownloaded">"Already downloaded. Opening file..."</string>
     <string name="share">Share</string>
     <string name="sourceTitle">"Page Source (%% chars.)"</string>
 	<string name="close">Close</string>
