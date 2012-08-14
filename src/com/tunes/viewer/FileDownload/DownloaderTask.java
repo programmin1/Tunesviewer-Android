@@ -48,7 +48,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	private String _title;
 	private URL _url;
 	// Valid characters a file may have. Note that Android chokes on files with a #, and can't find their type.
-	private final String VALIDCHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 $%`-_@{}~!().";
+	private final static String VALIDCHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 $%`-_@{}~!().";
 	String _ErrMSG = "";
 	private String _sizeStr = "";
 	private File _outFile;
@@ -249,10 +249,10 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	
 	/**
 	 * Cleans a string to a valid file name.
-	 * @param name
-	 * @return name that will work as a file-name.
+	 * @param name (e.g. "iphone/ipad podcast")
+	 * @return name that will work as a file-name. (e.g. "iphoneipad podcast")
 	 */
-	private String clean(String name) {
+	public static String clean(String name) {
 		StringBuilder fixedName = new StringBuilder(name.length());
 		for (int c=0; c<name.length(); c++) { // Make a valid name:
 			if (VALIDCHARS.indexOf(name.charAt(c))>-1) {

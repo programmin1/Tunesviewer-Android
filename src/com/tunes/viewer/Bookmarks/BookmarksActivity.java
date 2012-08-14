@@ -132,14 +132,12 @@ public class BookmarksActivity extends ListActivity implements OnItemClickListen
             Log.e(TAG, "bad menuInfo", e);
             return false;
         }
-        Toast.makeText(getApplicationContext(), "show?"+item.getItemId(), 1000).show();
         switch (item.getItemId()) {
         
             case 1: {
                 // Delete the note that the context menu is for
                 //Uri noteUri = ContentUris.withAppendedId(getIntent().getData(), info.id);
                 dbHelper.deleteTitle(info.id);
-
                 listCursor.requery();
                 return true;
             }

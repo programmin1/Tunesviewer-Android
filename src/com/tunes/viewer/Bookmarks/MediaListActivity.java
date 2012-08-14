@@ -3,8 +3,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.app.ListActivity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -12,7 +15,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 
+import com.tunes.viewer.ItunesXmlParser;
 import com.tunes.viewer.R;
+import com.tunes.viewer.FileDownload.DownloaderTask;
 import com.tunes.viewer.WebView.JSInterface;
 
 import android.net.Uri;
@@ -55,39 +60,38 @@ import com.tunes.viewer.WebView.JSInterface;
 public class MediaListActivity extends ListActivity {
 
 	private static final String TAG = "MediaListActivity";
-	private List<String> name = null;
-	private List<String> path = null;
-	private ArrayAdapter<String> _adapter;
-	private ArrayList<String> songs = new ArrayList<String>();
+	private ArrayAdapter<MediaFile> _adapter;
 	private File _folder;
+	private ArrayList<MediaFile> items;
 
     /** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
     	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-    	String podcast = this.getIntent().getData().toString();
+    	// Clean the name of the podcast (eg "some podcast for iphone/ipod")
+    	String podcast = DownloaderTask.clean(this.getIntent().getData().toString());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.medialist);
-		name = new ArrayList<String>();
-		path = new ArrayList<String>();
+		items = new ArrayList<MediaFile>();
 		_folder = new File(prefs.getString(
 				/*download directory*/
-				"DownloadDirectory", ""),
+				"DownloadDirectory", getString(R.string.defaultDL)),
 				/*directory of this podcast page passed in intent:*/
 				podcast);
 		if (_folder.exists() && _folder.isDirectory()) {
 			File[] dir = _folder.listFiles();
-			//Arrays.sort(dir);
 			for (File media : dir) {
 				if (!media.isDirectory()) {
-					name.add(media.getName());
-					path.add(media.getPath());
+					items.add(new MediaFile(media,this));
 				}
 			}
+			
+			//Sort to make sure items are ordered by their metadata number.
+			Collections.sort(items);
 		}
 		setTitle(podcast);
-		_adapter = new ArrayAdapter<String>(this, R.layout.bookmark, R.id.item_title, name);
+		_adapter = new ArrayAdapter<MediaFile>(this, R.layout.bookmark, R.id.item_title, items);
 		setListAdapter(_adapter);
         getListView().setOnCreateContextMenuListener(this);
 	}
@@ -96,53 +100,16 @@ public class MediaListActivity extends ListActivity {
 	public void onCreateContextMenu(ContextMenu menu, View v,
 			ContextMenuInfo menuInfo) {
 		AdapterView.AdapterContextMenuInfo info;
-		try {
-			updateSongList();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
         try {
              info = (AdapterView.AdapterContextMenuInfo) menuInfo;
  	        // Setup the menu header
- 	        menu.setHeaderTitle(name.get(info.position));
- 	
- 	        // Add a menu item to delete the note
- 	        menu.add(0, Menu.FIRST, 0, R.string.delete);
+ 	        menu.setHeaderTitle(items.get(info.position).getFile().getName());
+
+ 		    menu.add(0,1,1,"View details");
+ 			menu.add(0,2,2,R.string.delete);
         } catch (ClassCastException e) {
             Log.e(TAG, "bad menuInfo", e);
             return;
-        }
-	}
-	
-	public void updateSongList() throws IOException {
-        //Lets get the music from the DB so we have metadata
-        Uri media = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        
-
-        String[] columns = {
-                        MediaStore.Audio.Media._ID,                        // 0
-                        MediaStore.Audio.Media.ARTIST,                // 1
-                        MediaStore.Audio.Media.TITLE,                // 2
-                        MediaStore.Audio.Media.DATA,                // 3
-                        MediaStore.Audio.Media.DISPLAY_NAME,// 4
-                        MediaStore.Audio.Media.DURATION};        // 5
-
-        String selection = MediaStore.Audio.Media.DATA + " LIKE ?";
-
-        Cursor cursor = this.managedQuery(media,
-                        columns,
-                        selection,
-                        new String[] {_folder.getCanonicalPath().toString()+"%"},
-                        null);
-
-        while(cursor.moveToNext()){
-                songs.add(cursor.getString(0) + "||" +
-                                cursor.getString(1) + "||" +
-                                cursor.getString(2) + "||" +
-                                cursor.getString(3) + "||" +
-                                cursor.getString(4) + "||" +
-                                cursor.getString(5));
         }
 	}
 
@@ -150,13 +117,29 @@ public class MediaListActivity extends ListActivity {
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-		//Don't need to switch on item.getItemId(), only one.
-		new File(path.get(info.position)).delete();
-		_adapter.remove(name.get(info.position)); // removes a name, but not associated path!
-		path.remove(info.position);
-		//name.remove(info.position);
-		_adapter.notifyDataSetChanged();
-		Log.w("Items:",path.size()+","+name.size());
+		MediaFile selected = items.get(info.position);
+		switch(item.getItemId()) {
+		case 1:
+		{
+			Builder builder = new AlertDialog.Builder(this);
+			builder.setMessage("title:"+selected._title+
+					"\ntrack:"+selected._numberOrder+
+					"\nartist:"+selected._artist+
+					"\ndisplay:"+selected._display+
+					"\nduration:"+selected._duration);
+			builder.setTitle("Info");
+			builder.show();
+			break;
+		}
+		case 2:
+		{
+			selected.getFile().delete();
+			_adapter.remove(selected);
+			_adapter.notifyDataSetChanged();
+			break;
+		}
+		}
+		
 		
 		/*Unfortunately JAudiotagger doesn't work.
 		  See https://java.net/jira/browse/JAUDIOTAGGER-303
@@ -189,12 +172,90 @@ public class MediaListActivity extends ListActivity {
 
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-		String file = (path.get(position));
-		String title = name.get(position);
+		String file = items.get(position).getFile().toString();
 		try {
 			JSInterface.previewIntent("file://"+file, this);
 		} catch (ActivityNotFoundException e) {
 			Toast.makeText(this, getText(R.string.NoActivity), Toast.LENGTH_LONG).show();
 		}
+	}
+}
+
+/**
+ * Simple container for file information.
+ * @author luke
+ *
+ */
+class MediaFile implements Comparable<MediaFile> {
+	// Immutable file:
+	private File _file;
+	public int _numberOrder;
+	public String _artist;
+	public String _title;
+	public String _display;
+	public String _duration;
+	 //Objects for retreiving podcast metadata
+    static Uri media = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+    // select columns:
+    static String[] columns = {
+                    MediaStore.Audio.Media._ID,                        // 0
+                    MediaStore.Audio.Media.ARTIST,                // 1
+                    MediaStore.Audio.Media.TITLE,                // 2
+                    MediaStore.Audio.Media.DATA,                // 3
+                    MediaStore.Audio.Media.DISPLAY_NAME,// 4
+                    MediaStore.Audio.Media.DURATION,	// 5
+                    MediaStore.Audio.Media.TRACK};        // 6
+    // where:
+    static final String selection = MediaStore.Audio.Media.DATA + " == ?";
+
+	public MediaFile(File file, MediaListActivity parent) {
+		_file = file;
+		_numberOrder = 0;
+		_artist = "";
+		_title = "";
+		_display = "";
+		_duration = "";
+		
+		Cursor cursor;
+		try {
+			cursor = parent.managedQuery(media,
+			        columns,
+			        selection,
+			        new String[] {file.getCanonicalPath().toString()},
+			        null);
+
+			while(cursor.moveToNext()){
+				_numberOrder = Integer.valueOf(cursor.getString(6));
+				_artist = cursor.getString(1);
+				_title = cursor.getString(2);
+				_display = cursor.getString(4);
+				_duration = cursor.getString(5);
+				_numberOrder = cursor.getInt(6);
+			}
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public File getFile() {
+		return _file;
+	}
+
+	@Override
+	public int compareTo(MediaFile another) {
+		int comparison = Integer.valueOf(_numberOrder).compareTo(another._numberOrder);
+		if (comparison == 0) {
+			// If same track number, sort by name display:
+			return _display.compareTo(another._display);
+		} else {
+			return comparison;
+		}
+	}
+	
+	@Override
+	public String toString() {
+		return _file.getName();
 	}
 }
