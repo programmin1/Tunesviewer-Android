@@ -12,17 +12,13 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import com.tunes.viewer.ItunesXmlParser;
-import com.tunes.viewer.R;
-import com.tunes.viewer.R.string;
-
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.IntentSender.SendIntentException;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
+import android.net.wifi.WifiManager.WifiLock;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.Handler;
@@ -31,7 +27,9 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
-import android.net.wifi.WifiManager.WifiLock;
+
+import com.tunes.viewer.ItunesXmlParser;
+import com.tunes.viewer.R;
 
 /**
  * A class to handle a download and its notification.

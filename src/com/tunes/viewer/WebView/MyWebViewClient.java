@@ -30,14 +30,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
-import com.tunes.viewer.ItunesXmlParser;
-import com.tunes.viewer.R;
-import com.tunes.viewer.TunesViewerActivity;
-import com.tunes.viewer.FileDownload.DownloadService;
-import com.tunes.viewer.R.id;
-import com.tunes.viewer.R.raw;
-import com.tunes.viewer.R.string;
-
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -49,6 +41,11 @@ import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
+
+import com.tunes.viewer.ItunesXmlParser;
+import com.tunes.viewer.R;
+import com.tunes.viewer.TunesViewerActivity;
+import com.tunes.viewer.FileDownload.DownloadService;
 
 public class MyWebViewClient extends WebViewClient {
 	

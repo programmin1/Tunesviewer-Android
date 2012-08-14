@@ -17,8 +17,6 @@
 
 package com.tunes.viewer.Bookmarks;
 
-import java.util.HashMap;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;

@@ -24,12 +24,6 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.tunes.viewer.ItunesXmlParser;
-import com.tunes.viewer.R;
-import com.tunes.viewer.TunesViewerActivity;
-import com.tunes.viewer.FileDownload.DownloadService;
-import com.tunes.viewer.R.string;
-
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -39,6 +33,11 @@ import android.net.Uri;
 import android.text.ClipboardManager;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.tunes.viewer.ItunesXmlParser;
+import com.tunes.viewer.R;
+import com.tunes.viewer.TunesViewerActivity;
+import com.tunes.viewer.FileDownload.DownloadService;
 
 /**
  * Javascript interface for the WebView

@@ -28,7 +28,7 @@ import android.widget.Toast;
  * 
  * If the page is already HTML, this will throw SAXException.
  * 
- * @author Luke Bryan 2011
+ * @author Luke Bryan 2011-2012
  *
  */
 public class ItunesXmlParser extends DefaultHandler {

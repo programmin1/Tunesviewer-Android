@@ -2,45 +2,31 @@ package com.tunes.viewer.Bookmarks;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.ListActivity;
 import android.content.ActivityNotFoundException;
-import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-
-import com.tunes.viewer.ItunesXmlParser;
-import com.tunes.viewer.R;
-import com.tunes.viewer.FileDownload.DownloaderTask;
-import com.tunes.viewer.WebView.JSInterface;
-
 import android.net.Uri;
-import android.opengl.Visibility;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.ContextMenu;
-import android.view.Menu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
-import android.widget.ResourceCursorAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import com.tunes.viewer.R;
+import com.tunes.viewer.FileDownload.DownloaderTask;
 import com.tunes.viewer.WebView.JSInterface;
 
 /**
@@ -125,9 +111,8 @@ public class MediaListActivity extends ListActivity {
 			builder.setMessage("title:"+selected._title+
 					"\ntrack:"+selected._numberOrder+
 					"\nartist:"+selected._artist+
-					"\ndisplay:"+selected._display+
 					"\nduration:"+selected._duration);
-			builder.setTitle("Info");
+			builder.setTitle(selected._display);
 			builder.show();
 			break;
 		}

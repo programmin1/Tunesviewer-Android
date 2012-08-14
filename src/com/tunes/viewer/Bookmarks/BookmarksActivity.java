@@ -1,33 +1,24 @@
 package com.tunes.viewer.Bookmarks;
 
-import android.app.Activity;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
-
-import com.tunes.viewer.R;
-import com.tunes.viewer.Searcher;
-import com.tunes.viewer.TunesViewerActivity;
-
 import android.net.Uri;
-import android.opengl.Visibility;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.ContextMenu;
-import android.view.Menu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ResourceCursorAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.tunes.viewer.R;
 
 /**
  * A database list based bookmarks list activity. 
