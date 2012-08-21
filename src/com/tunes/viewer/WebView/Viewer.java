@@ -11,6 +11,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.text.ClipboardManager;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.MenuItem;
@@ -116,6 +117,22 @@ public class Viewer extends WebView {
 				 KeyEvent.ACTION_DOWN,KeyEvent.KEYCODE_SHIFT_LEFT,0,0);
 			shiftPressEvent.dispatch(this);
 		}
+	}
+	
+	/* Why doesn't this work?*/
+	@Override
+	protected void onLayout(boolean changed, int l, int t, int r, int b) {
+		super.onLayout(changed, l, t, r, b);
+		Log.d("WEBVIEW-WIDTH",""+getWidth());
+		post(new Runnable() {
+			
+			@Override
+			public void run() {
+				loadUrl("javascript:var imgs = document.getElementsByTagName('img');"+
+						 "for (var i=0; i<imgs.length; i++) {imgs[i].style.maxwidth='"+getWidth()+"'};");
+			}
+		});
+		
 	}
 
 

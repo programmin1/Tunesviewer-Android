@@ -85,7 +85,7 @@ public class ItunesXmlParser extends DefaultHandler {
 	private URL _url;
 	private String _title;
 	
-	private Context context;
+	private Context _context;
 	
 	//Any unused value for <key>identifier</key><dict>... storage of key in <dict>.
 	private final String KEY = "_KEY_";
@@ -100,7 +100,7 @@ public class ItunesXmlParser extends DefaultHandler {
 	// When true, it's ignoring the <Test comparison='lt' oldversion></Test> values.
 	private boolean ignoring = false;
 	
-	int scrWidth;
+	int _scrWidth;
 	private int _imgPrefSize;
 	
 	public String toString() {
@@ -148,8 +148,8 @@ public class ItunesXmlParser extends DefaultHandler {
 				}
 			}
 		}
-		this.context = c;
-		this.scrWidth = width;
+		_context = c;
+		_scrWidth = width;
 		_imgPrefSize = imgPref;
 		
 		InputStream inputStream = c.getResources().openRawResource(R.raw.mobile_extras);
@@ -359,6 +359,9 @@ public class ItunesXmlParser extends DefaultHandler {
 			} else if (elname.equals("dict") && isHandled(thisEl)) {
 				//End of key-val definition, mobile mode:
 				String type = "";
+				if (thisEl.atts.get(KEY).equals("dialog")) {
+					html.append(map.get("message"));
+				}
 				if (map.containsKey("type")) {//add type=separator
 					type = map.get("type");
 				}
@@ -733,7 +736,7 @@ public class ItunesXmlParser extends DefaultHandler {
 		//if mobile:
 		html.insert(0,mobileExtras);
 		//Add style to keep large images from going off the screen:
-		html.insert(0, "<style> img { max-width:"+(scrWidth-5)+"px; height:auto;}</style>");
+		html.insert(0, "<style> img { max-width:"+(_scrWidth-5)+"px; height:auto;}</style>");
 		original.append("<!-- (END DOC) -->");
 		if (backColor.equals("")) {
 			backColor = "#E2E2E2"; //Default background.
@@ -763,7 +766,9 @@ public class ItunesXmlParser extends DefaultHandler {
 	private boolean isHandled(StackElement element) {
 		String keyid = element.atts.get(KEY);
 		//return keyid != null && HandledNames.containsKey(keyid);
-		return keyid != null && (keyid.endsWith("section") || keyid.equals("action") || keyid.equals("items") || keyid.equals("item-metadata") || keyid.equals("tabs") || keyid.equals("squishes") || keyid.equals("content"));
+		return keyid != null && (keyid.endsWith("section") || keyid.equals("action")
+			|| keyid.equals("items") || keyid.equals("item-metadata") || keyid.equals("tabs")
+			|| keyid.equals("squishes") || keyid.equals("content") || keyid.equals("dialog"));
 	}
 	
 	/**
