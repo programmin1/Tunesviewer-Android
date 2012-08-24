@@ -34,10 +34,12 @@ import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.EditText;
+import android.widget.TextView;
 
 @TargetApi(3)
 public class TunesViewerActivity extends Activity {
 
+	private static final float DIALOGTEXTSIZE = 12;
 	private final String TAG = "Main";
 	private static Context _AppContext;
 	private WebView _web;
@@ -220,7 +222,7 @@ public class TunesViewerActivity extends Activity {
 			return true;
 		case R.id.menuOriginalSource:
 			final String source = _myWVC.getOriginal();
-			new AlertDialog.Builder(this)
+			AlertDialog dialog = new AlertDialog.Builder(this)
 			.setIcon(android.R.drawable.ic_dialog_info)
 			.setTitle("Original Source ("+source.length()+" chars)")
 			.setMessage(source)
@@ -233,6 +235,8 @@ public class TunesViewerActivity extends Activity {
 			})
 			.setNegativeButton("Close", null)
 			.show();
+			TextView text = (TextView) dialog.findViewById(android.R.id.message);
+			text.setTextSize(DIALOGTEXTSIZE);
 			return true;
 		case R.id.menuSource:
 			_web.loadUrl("javascript:window.DOWNLOADINTERFACE.source(document.documentElement.innerHTML)");

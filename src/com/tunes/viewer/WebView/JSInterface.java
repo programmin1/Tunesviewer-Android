@@ -32,6 +32,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.text.ClipboardManager;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tunes.viewer.ItunesXmlParser;
@@ -50,6 +51,7 @@ public class JSInterface {
 	private TunesViewerActivity _context;
 	final static String[] audioFormats = {".mp3",".m4a",".amr",".m4p",".aiff",".aif",".aifc"};
 	final static String[] videoFormats = {".mp4",".m4v",".mov",".m4b"};
+	private static final float DIALOGTEXTSIZE = 12;
 	public JSInterface(TunesViewerActivity c) {
 		_context = c;
 	}
@@ -188,7 +190,7 @@ public class JSInterface {
 	 */
 	public void source(String src) {
 		final String source = src;
-		new AlertDialog.Builder(_context)
+		AlertDialog dialog = new AlertDialog.Builder(_context)
 		.setIcon(android.R.drawable.ic_dialog_info)
 		.setTitle(_context.getString(R.string.sourceTitle).replace("%%", String.valueOf(source.length())))
 		.setMessage(source)
@@ -201,6 +203,8 @@ public class JSInterface {
 		})
 		.setNegativeButton(R.string.close, null)
 		.show();
+		TextView text = (TextView) dialog.findViewById(android.R.id.message);
+		text.setTextSize(DIALOGTEXTSIZE);
 	}
 	
 	/**

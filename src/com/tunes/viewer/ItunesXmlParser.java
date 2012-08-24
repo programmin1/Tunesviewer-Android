@@ -48,6 +48,10 @@ public class ItunesXmlParser extends DefaultHandler {
 	private static final String POST_MEDIA = "</table>";
 	private static final String TAG = "parser";
 	
+	//Url starting with this is not supported:
+	private static final String IGNOREENROLL = "http://itunes.apple.com/WebObjects/DZR.woa/wa/iTunesEnroll";
+	
+	// Holds mobile_extras file, which is added to the page. 
 	private static String mobileExtras;
 	
 	// Holds text inside or between the elements,
@@ -411,12 +415,16 @@ public class ItunesXmlParser extends DefaultHandler {
 					}
 					html.append("</font></div>");
 				} else if (type.equals("link")) { //A link to page
-					if (map.get("average-user-rating") == null) {
-						addLink(map.get("title"), map.get("url"), subMap.get("url"));
+					if (map.get("url") != null && map.get("url").startsWith(IGNOREENROLL)) {
+						Log.e(TAG,"Enroll link not shown, since AppleID enrollment is not supported.");
 					} else {
-						addLink(map.get("title"), map.get("url"), subMap.get("url"),
-							map.get("title2"), Float.valueOf(map.get("average-user-rating")),
-							map.get("artist-name"));
+						if (map.get("average-user-rating") == null) {
+							addLink(map.get("title"), map.get("url"), subMap.get("url"));
+						} else {
+							addLink(map.get("title"), map.get("url"), subMap.get("url"),
+								map.get("title2"), Float.valueOf(map.get("average-user-rating")),
+								map.get("artist-name"));
+						}
 					}
 				} else if (type.equals("pagination")) {
 					addLink(map.get("title"), map.get("url"), null);
@@ -577,7 +585,7 @@ public class ItunesXmlParser extends DefaultHandler {
 	 * @param url String to go to
 	 * @param image String url, or null for no image.
 	 * @param ratings count
-	 * @param rating a string representing rating (0=0, 1.0=5-star).
+	 * @param rating a float representing rating (0=0, 1.0=5-star).
 	 * @param author
 	 */
 	private void addLink(String text, String url, String image, String ratings, float rating, String author) {
