@@ -167,6 +167,7 @@ public class TunesViewerActivity extends Activity {
 		menu.findItem(R.id.menuSource).setVisible(debugMode);
 		menu.findItem(R.id.menuOriginalSource).setVisible(debugMode);
 		menu.findItem(R.id.menuCookie).setVisible(debugMode);
+		menu.findItem(R.id.menuFirebug).setVisible(debugMode);
 		return super.onPrepareOptionsMenu(menu);
 	}
 	
@@ -240,6 +241,11 @@ public class TunesViewerActivity extends Activity {
 			return true;
 		case R.id.menuSource:
 			_web.loadUrl("javascript:window.DOWNLOADINTERFACE.source(document.documentElement.innerHTML)");
+			return true;
+		case R.id.menuFirebug:
+			// Based on Firebug Lite here: https://getfirebug.com/firebuglite#Stable
+			// with %20 replaced with a space.
+			_web.loadUrl("javascript:(function(F,i,r,e,b,u,g,L,I,T,E){if(F.getElementById(b))return;E=F[i+'NS']&&F.documentElement.namespaceURI;E=E?F[i+'NS'](E,'script'):F[i]('script');E[r]('id',b);E[r]('src',I+g+T);E[r](b,u);(F[e]('head')[0]||F[e]('body')[0]).appendChild(E);E=new Image;E[r]('src',I+L);})(document,'createElement','setAttribute','getElementsByTagName','FirebugLite','4','firebug-lite.js','releases/lite/latest/skin/xp/sprite.png','https://getfirebug.com/','#startOpened');");
 			return true;
 		case R.id.menuCookie:
 			final String cookies = _myWVC.getCookies();

@@ -53,8 +53,8 @@
     <string name="defaultImg">0</string>
     <string name="defaultDL">/sdcard/download</string>
     
-    <string name="prefAdvTitle">Show Debug menus</string>
-    <string name="prefAdvSummary">Enable view-source menu items</string>
+    <string name="prefAdvTitle">Show Debug Menus</string>
+    <string name="prefAdvSummary">Enable view-source, cookies, and Firebug-lite menu items</string>
     
     <string name="prefInsertTitle">Additional Script</string>
     <string name="prefInsertSummary">Enter JavaScript that will run on each page.</string>
@@ -89,6 +89,7 @@
     <string name="sourceTitle">"Page Source (%% chars.)"</string>
 	<string name="close">Close</string>
     <string name="about">About</string>
+    <string name="menuFirebug">Show Firebug Lite</string>
     
     
 </resources>
