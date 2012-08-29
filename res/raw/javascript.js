@@ -251,7 +251,7 @@ function removeListeners(objects) {
  * FIXME: This huge thing has to be broken down into smaller pieces with
  * properly named functions.
  */
-document.onpageshow = (function () {
+document.addEventListener("DOMContentLoaded", function () {
 	"use strict";
 	var as, a, css, divs, i, j, rss, previews, buttons, clickEvent, downloadMouseDownEvent, subscribePodcastClickEvent, disabledButtonClickEvent;
 	console.log("ONPAGESHOW");
@@ -261,6 +261,70 @@ document.onpageshow = (function () {
 	for (i=0; i<imgs.length; i++) {
 		if (/*imgs[i].getAttribute("src")==null && */imgs[i].getAttribute("src-swap") != null) {
 			imgs[i].setAttribute("src",imgs[i].getAttribute("src-swap"));
+		}
+	}
+
+	// FIXME: Should we change this to be a separate function "attached"
+	// to an object that is, finally, assigned to the onpageshow event?
+	clickEvent = function (rss) {
+		console.log("TunesViewer: click event listener: " + rss);
+		location.href = rss;
+	};
+
+	// FIXME: Should we change this to be a separate function "attached"
+	// to an object that is, finally, assigned to the onpageshow event?
+	downloadMouseDownEvent = function (downloadUrl) {
+		console.log('TunesViewer: opening: ' + downloadUrl);
+		location.href = downloadUrl;
+	};
+
+	// FIXME: Should we change this to be a separate function "attached"
+	// to an object that is, finally, assigned to the onpageshow event?
+	subscribePodcastClickEvent = function (subscribePodcastUrl) {
+		location.href = subscribePodcastUrl;
+	};
+
+	disabledButtonClickEvent = function (episodeUrl, artistName, itemName) {
+		iTunes.addProtocol("<xml><key>URL</key><value><![CDATA[" + episodeUrl + "]]></value>" +
+			"<key>artistName</key><value><![CDATA[" + artistName + "]]></value>" +
+			"<key>fileExtension</key><value>zip</value>" +
+			"<key>songName</key><value><![CDATA[" + itemName + "]]></value></xml>");
+	};
+	
+	var buttons = document.getElementsByTagName('button');
+	//console.log(buttons);
+	divs = document.getElementsByTagName("div");
+	//console.log(buttons.length);
+	//console.log(buttons);
+	for (var i in buttons) {
+		console.log("button:"+buttons[i].innerHTML);
+		if (buttons[i]) {
+			if (buttons[i].textContent && buttons[i].textContent.trim() === "Subscribe Free") {
+				if (buttons[i].getAttribute('subscribe-podcast-url') !== null) {
+					buttons[i].addEventListener('click',
+								function(){
+									subscribePodcastClickEvent(this.getAttribute('subscribe-podcast-url'))
+								},
+								true);
+				} else if (buttons[i].getAttribute('course-feed-url') !== null) {
+					buttons[i].addEventListener('click',
+								function(){
+									subscribePodcastClickEvent(this.getAttribute('course-feed-url'))
+								},
+								true);
+				}
+			}
+			// TODO: See why hasAttribute is not defined sometimes.
+			if (buttons[i].hasAttribute && buttons[i].hasAttribute("disabled")) {
+				removeListeners(buttons[i]);
+				buttons[i].addEventListener('click',
+								function() {disabledButtonClickEvent(getAttribute("episode-url"),
+											 getAttribute("artist-name"),
+											 getAttribute('item-name'))
+								},
+								false);
+				buttons[i].removeAttribute("disabled");
+			}
 		}
 	}
 	// Fix <a target="external" etc.
@@ -335,31 +399,14 @@ document.onpageshow = (function () {
 	fixTransparent(document.getElementsByTagName("div"));
 	fixTransparent(as);
 
-	// FIXME: Should we change this to be a separate function "attached"
-	// to an object that is, finally, assigned to the onpageshow event?
-	clickEvent = function (rss) {
-		console.log("TunesViewer: click event listener: " + rss);
-		location.href = rss;
-		setTitle();
-	};
-
-	// FIXME: Should we change this to be a separate function "attached"
-	// to an object that is, finally, assigned to the onpageshow event?
-	downloadMouseDownEvent = function (downloadUrl) {
-		console.log('TunesViewer: opening: ' + downloadUrl);
-		location.href = downloadUrl;
-		setTitle();
-	};
-
 	// fix free-download links, mobile
 	for (i = 0; i < divs.length; i++) {
-		//console.log("divs "+i+" "+divs[i]);
 		if (divs[i].getAttribute("download-url") !== null &&
 		    divs[i].textContent.indexOf("FREE") !== -1) {
 			console.log("TunesViewer: getting attribute: " + divs[i].getAttribute("download-url"));
 			removeListeners(divs[i].childNodes);
 			//divs[i].innerHTML = "<button onclick='window.event.stopPropagation();location.href=\"" + divs[i].getAttribute("download-url") + "\";'>Download</button>";
-			divs[i].addEventListener('mouseDown',function() {downloadMouseDownEvent(divs[i].getAttribute('download-url'))}, false);
+			divs[i].addEventListener('mouseDown',function() {downloadMouseDownEvent(getAttribute('download-url'))}, false);
 		}
 		if (divs[i].getAttribute("role") === "button" &&
 			divs[i].getAttribute("aria-label") === "Subscribe Free") {
@@ -377,38 +424,7 @@ document.onpageshow = (function () {
 		}
 	}
 
-	buttons = document.getElementsByTagName('button');
 
-	// FIXME: Should we change this to be a separate function "attached"
-	// to an object that is, finally, assigned to the onpageshow event?
-	subscribePodcastClickEvent = function (subscribePodcastUrl) {
-		location.href = subscribePodcastUrl;
-	};
-
-	disabledButtonClickEvent = function (episodeUrl, artistName, itemName) {
-		iTunes.addProtocol("<xml><key>URL</key><value><![CDATA[" + episodeUrl + "]]></value>" +
-			"<key>artistName</key><value><![CDATA[" + artistName + "]]></value>" +
-			"<key>fileExtension</key><value>zip</value>" +
-			"<key>songName</key><value><![CDATA[" + itemName + "]]></value></xml>");
-	};
-
-	for (i = 0; i < buttons.length; i++) {
-		if (buttons[i].innerHTML === "Subscribe Free" &&
-		    buttons[i].getAttribute('subscribe-podcast-url') !== null) {
-			buttons[i].addEventListener('click',
-						    subscribePodcastClickEvent(buttons[i].getAttribute('subscribe-podcast-url')),
-						    true);
-		}
-		if (buttons[i].hasAttribute("disabled")) {
-			removeListeners(buttons[i]);
-			buttons[i].addEventListener('click',
-						    disabledButtonClickEvent(buttons[i].getAttribute("episode-url"),
-									     buttons[i].getAttribute("artist-name"),
-									     buttons[i].getAttribute('item-name')),
-						    false);
-			buttons[i].removeAttribute("disabled");
-		}
-	}
 
 	//Fix 100% height
 	if (document.getElementById('search-itunes-u') !== null) {
@@ -447,9 +463,9 @@ document.onpageshow = (function () {
 	css = document.createElement("style");
 	css.type = "text/css";
 	css.innerHTML = "* { -webkit-user-select: initial !important } div.search-form {height: 90}";
-	//document.body.appendChild(css);
+	document.body.appendChild(css);
 	console.log("TunesViewer: JS OnPageShow Ran Successfully.");
 
-}()); // end Pageshow.
+}, false); // end Pageshow.
 
     

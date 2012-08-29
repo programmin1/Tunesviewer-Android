@@ -180,14 +180,17 @@ public class MyWebViewClient extends WebViewClient {
 	public void onPageFinished(WebView view, String url) {
 		Log.d(TAG,"Inserting script into "+url);
 		
-		//TODO: When this line is commented out, many download links won't work,
+		// When this line is commented out, many download links wouldn't work,
 		// many preview links don't go through to the JSInterface, and other display
 		// problems (in mobile mode, html).
 		// When it is uncommented, page displays and works fine, but preview
 		// is called twice when the preview (number to the left in row) is pressed.
-		view.loadUrl("javascript:"+_javascript);
+		// view.loadUrl("javascript:"+_javascript);
+		//
+		// This should be fixed with the DOMContentLoaded event in Javascript.
 		
 		view.loadUrl("javascript:"+_prefs.getString("extraScript", ""));
+		
 		if (activity.findViewById(R.id.menuForward)!=null) {
 			activity.findViewById(R.id.menuForward).setClickable(view.canGoForward());
 		}
