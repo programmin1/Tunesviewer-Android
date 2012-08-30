@@ -9,6 +9,7 @@ function toggle(el) {
 </script>
 <style>
 h1 {margin:4px;font-size:1.5em; text-shadow: #999999 2px 2px 2px; text-align:center;}
+img { max-width: 100%; }
 img.rounded {border-radius:5px; text-align:center}
 body {text-align:center;}
 tab {text-align:center;}

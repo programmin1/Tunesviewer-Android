@@ -118,22 +118,5 @@ public class Viewer extends WebView {
 			shiftPressEvent.dispatch(this);
 		}
 	}
-	
-	/* Why doesn't this work?*/
-	@Override
-	protected void onLayout(boolean changed, int l, int t, int r, int b) {
-		super.onLayout(changed, l, t, r, b);
-		Log.d("WEBVIEW-WIDTH",""+getWidth());
-		post(new Runnable() {
-			
-			@Override
-			public void run() {
-				loadUrl("javascript:var imgs = document.getElementsByTagName('img');"+
-						 "for (var i=0; i<imgs.length; i++) {imgs[i].style.maxwidth='"+getWidth()+"'};");
-			}
-		});
-		
-	}
-
 
 }
