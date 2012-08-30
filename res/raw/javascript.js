@@ -281,7 +281,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	// FIXME: Should we change this to be a separate function "attached"
 	// to an object that is, finally, assigned to the onpageshow event?
 	subscribePodcastClickEvent = function (subscribePodcastUrl) {
-		location.href = subscribePodcastUrl;
+		window.DOWNLOADINTERFACE.subscribe(subscribePodcastUrl);
 	};
 
 	disabledButtonClickEvent = function (episodeUrl, artistName, itemName) {

@@ -35,6 +35,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 @TargetApi(3)
 public class TunesViewerActivity extends Activity {
@@ -205,6 +206,7 @@ public class TunesViewerActivity extends Activity {
 			_web.clearHistory();
 			_web.clearCache(true);
 			_myWVC.clearInfo();
+			Toast.makeText(this, R.string.clearedData, Toast.LENGTH_LONG).show();
 			return true;
 		case R.id.menuFindText:
 			//Show hidden text so it will be searched:

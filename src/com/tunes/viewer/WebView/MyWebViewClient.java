@@ -65,7 +65,7 @@ public class MyWebViewClient extends WebViewClient {
 	private TunesViewerActivity activity;
 	private IansCookieManager _CM = new IansCookieManager();
 	private SharedPreferences _prefs;
-	private StringBuilder _originalDownload = new StringBuilder(1);
+	private String _originalDownload = "";
 	private String _javascript; //from res/raw/javascript.js
 	
 	//Back and Forward navigation stacks:
@@ -376,7 +376,7 @@ public class MyWebViewClient extends WebViewClient {
 						// When debug menus are open, save the string
 						// (although this might not be so good for memory use?)
 						synchronized (caller) {
-							caller._originalDownload = _download;
+							caller._originalDownload = _download.toString();
 						}
 					}
 					// Remove unneeded XML declaration that may cause errors on some pages:

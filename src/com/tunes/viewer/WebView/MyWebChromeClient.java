@@ -38,7 +38,7 @@ public class MyWebChromeClient extends WebChromeClient {
 	
 	public void addMessageToConsole(String message, int lineNumber, String sourceID)  
 	{
-		Log.d("WebKi", sourceID + ": Line " + Integer.toString(lineNumber) + " : " + message);  
+		Log.d("WebKit", sourceID + ": Line " + Integer.toString(lineNumber) + " : " + message);  
 	}
 
 }

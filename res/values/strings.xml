@@ -7,7 +7,7 @@
     <string name="menuHome">Home</string>
     <string name="menuShareUrl">Share Page</string>
     <string name="menuFindText">Find on Page</string>
-    <string name="menuClear">Clear History &amp; Cookies</string>
+    <string name="menuClear">Clear History, Cookies &amp; Cache</string>
     <string name="menuPrefs">Settings</string>
     <string name="menuGo">Copy/Goto URL</string>
     <string name="menuSource">View Page Source</string>
@@ -80,6 +80,8 @@
     <!-- Other strings -->
     <string name="bookmarks">Bookmarks</string>
     <string name="loading">" Loading..."</string>
+    
+    <string name="clearedData">History, Cookies, and Cache have been cleared.</string>
     
     <!-- Size of file added after this string: -->
     <string name="startedDownloadingB">"Started downloading "</string><!-- filesize MB/KB -->
