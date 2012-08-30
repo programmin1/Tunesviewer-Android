@@ -77,6 +77,11 @@
     <string name="showFiles">Show Files</string>
     <string name="delete">Delete</string>
     
+    <!-- Delete Dialog -->
+    <string name="bookmarkDeleteTitle">Delete Bookmark?</string>
+    <string name="deleteBookmarked">Bookmark &amp; Files</string>
+    <string name="removeBookmark">Only Bookmark</string>
+    
     <!-- Other strings -->
     <string name="bookmarks">Bookmarks</string>
     <string name="loading">" Loading..."</string>

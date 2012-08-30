@@ -77,19 +77,27 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	 * Opens the downloaded file, with default opener.
 	 */
 	private void openFile() {
-		MimeTypeMap myMime = MimeTypeMap.getSingleton();
-
-		Intent newIntent = new Intent(Intent.ACTION_VIEW);
-		String mimeType = myMime.getMimeTypeFromExtension(ItunesXmlParser.fileExt(getFile().toString()).substring(1));
-		newIntent.setDataAndType(Uri.fromFile(getFile()),mimeType);
-		newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		try {
-			_context.startActivity(newIntent);
+			_context.startActivity(openFile(getFile()));
 		} catch (android.content.ActivityNotFoundException e) {
 			Toast.makeText(_context, _context.getString(R.string.NoActivity), Toast.LENGTH_LONG).show();
 		}
 		_notify.finish();
 		cancel(false);
+	}
+	
+	/**
+	 * Returns an {@link Intent} appropriate for opening a local file.
+	 * @param file
+	 * @return the Intent.
+	 */
+	public static Intent openFile(File file) {
+		MimeTypeMap myMime = MimeTypeMap.getSingleton();
+		Intent newIntent = new Intent(Intent.ACTION_VIEW);
+		String mimeType = myMime.getMimeTypeFromExtension(ItunesXmlParser.fileExt(file.toString()).substring(1));
+		newIntent.setDataAndType(Uri.fromFile(file),mimeType);
+		newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		return newIntent;
 	}
 	
 	/**

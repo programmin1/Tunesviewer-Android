@@ -2,20 +2,18 @@ package com.tunes.viewer.WebView;
 
 import java.lang.reflect.Method;
 
-import com.tunes.viewer.R;
-import com.tunes.viewer.R.string;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.text.ClipboardManager;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.webkit.WebView;
+
+import com.tunes.viewer.R;
 
 /**
  * Subclass of WebView that handles hold-click.

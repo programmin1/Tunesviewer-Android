@@ -95,7 +95,7 @@ public class JSInterface {
 	 * @param uri
 	 * @param caller
 	 */
-	public static void previewIntent(String uri, Context caller) throws ActivityNotFoundException {
+	private void previewIntent(String uri, Context caller) throws ActivityNotFoundException {
 		Intent i = new Intent(Intent.ACTION_VIEW);
 		String type = ItunesXmlParser.fileExt(uri);
 		if (Arrays.asList(audioFormats).indexOf(type) > -1) {

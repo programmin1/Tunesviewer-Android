@@ -25,6 +25,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.tunes.viewer.ItunesXmlParser;
 import com.tunes.viewer.R;
 import com.tunes.viewer.FileDownload.DownloaderTask;
 import com.tunes.viewer.WebView.JSInterface;
@@ -46,6 +47,9 @@ import com.tunes.viewer.WebView.JSInterface;
 public class MediaListActivity extends ListActivity {
 
 	private static final String TAG = "MediaListActivity";
+	// The order, id of the context menu items: 
+	private static final int IDdetail = 1;
+	private static final int IDdelete = 2;
 	private ArrayAdapter<MediaFile> _adapter;
 	private File _folder;
 	private ArrayList<MediaFile> items;
@@ -91,8 +95,8 @@ public class MediaListActivity extends ListActivity {
  	        // Setup the menu header
  	        menu.setHeaderTitle(items.get(info.position).getFile().getName());
 
- 		    menu.add(0,1,1,"View details");
- 			menu.add(0,2,2,R.string.delete);
+ 		    menu.add(0,IDdetail,IDdetail,"View details");
+ 			menu.add(0,IDdelete,IDdelete,R.string.delete);
         } catch (ClassCastException e) {
             Log.e(TAG, "bad menuInfo", e);
             return;
@@ -105,18 +109,19 @@ public class MediaListActivity extends ListActivity {
 		AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
 		MediaFile selected = items.get(info.position);
 		switch(item.getItemId()) {
-		case 1:
+		case IDdetail:
 		{
 			Builder builder = new AlertDialog.Builder(this);
-			builder.setMessage("title:"+selected._title+
-					"\ntrack:"+selected._numberOrder+
-					"\nartist:"+selected._artist+
-					"\nduration:"+selected._duration);
+			//TODO: Should be moved to strings:
+			builder.setMessage("title: "+selected._title+
+					"\ntrack: "+selected._numberOrder+
+					"\nartist: "+selected._artist+
+					"\nduration: "+ItunesXmlParser.timeval(selected._duration));
 			builder.setTitle(selected._display);
 			builder.show();
 			break;
 		}
-		case 2:
+		case IDdelete:
 		{
 			selected.getFile().delete();
 			_adapter.remove(selected);
@@ -157,9 +162,8 @@ public class MediaListActivity extends ListActivity {
 
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-		String file = items.get(position).getFile().toString();
 		try {
-			JSInterface.previewIntent("file://"+file, this);
+			startActivity(DownloaderTask.openFile(items.get(position).getFile()));
 		} catch (ActivityNotFoundException e) {
 			Toast.makeText(this, getText(R.string.NoActivity), Toast.LENGTH_LONG).show();
 		}
