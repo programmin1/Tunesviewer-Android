@@ -2,8 +2,10 @@ package com.tunes.viewer.FileDownload;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
@@ -44,6 +46,9 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	DownloadService _context;
 	private String _podcast;
 	private String _title;
+	// url of podcast:
+	private String _podcasturl;
+	// url of download:
 	private URL _url;
 	// Valid characters a file may have. Note that Android chokes on files with a #, and can't find their type.
 	private final static String VALIDCHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 $%`-_@{}~!().";
@@ -60,7 +65,18 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	// The last updated percent downloaded.
 	int _lastProgress;
 	
-	public DownloaderTask(DownloadService c, ArrayList<DownloaderTask> t, String title, String podcast, URL url, int ID) {
+	/**
+	 * Constructs a downloader for a certain file.
+	 * @param c DownloadService reference.
+	 * @param t Arraylist of current tasks.
+	 * @param title
+	 * @param podcast
+	 * @param url
+	 * @param podcasturl
+	 * @param ID unique id of this task (handy for notification etc.)
+	 */
+	public DownloaderTask(DownloadService c, ArrayList<DownloaderTask> t, String title, String podcast, URL url,
+			String podcasturl, int ID) {
 		WifiManager wm = (WifiManager)c.getSystemService(Context.WIFI_SERVICE);
 		_wifiLock = wm.createWifiLock(WifiManager.WIFI_MODE_FULL, "Tunesviewer Download");
 		_lastProgress = -1;
@@ -70,6 +86,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 		_podcast = (podcast != null) ? podcast : "";
 		_title = title;
 		_alltasks = t;
+		_podcasturl = podcasturl;
 		_handler = new Handler();
 	}
 	
@@ -170,12 +187,30 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 			} else {
 				directory = new File(downloadDir,clean(_podcast));
 			}
-			if (directory.mkdirs() || directory.isDirectory()) { //Folder created or already existed.
+			if (!directory.isDirectory()) {
+				// Creating a new directory, so add a link here.
+				// Directory with this link file is a "podcast directory", that is,
+				// it has been created by this app. 
+				// For security, only podcast-directories should
+				// be scannable from the webview to see what has/hasn't been downloaded.
+				directory.mkdirs();
+				File mark = new File(directory,"podcast_dir.html");
+				BufferedWriter outfile = new BufferedWriter(new FileWriter(mark));
+				outfile.write("<html><head><title>"+_podcast+"</title></head>"+
+				"<body><a href=\""+_podcasturl+"\">"+_podcast+"</a></body></html>");
+				outfile.close();
+			}
+			if (/*directory.mkdirs() ||*/ directory.isDirectory()) { //Folder created or already existed.
 				if (_url.getHost().equals("sourceforge.net") && _url.getPath().startsWith("/projects/")) {
 					// Not an ordinary download, this is from the update page.
 					_outFile = new File(directory, "update.apk");
 				} else {
 					_outFile = new File(directory, clean(_title)+ItunesXmlParser.fileExt(_url.toString()));
+				}
+				if (_outFile.toString().endsWith("podcast_dir.html")) {
+					Log.e(TAG,"Security exception, not writing podcast-directory link.");
+					_ErrMSG = "Security exception, not writing podcast-directory link.";
+					throw new IOException();
 				}
 				if (_outFile.exists() && _outFile.length() == contentLength) {
 					onPostExecute(contentLength); //Done. Already downloaded.

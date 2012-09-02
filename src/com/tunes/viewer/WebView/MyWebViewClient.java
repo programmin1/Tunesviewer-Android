@@ -412,6 +412,7 @@ public class MyWebViewClient extends WebViewClient {
 							Intent intent = new Intent(callerContext,DownloadService.class);
 							intent.putExtra("url", parser.getUrls().get(0));
 							intent.putExtra("podcast", parser.getTitle());
+							intent.putExtra("podcasturl", _view.getUrl());
 							intent.putExtra("name",parser.getSingleName());
 							callerContext.startService(intent);
 							// reset "loading..." because it isn't:
@@ -468,6 +469,7 @@ public class MyWebViewClient extends WebViewClient {
 						Intent intent = new Intent(caller.callerContext,DownloadService.class);
 						intent.putExtra("url", _url);
 						intent.putExtra("podcast", "");
+						intent.putExtra("podcasturl", _view.getUrl());
 						intent.putExtra("name", _url);
 						caller.callerContext.startService(intent);
 						worked = true;

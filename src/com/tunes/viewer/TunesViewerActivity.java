@@ -125,6 +125,10 @@ public class TunesViewerActivity extends Activity {
 		});
 	}
 	
+	public String geturl() {
+		return _web.getUrl();
+	}
+	
 	public void hideSearch() {
 		_web.clearMatches();
 		findViewById(R.id.findLayout).setVisibility(View.GONE);

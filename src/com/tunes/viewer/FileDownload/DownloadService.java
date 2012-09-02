@@ -38,6 +38,7 @@ public class DownloadService extends Service {
 		
 		String url = intent.getStringExtra("url");
 		String podcast = intent.getStringExtra("podcast");
+		String podcasturl = intent.getStringExtra("podcasturl");
 		String name = intent.getStringExtra("name");
 		boolean notifClick = intent.getBooleanExtra("notifClick", false);
 		// Check if exists, if so, open or cancel:
@@ -55,7 +56,7 @@ public class DownloadService extends Service {
 			//Start new downloader:
 			try {
 				DownloaderTask T=(DownloaderTask) new DownloaderTask(this,myDownloaders,
-						name,podcast,new URL(url),myDownloaders.size());
+						name,podcast,new URL(url), podcasturl, myDownloaders.size());
 				T.execute(new URL(intent.getStringExtra("url")));
 				myDownloaders.add(T);
 			} catch (MalformedURLException e) {

@@ -1,6 +1,7 @@
 package com.tunes.viewer.WebView;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
@@ -29,7 +30,9 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.text.ClipboardManager;
 import android.util.Log;
 import android.widget.TextView;
@@ -39,6 +42,7 @@ import com.tunes.viewer.ItunesXmlParser;
 import com.tunes.viewer.R;
 import com.tunes.viewer.TunesViewerActivity;
 import com.tunes.viewer.FileDownload.DownloadService;
+import com.tunes.viewer.FileDownload.DownloaderTask;
 
 /**
  * Javascript interface for the WebView
@@ -72,6 +76,7 @@ public class JSInterface {
 		Intent intent = new Intent(_context,DownloadService.class);
 		intent.putExtra("url", url);
 		intent.putExtra("podcast", podcast);
+		intent.putExtra("podcasturl", ((TunesViewerActivity)_context).geturl());
 		intent.putExtra("name",title);
 		_context.startService(intent);
 	}
@@ -88,6 +93,30 @@ public class JSInterface {
 		} catch (ActivityNotFoundException e) {
 			Toast.makeText(_context, _context.getText(R.string.NoActivity), Toast.LENGTH_LONG).show();
 		}
+	}
+	
+	/**
+	 * Given podcastname, title, and url of a file, returns "download" or "open" (or "(security error)").
+	 * @param podcastname
+	 * @param title
+	 * @param url
+	 * @return a string with appropriate action.
+	 */
+	public String openOrDownloadStr(String podcastname, String title, String url) {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(_context);
+		String downloadDir = prefs.getString("DownloadDirectory",_context.getString(R.string.defaultDL));
+		if (!DownloaderTask.clean(podcastname).equals("")) {//NPE sometimes
+			File directory = new File(downloadDir,DownloaderTask.clean(podcastname));
+			if (new File(directory,"podcast_dir.html").exists()) {
+				// This is our app's directory, safe for webview to scan.
+				if (new File(directory,DownloaderTask.clean(title)+ItunesXmlParser.fileExt(url)).exists()) {
+					return "Open";
+				} else {
+					return "Download";
+				}
+			}
+		}
+		return "(security error)";
 	}
 	
 	/**

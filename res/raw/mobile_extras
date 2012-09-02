@@ -6,6 +6,10 @@ function toggle(el) {
         el.style.display = 'none';
     }
 }
+
+function updateDownloadOpen() {
+	// get all dlopen class elements, set contents based on its download-url
+}
 </script>
 <style>
 h1 {margin:4px;font-size:1.5em; text-shadow: #999999 2px 2px 2px; text-align:center;}
