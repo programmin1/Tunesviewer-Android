@@ -59,6 +59,7 @@ public class TunesViewerActivity extends Activity {
 		setContentView(R.layout.main);
 		//set(R.id.mainWebView) = new WebView(this);
 		_web = (WebView) findViewById(R.id.mainWebView);
+		
 		WebSettings s = _web.getSettings();
 		originalUA = s.getUserAgentString();
 		if (originalUA.indexOf("AppleWebKit") > -1) {
@@ -83,6 +84,14 @@ public class TunesViewerActivity extends Activity {
 		_web.setWebViewClient(_myWVC);
 		_web.setWebChromeClient(new MyWebChromeClient(this));
 		_web.requestFocus(View.FOCUS_DOWN);
+		// Page title in case it doesn't load, won't stick on "Loading..." Doesn't show in page for some reason.
+		_web.loadUrl("javascript:function setTitle() {window.DOWNLOADINTERFACE.setTitle(\""
+				+getString(R.string.PageNotDownloaded)+
+				"\");document.write(\""
+				+getString(R.string.PageNotDownloaded)+
+				"\"); }");
+		//_web.loadData("<html><body><script>function setTitle() {window.DOWNLOADINTERFACE.setTitle('No page loaded');}</script>blank page</body></html>",
+		//		"text/html", "UTF-8");
 		
 		if (this.getIntent().getData()==null) { //no specified url.
 			_myWVC.shouldOverrideUrlLoading(_web, "http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewGrouping?id=27753");

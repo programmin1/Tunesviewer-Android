@@ -66,6 +66,7 @@
     <string name="NoPodcatcherMessage">"No podcast app found to handle this link! You must install a podcast manager app that handles feed:// links, to subscribe."</string>
     <string name="DownloadError">Download Error: </string>
     <string name="DownloadErrorTimeout">Download timeout. Network may be disconnected?</string>
+    <string name="PageNotDownloaded">The page could not be loaded.</string>
     
     <!-- Searchbox -->
     <string name="courses">University Courses</string>
