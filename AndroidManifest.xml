@@ -9,6 +9,7 @@
 <uses-permission android:name="android.permission.INTERNET"/>
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 <uses-permission android:name="android.permission.WAKE_LOCK"/>
+
     <application android:icon="@drawable/icon" android:label="@string/app_name">
         <!-- <service android:name=".SamplePlugin">
             <intent-filter>
@@ -36,6 +37,11 @@
                     <data android:scheme="itms"/>
                     <data android:scheme="itmss"/>
                     
+                </intent-filter>
+                <intent-filter>
+					<action android:name="android.intent.action.MAIN" />
+                	<category android:name="android.intent.category.LAUNCHER" />
+                	<action android:name="com.tunes.viewer.DownloadService.action.DOWNLOADED" />
                 </intent-filter>
         </activity>
 	    <activity android:name=".Player" />

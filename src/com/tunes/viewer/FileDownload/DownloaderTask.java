@@ -253,6 +253,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 						_outFile.delete();
 					} else {
 						//success = true;
+						_context.sendBroadcast(new Intent(DownloadService.DOWNLOADBROADCAST));
 						// Get metadata.
 						new MediaScannerWrapper(_context, _outFile.toString(), "audio/mp3").scan();
 						// Add to Android media player.

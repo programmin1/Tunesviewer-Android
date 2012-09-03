@@ -21,6 +21,7 @@ import android.widget.Toast;
 @TargetApi(3)
 public class DownloadService extends Service {
 
+	public static final String DOWNLOADBROADCAST = "com.tunes.viewer.DownloadService.action.DOWNLOADED";
 	@Override
 	public IBinder onBind(Intent intent) {
 		return null;
@@ -64,6 +65,10 @@ public class DownloadService extends Service {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	private void announceDownload() {
+		sendBroadcast(new Intent(DOWNLOADBROADCAST));
 	}
 	
 	@Override

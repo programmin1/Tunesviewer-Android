@@ -3,6 +3,7 @@ package com.tunes.viewer;
 import java.lang.reflect.Method;
 
 import com.tunes.viewer.Bookmarks.BookmarksActivity;
+import com.tunes.viewer.FileDownload.DownloadService;
 import com.tunes.viewer.WebView.JSInterface;
 import com.tunes.viewer.WebView.MyWebChromeClient;
 import com.tunes.viewer.WebView.MyWebViewClient;
@@ -10,9 +11,11 @@ import com.tunes.viewer.WebView.MyWebViewClient;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
@@ -48,6 +51,7 @@ public class TunesViewerActivity extends Activity {
 	private MyWebViewClient _myWVC;
 	private String originalUA;
 	final String UA = "iTunes/10.6.1 ";
+	private MyReceiver _receiver;
 	
 	@TargetApi(7)
 	@Override
@@ -90,8 +94,8 @@ public class TunesViewerActivity extends Activity {
 				"\");document.write(\""
 				+getString(R.string.PageNotDownloaded)+
 				"\"); }");
-		//_web.loadData("<html><body><script>function setTitle() {window.DOWNLOADINTERFACE.setTitle('No page loaded');}</script>blank page</body></html>",
-		//		"text/html", "UTF-8");
+		_web.loadData("<html><body><script>function setTitle() {window.DOWNLOADINTERFACE.setTitle('No page loaded');}</script>blank page</body></html>",
+				"text/html", "UTF-8");
 		
 		if (this.getIntent().getData()==null) { //no specified url.
 			_myWVC.shouldOverrideUrlLoading(_web, "http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewGrouping?id=27753");
@@ -159,11 +163,16 @@ public class TunesViewerActivity extends Activity {
 	
 	@Override
 	protected void onPause() {
+		unregisterReceiver(_receiver);
 		_web.pauseTimers();
 		super.onPause();
 	}
+
 	@Override
 	protected void onResume() {
+		IntentFilter filter = new IntentFilter(DownloadService.DOWNLOADBROADCAST);
+		_receiver = new MyReceiver(_web);
+		registerReceiver(_receiver, filter);
 		_web.resumeTimers();
 		super.onResume();
 	}

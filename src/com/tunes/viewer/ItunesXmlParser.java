@@ -469,7 +469,7 @@ public class ItunesXmlParser extends DefaultHandler {
 					html.append(map.get("title").replace("\"", "&quot;"));
 					html.append("\" url=\"");
 					html.append(subMap.get("asset-url").replace("\"", "&quot;"));
-					html.append("\">Download ");
+					html.append("\"><span class='download_open'>Download</span> ");
 					html.append(fileExt(subMap.get("asset-url")));
 					html.append("</a><a href='javascript:;' onclick=\"window.event.stopPropagation();window.DOWNLOADINTERFACE.preview(this.getAttribute('title'),this.getAttribute('url'));\" title=\"");
 					html.append(map.get("title").replace("\"", "&quot;"));

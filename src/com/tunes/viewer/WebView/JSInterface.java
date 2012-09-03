@@ -102,7 +102,8 @@ public class JSInterface {
 	 * @param url
 	 * @return a string with appropriate action.
 	 */
-	public String openOrDownloadStr(String podcastname, String title, String url) {
+	public String openOrDownloadStr(String title, String podcastname, String url) {
+		String output;
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(_context);
 		String downloadDir = prefs.getString("DownloadDirectory",_context.getString(R.string.defaultDL));
 		if (!DownloaderTask.clean(podcastname).equals("")) {//NPE sometimes
@@ -110,13 +111,19 @@ public class JSInterface {
 			if (new File(directory,"podcast_dir.html").exists()) {
 				// This is our app's directory, safe for webview to scan.
 				if (new File(directory,DownloaderTask.clean(title)+ItunesXmlParser.fileExt(url)).exists()) {
-					return "Open";
+					output = "Open";
 				} else {
-					return "Download";
+					output = "Download";
 				}
+			} else {
+				output = "Download";
 			}
+		} else {
+			output = "(invalid)";
 		}
-		return "(security error)";
+		
+		Log.w(TAG, "action "+output+" for "+title+", "+podcastname+", "+url);
+		return output;
 	}
 	
 	/**
