@@ -31,6 +31,7 @@ import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import com.tunes.viewer.ItunesXmlParser;
+import com.tunes.viewer.MyReceiver;
 import com.tunes.viewer.R;
 
 /**
@@ -253,7 +254,10 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 						_outFile.delete();
 					} else {
 						//success = true;
-						_context.sendBroadcast(new Intent(DownloadService.DOWNLOADBROADCAST));
+						Intent doneintent = new Intent(DownloadService.DOWNLOADBROADCAST);
+						doneintent.putExtra(MyReceiver.PAGEURL, _podcasturl);
+						doneintent.putExtra(MyReceiver.NAME, _podcast);
+						_context.sendBroadcast(doneintent);
 						// Get metadata.
 						new MediaScannerWrapper(_context, _outFile.toString(), "audio/mp3").scan();
 						// Add to Android media player.

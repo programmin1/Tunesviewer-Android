@@ -35,6 +35,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.text.ClipboardManager;
 import android.util.Log;
@@ -43,9 +44,11 @@ import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 import com.tunes.viewer.ItunesXmlParser;
+import com.tunes.viewer.MyReceiver;
 import com.tunes.viewer.R;
 import com.tunes.viewer.TunesViewerActivity;
 import com.tunes.viewer.FileDownload.DownloadService;
+import com.tunes.viewer.FileDownload.DownloaderTask;
 
 public class MyWebViewClient extends WebViewClient {
 	
@@ -194,6 +197,10 @@ public class MyWebViewClient extends WebViewClient {
 		if (activity.findViewById(R.id.menuForward)!=null) {
 			activity.findViewById(R.id.menuForward).setClickable(view.canGoForward());
 		}
+		Intent doneintent = new Intent(DownloadService.DOWNLOADBROADCAST);
+		doneintent.putExtra(MyReceiver.PAGEURL, url);
+		doneintent.putExtra(MyReceiver.NAME, DownloaderTask.clean((String) activity.getTitle()));
+		activity.sendBroadcast(doneintent);
 	}
 	@Override
 	public void onPageStarted(WebView view, String url, Bitmap favicon) {

@@ -171,7 +171,7 @@ public class TunesViewerActivity extends Activity {
 	@Override
 	protected void onResume() {
 		IntentFilter filter = new IntentFilter(DownloadService.DOWNLOADBROADCAST);
-		_receiver = new MyReceiver(_web);
+		_receiver = new MyReceiver(this);
 		registerReceiver(_receiver, filter);
 		_web.resumeTimers();
 		super.onResume();
@@ -402,6 +402,10 @@ public class TunesViewerActivity extends Activity {
 			return true;
 		}
 		return super.onKeyDown(keyCode, event);
+	}
+	
+	public WebView getWeb() {
+		return _web;
 	}
 	
 }

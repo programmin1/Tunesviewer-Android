@@ -67,10 +67,6 @@ public class DownloadService extends Service {
 		}
 	}
 	
-	private void announceDownload() {
-		sendBroadcast(new Intent(DOWNLOADBROADCAST));
-	}
-	
 	@Override
 	public void onDestroy() {
 		super.onDestroy();

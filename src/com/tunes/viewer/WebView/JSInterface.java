@@ -102,6 +102,7 @@ public class JSInterface {
 	 * @param url
 	 * @return a string with appropriate action.
 	 */
+	/*
 	public String openOrDownloadStr(String title, String podcastname, String url) {
 		String output;
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(_context);
@@ -124,6 +125,17 @@ public class JSInterface {
 		
 		Log.w(TAG, "action "+output+" for "+title+", "+podcastname+", "+url);
 		return output;
+	}*/
+	
+	/**
+	 * Returns the file name a download would be named.
+	 * @param title
+	 * @param url
+	 * @return
+	 */
+	public String downloadDest(String title, String url) {
+		Log.w(TAG,DownloaderTask.clean(title)+ItunesXmlParser.fileExt(url));
+		return DownloaderTask.clean(title)+ItunesXmlParser.fileExt(url);
 	}
 	
 	/**

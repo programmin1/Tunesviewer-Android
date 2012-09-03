@@ -7,16 +7,23 @@ function toggle(el) {
     }
 }
 
-function updateDownloadOpen() {
+/** A function called by Java with a list of this podcast's downloaded files: */
+function updateDownloadOpen(downloads) {
 	var els = document.getElementsByClassName('download_open');
+	console.log('hi');
+	console.log(downloads);
+	console.log(downloads.indexOf('hi'));
 	for (var i=0; i<els.length; i++) {
 		var parent = els[i].parentNode;
-		els[i].innerHTML = window.DOWNLOADINTERFACE.openOrDownloadStr(
-		   parent.getAttribute('title'), document.title, parent.getAttribute('url') );
+		var possiblefile = window.DOWNLOADINTERFACE.downloadDest(
+		   parent.getAttribute('title'), parent.getAttribute('url') );
+		if (downloads.indexOf(possiblefile) != -1) {
+			els[i].innerHTML = "Download";
+		} else {
+			els[i].innerHTML = "Open";
+		}
 	}
 }
-
-document.addEventListener("DOMContentLoaded", updateDownloadOpen, false);
 
 </script>
 <style>
