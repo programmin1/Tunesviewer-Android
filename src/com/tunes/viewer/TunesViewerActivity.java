@@ -175,6 +175,14 @@ public class TunesViewerActivity extends Activity {
 		registerReceiver(_receiver, filter);
 		_web.resumeTimers();
 		super.onResume();
+		
+		// Might have been deleted/added, check:
+		Intent doneintent = new Intent(DownloadService.DOWNLOADBROADCAST);
+		if (_web.getUrl() !=null && getTitle() != null) {
+			doneintent.putExtra(MyReceiver.PAGEURL, _web.getUrl());
+			doneintent.putExtra(MyReceiver.NAME, getTitle());
+			sendBroadcast(doneintent);
+		}
 	}
 	
 	@Override

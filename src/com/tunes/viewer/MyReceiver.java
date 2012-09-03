@@ -1,16 +1,16 @@
 package com.tunes.viewer;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 
-import com.tunes.viewer.FileDownload.DownloadService;
-import com.tunes.viewer.FileDownload.DownloaderTask;
-
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.webkit.WebView;
+
+import com.tunes.viewer.FileDownload.DownloaderTask;
 
 /**
  * A subclass of BroadcastReceiver that holds reference to main activity,
@@ -34,23 +34,33 @@ public class MyReceiver extends android.content.BroadcastReceiver {
 		System.out.println(intent.getStringExtra(PAGEURL));
 		System.out.println(intent.getStringExtra(NAME));
 		String podcastname = intent.getStringExtra(NAME);
+		String pageurl = intent.getStringExtra(PAGEURL);
 		
 		StringBuilder js = new StringBuilder("javascript:updateDownloadOpen([");
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(_caller);
 		String downloadDir = prefs.getString("DownloadDirectory",_caller.getString(R.string.defaultDL));
 		if (!DownloaderTask.clean(podcastname).equals("")) {//NPE sometimes
 			File directory = new File(downloadDir,DownloaderTask.clean(podcastname));
-			if (new File(directory,"podcast_dir.html").exists()) {
-				// This is our app's directory, safe for webview to scan.
-				// TODO: check the url also, from this file.
-				String[] names = directory.list();
-				for (int i=0; i<names.length; i++) {
-					js.append("\"");
-					js.append(names[i].replace("\"", "\\\""));
-					js.append("\"");
-					if (i != names.length-1) {
-						js.append(", ");
-					}
+			File linkfile = new File(directory,"podcast_dir.html");
+			if (linkfile.exists()) {
+				// This is our app's directory, safe for webview to see.
+				try {
+				    BufferedReader in = new BufferedReader(new FileReader(linkfile));
+				    if (in.readLine().indexOf("\""+pageurl+"\"") != -1) {
+				    	// This is the page described in the file, safe.
+				    	String[] names = directory.list();
+						for (int i=0; i<names.length; i++) {
+							js.append("\"");
+							js.append(names[i].replace("\"", "\\\""));
+							js.append("\"");
+							if (i != names.length-1) {
+								js.append(", ");
+							}
+						}
+				    }
+				    in.close();
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
 			}
 			js.append("]);");
