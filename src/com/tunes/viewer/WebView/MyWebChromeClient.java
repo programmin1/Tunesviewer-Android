@@ -21,7 +21,7 @@ public class MyWebChromeClient extends WebChromeClient {
 		Toast.makeText(activity.getApplicationContext(), message, 3000).show();
 		result.confirm();
 		return true;
-	};
+	}
 	
 	/**
 	 * Catches progress events while the html is loading.

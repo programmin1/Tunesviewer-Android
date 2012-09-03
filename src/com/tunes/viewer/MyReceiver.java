@@ -13,7 +13,7 @@ import android.preference.PreferenceManager;
 import android.webkit.WebView;
 
 /**
- * A subclass of BroadcastReceiver that binds to a WebView,
+ * A subclass of BroadcastReceiver that holds reference to main activity,
  * updates the download/open buttons with a bit of javascript when called.
  * @author luke
  *
@@ -55,7 +55,7 @@ public class MyReceiver extends android.content.BroadcastReceiver {
 			}
 			js.append("]);");
 		}
-		System.out.println(js.toString());
+		//System.out.println(js.toString());
 		
     	_caller.getWeb().loadUrl(js.toString());
     }

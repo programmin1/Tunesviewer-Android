@@ -133,8 +133,8 @@ public class JSInterface {
 	 * @param url
 	 * @return
 	 */
-	public String downloadDest(String title, String url) {
-		Log.w(TAG,DownloaderTask.clean(title)+ItunesXmlParser.fileExt(url));
+	public String dest(String title, String url) {
+		//Log.w(TAG,DownloaderTask.clean(title)+ItunesXmlParser.fileExt(url));
 		return DownloaderTask.clean(title)+ItunesXmlParser.fileExt(url);
 	}
 	

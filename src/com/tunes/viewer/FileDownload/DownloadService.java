@@ -1,14 +1,22 @@
 package com.tunes.viewer.FileDownload;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
+import com.tunes.viewer.ItunesXmlParser;
+import com.tunes.viewer.R;
+
 
 import android.annotation.TargetApi;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
+import android.util.Log;
 import android.widget.Toast;
 
 /**
@@ -33,6 +41,7 @@ public class DownloadService extends Service {
 	@Override
 	public void onStart(Intent intent, int startId) {
 		if (intent==null) {
+			Log.e(TAG,"Null intent.");
 			return;
 		}
 		super.onStart(intent, startId);
@@ -54,17 +63,47 @@ public class DownloadService extends Service {
 					e.printStackTrace();
 				}
 			}
-			//Start new downloader:
-			try {
-				DownloaderTask T=(DownloaderTask) new DownloaderTask(this,myDownloaders,
-						name,podcast,new URL(url), podcasturl, myDownloaders.size());
-				T.execute(new URL(intent.getStringExtra("url")));
-				myDownloaders.add(T);
-			} catch (MalformedURLException e) {
-				Toast.makeText(getApplicationContext(),"Download url is invalid",1000).show();
-				e.printStackTrace();
+			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+			File possibleFile = StoredFile(this, podcast, name, url);
+			if (possibleFile.exists()) {
+				try {
+					startActivity(DownloaderTask.openFile(possibleFile));
+				} catch (android.content.ActivityNotFoundException e) {
+					Toast.makeText(this, getString(R.string.NoActivity), Toast.LENGTH_LONG).show();
+				}
+			} else {
+				//Start new downloader:
+				try {
+					DownloaderTask T=(DownloaderTask) new DownloaderTask(this,myDownloaders,
+							name,podcast,new URL(url), podcasturl, myDownloaders.size());
+					T.execute(new URL(intent.getStringExtra("url")));
+					myDownloaders.add(T);
+				} catch (MalformedURLException e) {
+					Toast.makeText(getApplicationContext(),"Download url is invalid",1000).show();
+					e.printStackTrace();
+				}
 			}
 		}
+	}
+	/**
+	 * Returns the File object of where an item would be stored, given podcast-name,
+	 * title, and url for file-extension.
+	 * @param context
+	 * @param podcastname
+	 * @param title
+	 * @param urlFileExt
+	 * @return File object.
+	 */
+	public File StoredFile(Context context, String podcastname, String title, String urlFileExt) {
+		File directory;
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		String downloadDir = prefs.getString("DownloadDirectory",context.getString(R.string.defaultDL));
+		if (DownloaderTask.clean(podcastname).equals("")) {//NPE sometimes
+			directory = new File(downloadDir);
+		} else {
+			directory = new File(downloadDir,DownloaderTask.clean(podcastname));
+		}
+		return new File(directory, DownloaderTask.clean(title)+ItunesXmlParser.fileExt(urlFileExt.toString()));
 	}
 	
 	@Override

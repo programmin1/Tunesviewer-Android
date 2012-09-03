@@ -10,14 +10,12 @@ function toggle(el) {
 /** A function called by Java with a list of this podcast's downloaded files: */
 function updateDownloadOpen(downloads) {
 	var els = document.getElementsByClassName('download_open');
-	console.log('hi');
-	console.log(downloads);
-	console.log(downloads.indexOf('hi'));
 	for (var i=0; i<els.length; i++) {
 		var parent = els[i].parentNode;
-		var possiblefile = window.DOWNLOADINTERFACE.downloadDest(
+		// Adding "" to the object turns it to a string:
+		var possiblefile = ""+window.DOWNLOADINTERFACE.dest(
 		   parent.getAttribute('title'), parent.getAttribute('url') );
-		if (downloads.indexOf(possiblefile) != -1) {
+		if (downloads.indexOf(possiblefile) == -1) {
 			els[i].innerHTML = "Download";
 		} else {
 			els[i].innerHTML = "Open";
