@@ -8,6 +8,7 @@ import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.ListActivity;
 import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
@@ -72,7 +73,7 @@ public class MediaListActivity extends ListActivity {
 		if (_folder.exists() && _folder.isDirectory()) {
 			File[] dir = _folder.listFiles();
 			for (File media : dir) {
-				if (!media.isDirectory()) {
+				if (!media.isDirectory() && !media.getName().equals(DownloaderTask.PODCASTDIR_FILE)) {
 					items.add(new MediaFile(media,this));
 				}
 			}
@@ -107,7 +108,7 @@ public class MediaListActivity extends ListActivity {
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-		MediaFile selected = items.get(info.position);
+		final MediaFile selected = items.get(info.position);
 		switch(item.getItemId()) {
 		case IDdetail:
 		{
@@ -123,9 +124,19 @@ public class MediaListActivity extends ListActivity {
 		}
 		case IDdelete:
 		{
-			selected.getFile().delete();
-			_adapter.remove(selected);
-			_adapter.notifyDataSetChanged();
+			Builder builder = new AlertDialog.Builder(this);
+			builder.setMessage(getString(R.string.deleteFile).replace("%%",
+					DownloaderTask.filesize(selected.getFile().length())));
+			builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					selected.getFile().delete();
+					_adapter.remove(selected);
+					_adapter.notifyDataSetChanged();
+				}
+			});
+			builder.setNegativeButton(android.R.string.cancel, null);
+			builder.show();
 			break;
 		}
 		}

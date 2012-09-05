@@ -53,6 +53,11 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	private URL _url;
 	// Valid characters a file may have. Note that Android chokes on files with a #, and can't find their type.
 	private final static String VALIDCHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 $%`-_@{}~!().";
+	
+	/**
+	 * The file name marking a directory as "ours".
+	 */
+	public static final String PODCASTDIR_FILE = "podcast_dir.html";
 	String _ErrMSG = "";
 	private String _sizeStr = "";
 	private File _outFile;
@@ -195,7 +200,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 				// For security, only podcast-directories should
 				// be scannable from the webview to see what has/hasn't been downloaded.
 				directory.mkdirs();
-				File mark = new File(directory,"podcast_dir.html");
+				File mark = new File(directory,PODCASTDIR_FILE);
 				BufferedWriter outfile = new BufferedWriter(new FileWriter(mark));
 				outfile.write("<html><head><title>"+_podcast+"</title></head>"+
 				"<body><a href=\""+_podcasturl+"\">"+_podcast+"</a></body></html>");
@@ -208,7 +213,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 				} else {
 					_outFile = new File(directory, clean(_title)+ItunesXmlParser.fileExt(_url.toString()));
 				}
-				if (_outFile.toString().endsWith("podcast_dir.html")) {
+				if (_outFile.toString().endsWith(PODCASTDIR_FILE)) {
 					Log.e(TAG,"Security exception, not writing podcast-directory link.");
 					_ErrMSG = "Security exception, not writing podcast-directory link.";
 					throw new IOException();

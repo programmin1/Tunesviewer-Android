@@ -41,7 +41,7 @@ public class MyReceiver extends android.content.BroadcastReceiver {
 		String downloadDir = prefs.getString("DownloadDirectory",_caller.getString(R.string.defaultDL));
 		if (!DownloaderTask.clean(podcastname).equals("")) {//NPE sometimes
 			File directory = new File(downloadDir,DownloaderTask.clean(podcastname));
-			File linkfile = new File(directory,"podcast_dir.html");
+			File linkfile = new File(directory,DownloaderTask.PODCASTDIR_FILE);
 			if (linkfile.exists()) {
 				// This is our app's directory, safe for webview to see.
 				try {
