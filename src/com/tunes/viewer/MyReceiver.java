@@ -36,9 +36,11 @@ public class MyReceiver extends android.content.BroadcastReceiver {
 		String podcastname = intent.getStringExtra(NAME);
 		String pageurl = intent.getStringExtra(PAGEURL);
 		
-		StringBuilder js = new StringBuilder("javascript:updateDownloadOpen([");
+		final StringBuilder js = new StringBuilder("javascript:updateDownloadOpen([");
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(_caller);
 		String downloadDir = prefs.getString("DownloadDirectory",_caller.getString(R.string.defaultDL));
+		String[] names = null;
+		boolean hasdata = false;
 		if (!DownloaderTask.clean(podcastname).equals("")) {//NPE sometimes
 			File directory = new File(downloadDir,DownloaderTask.clean(podcastname));
 			File linkfile = new File(directory,DownloaderTask.PODCASTDIR_FILE);
@@ -48,25 +50,39 @@ public class MyReceiver extends android.content.BroadcastReceiver {
 				    BufferedReader in = new BufferedReader(new FileReader(linkfile));
 				    if (in.readLine().indexOf("\""+pageurl+"\"") != -1) {
 				    	// This is the page described in the file, safe.
-				    	String[] names = directory.list();
+				    	names = directory.list();
 						for (int i=0; i<names.length; i++) {
 							js.append("\"");
 							js.append(names[i].replace("\"", "\\\""));
 							js.append("\"");
+							hasdata = true;
 							if (i != names.length-1) {
 								js.append(", ");
 							}
 						}
+				    } else {
+				    	System.err.println("Not sending directory info to page, since it is wrong URL!");
 				    }
 				    in.close();
 				} catch (IOException e) {
 					e.printStackTrace();
+					return;
 				}
+			} else {
+				System.err.println("Not sending directory info to page, since directory doesn't have marker file.");
 			}
 			js.append("]);");
+			if (hasdata) {
+				// Injecting JS too many times may cause webview to crash with no error message. (maybe a thread issue?)
+		    	_caller.getWeb().post(new Runnable() {
+					@Override
+					public void run() {
+						_caller.getWeb().loadUrl(js.toString());
+					}
+				});
+			}
 		}
 		//System.out.println(js.toString());
 		
-    	_caller.getWeb().loadUrl(js.toString());
     }
 }

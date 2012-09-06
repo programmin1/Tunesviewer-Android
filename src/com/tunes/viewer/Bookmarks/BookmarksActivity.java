@@ -70,7 +70,7 @@ public class BookmarksActivity extends ListActivity implements OnItemClickListen
 			
 			@Override
 			public void onClick(View v) {
-				dbHelper.insertItem(_title, _url, 0);
+				dbHelper.insertItem(_title, _url);
 				listCursor.requery();
 				findViewById(R.id.addButton).setVisibility(View.GONE);
 			}

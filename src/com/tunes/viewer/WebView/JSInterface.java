@@ -134,7 +134,7 @@ public class JSInterface {
 	 * @return
 	 */
 	public String dest(String title, String url) {
-		//Log.w(TAG,DownloaderTask.clean(title)+ItunesXmlParser.fileExt(url));
+		Log.w(TAG,DownloaderTask.clean(title)+ItunesXmlParser.fileExt(url));
 		return DownloaderTask.clean(title)+ItunesXmlParser.fileExt(url);
 	}
 	

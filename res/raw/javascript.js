@@ -349,8 +349,8 @@ document.addEventListener("DOMContentLoaded", function () {
 			removeListeners(divs[i].parentNode.parentNode);
 			removeListeners(divs[i].parentNode.childNodes);
 			removeListeners(divs[i].childNodes);
-			divs[i].innerHTML = "<a class='media' onclick=\"window.event.stopPropagation();window.DOWNLOADINTERFACE.download(this.getAttribute('title'), document.title, this.getAttribute('url'));\" title=\""
-				+divs[i].getAttribute("item-title")+"\" url=\""+divs[i].getAttribute("download-url")+"\";'>Download</a>";
+			divs[i].innerHTML = "<a class='media' onclick=\"window.event.stopPropagation();window.DOWNLOADINTERFACE.download(this.getAttribute('title'), document.title, this.getAttribute('download-url'));\" title=\""
+				+divs[i].getAttribute("item-title")+"\" download-url=\""+divs[i].getAttribute("download-url")+"\"><span class='download_open'>Download</span></a>";
 			//divs[i].addEventListener('mouseDown',function () {console.log('opening'+this.getAttribute('download-url'));
 			//                                              location.href = this.getAttribute('download-url'); });
 			//Unfortunately it seems some previews aren't working with this:
@@ -405,7 +405,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		    divs[i].textContent.indexOf("FREE") !== -1) {
 			console.log("TunesViewer: getting attribute: " + divs[i].getAttribute("download-url"));
 			removeListeners(divs[i].childNodes);
-			//divs[i].innerHTML = "<button onclick='window.event.stopPropagation();location.href=\"" + divs[i].getAttribute("download-url") + "\";'>Download</button>";
+			//divs[i].innerHTML = "<button class='download_open' onclick='window.event.stopPropagation();location.href=\"" + divs[i].getAttribute("download-url") + "\";'>Download</button>";
 			divs[i].addEventListener('mouseDown',function() {downloadMouseDownEvent(getAttribute('download-url'))}, false);
 		}
 		if (divs[i].getAttribute("role") === "button" &&
@@ -468,4 +468,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
 }, false); // end Pageshow.
 
+/** A function called by Java with a list of this podcast's downloaded files: */
+function updateDownloadOpen(downloads) {
+	var els = document.getElementsByClassName('download_open');
+	for (var i=0; i<els.length; i++) {
+		var parent = els[i].parentNode;
+		// Adding "" to the object turns it to a string:
+		var possiblefile = ""+window.DOWNLOADINTERFACE.dest(
+		   parent.getAttribute('title'), parent.getAttribute('download-url') );
+		if (downloads.indexOf(possiblefile) == -1) {
+			els[i].innerHTML = "Download";
+		} else {
+			els[i].innerHTML = "Open";
+		}
+	}
+}
     

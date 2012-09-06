@@ -7,14 +7,16 @@ function toggle(el) {
     }
 }
 
-/** A function called by Java with a list of this podcast's downloaded files: */
+/** A function called by Java with a list of this podcast's downloaded files:
+    This is also at the end of javascript.js, for standard files.
+     */
 function updateDownloadOpen(downloads) {
 	var els = document.getElementsByClassName('download_open');
 	for (var i=0; i<els.length; i++) {
 		var parent = els[i].parentNode;
 		// Adding "" to the object turns it to a string:
 		var possiblefile = ""+window.DOWNLOADINTERFACE.dest(
-		   parent.getAttribute('title'), parent.getAttribute('url') );
+		   parent.getAttribute('title'), parent.getAttribute('download-url') );
 		if (downloads.indexOf(possiblefile) == -1) {
 			els[i].innerHTML = "Download";
 		} else {

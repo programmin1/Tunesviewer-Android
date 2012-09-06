@@ -94,7 +94,13 @@ public class DbAdapter {
     			"=" + rowId, null) > 0;
     }
     
-    public long insertItem(String title, String url, int countitems) {
+    /**
+     * Inserts a bookmark, given podcast title and url.
+     * @param title
+     * @param url
+     * @return
+     */
+    public long insertItem(String title, String url) {
     	ContentValues temp = new ContentValues();
     	temp.put(COL_TITLE, title);
     	temp.put(COL_URL, url);

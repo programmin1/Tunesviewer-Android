@@ -5,10 +5,11 @@
     <ListPreference android:entryValues="@array/ImgValues" android:entries="@array/ImgArray" android:key="ImgPref" android:summary="@string/prefImgSummary" android:title="@string/prefImgTitle" android:defaultValue="@string/defaultImg"></ListPreference>
     <EditTextPreference android:title="@string/prefDLTitle" android:summary="@string/prefDLSummary" android:key="DownloadDirectory" android:defaultValue="@string/defaultDL"></EditTextPreference>
     <CheckBoxPreference android:title="@string/prefMountTitle" android:key="mount" android:summary="@string/prefMountSummary" android:defaultValue="true"></CheckBoxPreference>
-  <PreferenceCategory android:title="Advanced Options">
+  <CheckBoxPreference android:key="bookmarkDownloads" android:summary="@string/prefBookmarkSummary" android:title="@string/prefBookmarkTitle"/><PreferenceCategory android:title="Advanced Options">
       <CheckBoxPreference android:title="@string/prefAdvTitle" android:key="debug" android:summary="@string/prefAdvSummary"></CheckBoxPreference>
       <EditTextPreference android:title="@string/prefInsertTitle" android:summary="@string/prefInsertSummary" android:key="extraScript"></EditTextPreference>
   </PreferenceCategory>
+  
     
     
 </PreferenceScreen>

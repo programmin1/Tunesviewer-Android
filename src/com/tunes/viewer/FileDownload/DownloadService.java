@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import com.tunes.viewer.ItunesXmlParser;
 import com.tunes.viewer.R;
+import com.tunes.viewer.Bookmarks.DbAdapter;
 
 
 import android.annotation.TargetApi;
@@ -53,7 +54,9 @@ public class DownloadService extends Service {
 		boolean notifClick = intent.getBooleanExtra("notifClick", false);
 		// Check if exists, if so, open or cancel:
 		synchronized(myDownloaders) {
-			for (DownloaderTask T : myDownloaders) {
+			/* This Could keep file from downloading, if file has been downloaded, and deleted:
+			 * 
+			 * for (DownloaderTask T : myDownloaders) {
 				try {
 					if (T.getTitle().equals(name) && T.getURL().getPath().equals(new URL(url).getPath())) {
 							T.doTapAction(notifClick);
@@ -62,7 +65,7 @@ public class DownloadService extends Service {
 				} catch (MalformedURLException e) {
 					e.printStackTrace();
 				}
-			}
+			}*/
 			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 			File possibleFile = StoredFile(this, podcast, name, url);
 			if (possibleFile.exists()) {
@@ -78,6 +81,14 @@ public class DownloadService extends Service {
 							name,podcast,new URL(url), podcasturl, myDownloaders.size());
 					T.execute(new URL(intent.getStringExtra("url")));
 					myDownloaders.add(T);
+					// And add to bookmarks?
+					if (prefs.getBoolean("bookmarkDownloads", true)) {
+						DbAdapter dbHelper = new DbAdapter(this);
+				        dbHelper.open();
+				        dbHelper.insertItem(podcast, podcasturl);
+				        dbHelper.close();
+					}
+					
 				} catch (MalformedURLException e) {
 					Toast.makeText(getApplicationContext(),"Download url is invalid",1000).show();
 					e.printStackTrace();

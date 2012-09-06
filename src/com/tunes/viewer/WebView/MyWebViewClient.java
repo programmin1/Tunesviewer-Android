@@ -192,7 +192,7 @@ public class MyWebViewClient extends WebViewClient {
 		//
 		// This should be fixed with the DOMContentLoaded event in Javascript.
 		
-		view.loadUrl("javascript:"+_prefs.getString("extraScript", ""));
+		setUrl(view, "javascript:"+_prefs.getString("extraScript", ""));
 		
 		if (activity.findViewById(R.id.menuForward)!=null) {
 			activity.findViewById(R.id.menuForward).setClickable(view.canGoForward());
@@ -423,7 +423,7 @@ public class MyWebViewClient extends WebViewClient {
 							intent.putExtra("name",parser.getSingleName());
 							callerContext.startService(intent);
 							// reset "loading..." because it isn't:
-							_view.loadUrl("javascript:setTitle()");
+							setUrl(_view, "javascript:setTitle()");
 						} else {
 							// Inject js:
 							final StringBuilder data = new StringBuilder(parser.getHTML());
@@ -469,7 +469,7 @@ public class MyWebViewClient extends WebViewClient {
 					}
 					worked = true;// download worked
 					//Set title back to normal.
-					_view.loadUrl("javascript:setTitle()");
+					setUrl(_view, "javascript:setTitle()");
 				} else { //non text url, send to downloader.
 					try {
 						Log.e(TAG,"Non text");
@@ -481,7 +481,7 @@ public class MyWebViewClient extends WebViewClient {
 						caller.callerContext.startService(intent);
 						worked = true;
 						//Set title back to normal.
-						_view.loadUrl("javascript:setTitle()");
+						setUrl(_view, "javascript:setTitle()");
 					} catch (ActivityNotFoundException e) {
 						_view.post(new Runnable() {
 							public void run() {
@@ -514,7 +514,7 @@ public class MyWebViewClient extends WebViewClient {
 						activity.runOnUiThread(new Runnable() {
 							public void run() {
 								Toast.makeText(callerContext, msg, Toast.LENGTH_LONG).show();
-								_web.loadUrl("javascript:setTitle()");
+								setUrl(_web, "javascript:setTitle()");
 							}
 						});
 					}
@@ -591,6 +591,14 @@ public class MyWebViewClient extends WebViewClient {
 		}
 	}
 	
+	private void setUrl(final WebView view, final String url) {
+		view.post(new Runnable() {
+			@Override
+			public void run() {
+				view.loadUrl(url);
+			}
+		});
+	}
 
 	
 	/*private String makeStringold (InputStream in) throws IOException {

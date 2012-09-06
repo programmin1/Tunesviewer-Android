@@ -169,7 +169,7 @@ public class ItunesXmlParser extends DefaultHandler {
 	      mobileExtras = byteArrayOutputStream.toString();
 		} catch (IOException e) {
 			e.printStackTrace();
-			Toast.makeText(c, "Couldn't open Javascript.js", Toast.LENGTH_LONG).show();
+			Toast.makeText(c, "Couldn't open mobile_extras", Toast.LENGTH_LONG).show();
 		}
 		if (_profiling) {
 			Debug.startMethodTracing("XML");
@@ -465,9 +465,9 @@ public class ItunesXmlParser extends DefaultHandler {
 					}
 					html.append("<div class='media' "+extra+" onclick='toggle(this.nextSibling)'>");
 					//stoppropagation to prevent clicking container, then download:
-					html.append("<a class='media' style='float:right' onclick=\"window.event.stopPropagation();window.DOWNLOADINTERFACE.download(this.getAttribute('title'), document.title, this.getAttribute('url'));\" title=\"");
+					html.append("<a class='media' style='float:right' onclick=\"window.event.stopPropagation();window.DOWNLOADINTERFACE.download(this.getAttribute('title'), document.title, this.getAttribute('download-url'));\" title=\"");
 					html.append(map.get("title").replace("\"", "&quot;"));
-					html.append("\" url=\"");
+					html.append("\" download-url=\"");
 					html.append(subMap.get("asset-url").replace("\"", "&quot;"));
 					html.append("\"><span class='download_open'>Download</span> ");
 					html.append(fileExt(subMap.get("asset-url")));
