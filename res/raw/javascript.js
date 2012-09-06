@@ -237,7 +237,6 @@ function TunesViewerEmptyFunction() {
 function removeListeners(objects) {
 	"use strict";
 	var i;
-	console.log("TunesViewer: Entering the function <removeListeners>.");
 	for (i = 0; i < objects.length; i++) {
 		objects[i].onmouseover = TunesViewerEmptyFunction;
 		objects[i].onclick = TunesViewerEmptyFunction;
@@ -254,7 +253,7 @@ function removeListeners(objects) {
 document.addEventListener("DOMContentLoaded", function () {
 	"use strict";
 	var as, a, css, divs, i, j, rss, previews, buttons, clickEvent, downloadMouseDownEvent, subscribePodcastClickEvent, disabledButtonClickEvent;
-	console.log("ONPAGESHOW");
+	
 	setTitle();
 	
 	var imgs = document.getElementsByTagName("img");
@@ -292,12 +291,8 @@ document.addEventListener("DOMContentLoaded", function () {
 	};
 	
 	var buttons = document.getElementsByTagName('button');
-	//console.log(buttons);
 	divs = document.getElementsByTagName("div");
-	//console.log(buttons.length);
-	//console.log(buttons);
 	for (var i in buttons) {
-		console.log("button:"+buttons[i].innerHTML);
 		if (buttons[i]) {
 			if (buttons[i].textContent && buttons[i].textContent.trim() === "Subscribe Free") {
 				if (buttons[i].getAttribute('subscribe-podcast-url') !== null) {
@@ -345,7 +340,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	divs = document.getElementsByTagName("div");
 	for (var i=0; i<divs.length; i++) {
 		if (divs[i].getAttribute("download-url") != null && (divs[i].textContent.indexOf("FREE")!=-1 || divs[i].textContent.indexOf("Download")!=-1)) {
-			console.log("Free download div, "+divs[i].getAttribute("download-url"));
+			//console.log("Free download div, "+divs[i].getAttribute("download-url"));
 			removeListeners(divs[i].parentNode.parentNode);
 			removeListeners(divs[i].parentNode.childNodes);
 			removeListeners(divs[i].childNodes);

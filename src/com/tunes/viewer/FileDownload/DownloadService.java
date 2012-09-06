@@ -85,7 +85,9 @@ public class DownloadService extends Service {
 					if (prefs.getBoolean("bookmarkDownloads", true)) {
 						DbAdapter dbHelper = new DbAdapter(this);
 				        dbHelper.open();
-				        dbHelper.insertItem(podcast, podcasturl);
+				        if (!dbHelper.hasUrl(podcasturl) && !podcast.equals("")) {
+				        	dbHelper.insertItem(podcast, podcasturl);
+				        }
 				        dbHelper.close();
 					}
 					
