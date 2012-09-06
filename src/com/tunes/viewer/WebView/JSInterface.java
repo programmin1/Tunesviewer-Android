@@ -73,6 +73,10 @@ public class JSInterface {
 		if (podcast==null) {
 			 title="Unknown";
 		}
+		if (url==null) {
+			System.err.println("url is null, title:"+title+", podcast:"+podcast);
+			return;
+		}
 		Intent intent = new Intent(_context,DownloadService.class);
 		intent.putExtra("url", url);
 		intent.putExtra("podcast", podcast);
