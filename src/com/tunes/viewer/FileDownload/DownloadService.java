@@ -37,6 +37,10 @@ public class DownloadService extends Service {
 	}
 	
 	private static final String TAG = "DownloaderService";
+	public static final String EXTRA_URL = "url";
+	public static final String EXTRA_PODCAST = "podcast";
+	public static final String EXTRA_PODCASTURL = "podcasturl";
+	public static final String EXTRA_ITEMTITLE = "name";
 	private ArrayList<DownloaderTask> myDownloaders = new ArrayList<DownloaderTask>();
 
 	@Override
@@ -47,10 +51,10 @@ public class DownloadService extends Service {
 		}
 		super.onStart(intent, startId);
 		
-		String url = intent.getStringExtra("url");
-		String podcast = intent.getStringExtra("podcast");
-		String podcasturl = intent.getStringExtra("podcasturl");
-		String name = intent.getStringExtra("name");
+		String url = intent.getStringExtra(EXTRA_URL);
+		String podcast = intent.getStringExtra(EXTRA_PODCAST);
+		String podcasturl = intent.getStringExtra(EXTRA_PODCASTURL);
+		String name = intent.getStringExtra(EXTRA_ITEMTITLE);
 		boolean notifClick = intent.getBooleanExtra("notifClick", false);
 		// Check if exists, if so, open or cancel:
 		synchronized(myDownloaders) {
@@ -67,10 +71,30 @@ public class DownloadService extends Service {
 				}
 			}*/
 			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+			Log.i(TAG,podcast);
+			Log.i(TAG,name);
+			Log.i(TAG, url);
 			File possibleFile = StoredFile(this, podcast, name, url);
 			if (possibleFile.exists()) {
 				try {
-					startActivity(DownloaderTask.openFile(possibleFile));
+					boolean hasCurrentTask = false;
+					
+					// If there is a downloader task for this file, call doTapAction to cancel notification.
+					for (DownloaderTask T : myDownloaders) {
+						try {
+							if (T.getTitle().equals(name) && T.getURL().getPath().equals(new URL(url).getPath())) {
+									T.doTapAction(notifClick);
+									hasCurrentTask = true;
+							}
+						} catch (MalformedURLException e) {
+							e.printStackTrace();
+						}
+					}
+					if (!hasCurrentTask) {
+						// The file is not described by a current DownloadTask,
+						// could be a download from the past.
+						startActivity(DownloaderTask.openFile(possibleFile));
+					}
 				} catch (android.content.ActivityNotFoundException e) {
 					Toast.makeText(this, getString(R.string.NoActivity), Toast.LENGTH_LONG).show();
 				}

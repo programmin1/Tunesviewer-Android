@@ -78,10 +78,10 @@ public class JSInterface {
 			return;
 		}
 		Intent intent = new Intent(_context,DownloadService.class);
-		intent.putExtra("url", url);
-		intent.putExtra("podcast", podcast);
-		intent.putExtra("podcasturl", ((TunesViewerActivity)_context).geturl());
-		intent.putExtra("name",title);
+		intent.putExtra(DownloadService.EXTRA_URL, url);
+		intent.putExtra(DownloadService.EXTRA_PODCAST, podcast);
+		intent.putExtra(DownloadService.EXTRA_PODCASTURL, ((TunesViewerActivity)_context).geturl());
+		intent.putExtra(DownloadService.EXTRA_ITEMTITLE,title);
 		_context.startService(intent);
 	}
 	

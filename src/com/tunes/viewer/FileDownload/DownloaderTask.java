@@ -131,7 +131,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 		boolean finished = getStatus().equals(AsyncTask.Status.FINISHED);
 		if (finished && !isCancelled()/* && notifClicked*/) {//success
 			if (!notifClicked) {
-				Toast.makeText(_context, R.string.alreadyDownloaded, Toast.LENGTH_SHORT).show();
+				//Toast.makeText(_context, R.string.alreadyDownloaded, Toast.LENGTH_SHORT).show();
 			}
 			openFile();
 		} else if (notifClicked) {
@@ -333,7 +333,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	
 	@Override
 	protected void onPreExecute() {
-		_notify = new Notifier(_context, _ID, _url.toString(), _title);
+		_notify = new Notifier(_context, _ID, _podcast, _podcasturl, _url.toString(), _title);
 	}
 	
 	@Override

@@ -20,13 +20,17 @@ public class Notifier {
 	private int _NOTIFICATION_ID;
 	private String _url;
 	private String _title;
+	private String _podcast;
+	private String _podcasturl;
 	private long _started;//millisecond time of download start.
 	
-	public Notifier(Context c, int NOTIF_ID, String url, String title) {
+	public Notifier(Context c, int NOTIF_ID, String podcast, String podcasturl, String url, String title) {
 		_NOTIFICATION_ID = NOTIF_ID;
 		_context = c;
-		_url= url;
-		_title=title;
+		_url = url;
+		_title = title;
+		_podcast = podcast;
+		_podcasturl = podcasturl;
 		notificationManager = (NotificationManager) _context.getSystemService(Context.NOTIFICATION_SERVICE);
 		makeNotification(true,title);
 		_started = System.currentTimeMillis();
@@ -49,8 +53,10 @@ public class Notifier {
 		notification = new Notification(icon,tickerText,System.currentTimeMillis());
 		
 		Intent returnIntent = new Intent(_context,DownloadService.class);
-		returnIntent.putExtra("url", _url);
-		returnIntent.putExtra("name",_title);
+		returnIntent.putExtra(DownloadService.EXTRA_URL,        _url);
+		returnIntent.putExtra(DownloadService.EXTRA_ITEMTITLE,  _title);
+		returnIntent.putExtra(DownloadService.EXTRA_PODCAST,    _podcast);
+		returnIntent.putExtra(DownloadService.EXTRA_PODCASTURL, _podcasturl);
 		returnIntent.putExtra("notifClick",true);
 		returnIntent.setAction("test.test.myAction"+_NOTIFICATION_ID);
 		// Important to make a unique action, and FLAG_CANCEL_CURRENT, to make distinct notifications.

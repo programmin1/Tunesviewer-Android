@@ -417,10 +417,10 @@ public class MyWebViewClient extends WebViewClient {
 							Log.d(TAG,"DL "+parser.getUrls().get(0));
 							Log.d(TAG,"Name "+parser.getSingleName());
 							Intent intent = new Intent(callerContext,DownloadService.class);
-							intent.putExtra("url", parser.getUrls().get(0));
-							intent.putExtra("podcast", parser.getTitle());
-							intent.putExtra("podcasturl", _view.getUrl());
-							intent.putExtra("name",parser.getSingleName());
+							intent.putExtra(DownloadService.EXTRA_URL, parser.getUrls().get(0));
+							intent.putExtra(DownloadService.EXTRA_PODCAST, parser.getTitle());
+							intent.putExtra(DownloadService.EXTRA_PODCASTURL, _view.getUrl());
+							intent.putExtra(DownloadService.EXTRA_ITEMTITLE,parser.getSingleName());
 							callerContext.startService(intent);
 							// reset "loading..." because it isn't:
 							setUrl(_view, "javascript:setTitle()");
@@ -474,10 +474,10 @@ public class MyWebViewClient extends WebViewClient {
 					try {
 						Log.e(TAG,"Non text");
 						Intent intent = new Intent(caller.callerContext,DownloadService.class);
-						intent.putExtra("url", _url);
-						intent.putExtra("podcast", "");
-						intent.putExtra("podcasturl", _view.getUrl());
-						intent.putExtra("name", _url);
+						intent.putExtra(DownloadService.EXTRA_URL, _url);
+						intent.putExtra(DownloadService.EXTRA_PODCAST, "");
+						intent.putExtra(DownloadService.EXTRA_PODCASTURL, _view.getUrl());
+						intent.putExtra(DownloadService.EXTRA_ITEMTITLE, _url);
 						caller.callerContext.startService(intent);
 						worked = true;
 						//Set title back to normal.
