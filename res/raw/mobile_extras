@@ -42,10 +42,20 @@ span.preview {display:inline-block; background-repeat:no-repeat; background-posi
 
 selection {background-color:gold;}
 b.media {line-height: 2em;}
-a.media {height: 1.5em;
- line-height: 1.5em; vertical-align:middle;text-decoration: none;
- border: 1px; border-radius:6px; border-color:gray; padding: 3px;border-style: solid;
+a.media {
+ height: 1.5em;
+ line-height: 1.5em;
+ vertical-align:middle;
+ text-decoration: none;
+ border: 1px;
+ border-radius:6px; 
+ border-color:gray;
+ padding: 4px;
+ margin-left: 3px;
+ margin-top: -2px;
+ border-style: solid;
  background-image:-webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0%, #ffffff), color-stop(100%, #A2ABFF)); color:black}
+
 a.tab {vertical-align:middle;text-decoration: none; border: 1px; border-radius:6px; border-color:gray; padding: 5px;border-style: solid;background-image:-webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0%, #ffffff), color-stop(100%, #A2ABFF)); color:black}
 a.sel {background-image:-webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0%, #A2ABFF), color-stop(100%, #77AAFF));}
 div.link {border-style:solid; border-color:white; border-radius: 10px; padding: 5px; background-color:silver; margin:2px; overflow:auto;}
