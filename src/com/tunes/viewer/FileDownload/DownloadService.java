@@ -101,6 +101,17 @@ public class DownloadService extends Service {
 			} else {
 				//Start new downloader:
 				try {
+					// If there is a downloader task for this file, call doTapAction to cancel notification.
+					for (DownloaderTask T : myDownloaders) {
+						try {
+							if (T.getTitle().equals(name) && T.getURL().getPath().equals(new URL(url).getPath())) {
+									T.doTapAction(notifClick);
+									//TODO: preview is started before the cancel and removal from downloadtasks?
+							}
+						} catch (MalformedURLException e) {
+							e.printStackTrace();
+						}
+					}
 					DownloaderTask T=(DownloaderTask) new DownloaderTask(this,myDownloaders,
 							name,podcast,new URL(url), podcasturl, myDownloaders.size());
 					T.execute(new URL(intent.getStringExtra("url")));
