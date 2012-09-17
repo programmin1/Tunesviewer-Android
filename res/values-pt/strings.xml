@@ -59,18 +59,47 @@
     <string name="prefInsertTitle">Script Adicional</string>
     <string name="prefInsertSummary">Entre o JavaScript que rodará em cada página.</string>
     
+    <!-- Errors -->
     <string name="NoActivity">Não foi encontrada uma aplicação adequada para visualizar este arquivo.</string>
+    <string name="NoPodcatcher">Sem Podcatcher</string>
+    <string name="NoPodcatcherMessage">"Não foi encontrada uma aplicação podcast para abrir este link! Você deve instalar um gereciador de podcasts que suporte links feed://, para se increver."</string>
+    <string name="DownloadError">Erro no download: </string>
+    <string name="DownloadErrorTimeout">Timeout no download. Talvez a rede esteja desconectada?</string>
+    <string name="PageNotDownloaded">A página não pôde ser carregada.</string>
     
     <!-- Searchbox -->
     <string name="courses">Cursos Universitários</string>
     <string name="collections">Coleções</string>
     <string name="podcasts">Podcasts</string>
-    <string name="search">Buscar</string>
+    <string name="search">Busca</string>
     
+    <!-- Bookmarks context menu -->
+    <string name="showFiles">Mostrar Arquivos</string>
+    <string name="delete">Apagar</string>
+    
+    <!-- Delete Dialog -->
+    <string name="bookmarkDeleteTitle">Apagar Favorito?</string>
+    <string name="deleteBookmarked">Favoritos &amp; Arquivos</string>
+    <string name="removeBookmark">Somente Favoritos</string>
+    
+    <!-- %% is the file size (KB/MB) here: -->
+    <string name="deleteFile">Você realmente quer apagar este %% arquivo?</string>
     
     <!-- Other strings -->
     <string name="bookmarks">Favoritos</string>
+    <string name="loading">" Carregando..."</string>
     
+    <string name="clearedData">Histórico, Cookies, e Cache foram limpos.</string>
+    
+    <!-- Size of file added after this string: -->
+    <string name="startedDownloadingB">"Começando a baixar "</string><!-- filesize MB/KB -->
+    
+    <string name="alreadyDownloaded">"Já baixado. Abrindo arquivo..."</string>
     <string name="share">Compartilhar</string>
-    <string name="about">Sobre</string>    
+    <string name="sourceTitle">"Código-fonte da página (%% chars.)"</string>
+    <string name="close">Fechar</string>
+    <string name="about">Sobre</string>
+    <string name="menuFirebug">Mostrar Firebug Lite</string>
+    <string name="prefBookmarkTitle">Adicionar favoritos de tudo baixado</string>
+    <string name="prefBookmarkSummary">Adiciona um podcasts aos favoritos quando o item é baixado.</string>   
 </resources>
