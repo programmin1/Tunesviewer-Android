@@ -589,7 +589,7 @@ public class ItunesXmlParser extends DefaultHandler {
 	 * @param author
 	 */
 	private void addLink(String text, String url, String image, String ratings, float rating, String author) {
-		html.append("<div class='link' onclick=\"window.DOWNLOADINTERFACE.go(this.getAttribute('url'))\" url=\"");
+		html.append("<div style='float:left; min-width:33%; width:33%; max-width:33%;'> <div class='link' style='height:8em;' onclick=\"window.DOWNLOADINTERFACE.go(this.getAttribute('url'))\" url=\"");
 		html.append(url.replace("\"", "&quot;"));
 		html.append("\">");
 		if (image != null) {
@@ -604,7 +604,7 @@ public class ItunesXmlParser extends DefaultHandler {
 		appendStars(rating);
 		html.append("<br>");
 		html.append(ratings);
-		html.append("</div>");
+		html.append("</div></div>");
 	}
 
 	/**
