@@ -402,7 +402,7 @@ public class MyWebViewClient extends WebViewClient {
 					SAXParser saxParser= factory.newSAXParser();
 					ItunesXmlParser parser = new ItunesXmlParser(
 						u,callerContext,_view.getWidth()
-						,Integer.valueOf(myprefs.getString("ImgPref", "0")),true);
+						,Integer.valueOf(myprefs.getString("ImgPref", "0")));
 					XMLReader xr = saxParser.getXMLReader();
 					xr.setContentHandler(parser);
 					InputSource is = new InputSource(new StringReader(_download.toString()));

@@ -106,7 +106,6 @@ public class ItunesXmlParser extends DefaultHandler {
 	
 	int _scrWidth;
 	private int _imgPrefSize;
-	private boolean _gridView;
 	
 	public String toString() {
 		return original.toString();
@@ -140,7 +139,7 @@ public class ItunesXmlParser extends DefaultHandler {
 	 * Constructs xml parser.
 	 * @param reference is the selected part of the document, the text in #id at the end.
 	 */
-	public ItunesXmlParser(URL url, Context c, int width, int imgPref, boolean gridView) {
+	public ItunesXmlParser(URL url, Context c, int width, int imgPref) {
 		_url = url;
 		_title = "";
 		_reference = "";
@@ -156,7 +155,6 @@ public class ItunesXmlParser extends DefaultHandler {
 		_context = c;
 		_scrWidth = width;
 		_imgPrefSize = imgPref;
-		_gridView = gridView;
 		
 		InputStream inputStream = c.getResources().openRawResource(R.raw.mobile_extras);
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -591,43 +589,22 @@ public class ItunesXmlParser extends DefaultHandler {
 	 * @param author
 	 */
 	private void addLink(String text, String url, String image, String ratings, float rating, String author) {
-		// Three column grid would work except for multiple image sizes and text overflow, hard to get const. column height.
-		//<div style='float:left; min-width:33%; width:33%; max-width:33%; display:table-cell;'> 
-		String el;
-		if (_gridView) {
-			el = "span";
-		} else {
-			el = "div";
-		}
-		html.append("<"+el+" class='link' onclick=\"window.DOWNLOADINTERFACE.go(this.getAttribute('url'))\" url=\"");
+		html.append("<div style='float:left; min-width:33%; width:33%; max-width:33%;'> <div class='link' style='height:8em;' onclick=\"window.DOWNLOADINTERFACE.go(this.getAttribute('url'))\" url=\"");
 		html.append(url.replace("\"", "&quot;"));
 		html.append("\">");
 		if (image != null) {
 			html.append("<img style='vertical-align: top; margin:2px; margin-right:8px; float:left; display:block;' src=\"");
 			html.append(image.replace("\"", "&quot;"));
-			html.append("\">");
-			if (!_gridView) {
-				html.append("<strong>");
-				html.append(text);
-				html.append("</strong><br>");
-				html.append(author);
-				html.append("<br>");
-				appendStars(rating);
-				html.append("<br>");
-				html.append(ratings);
-			}
-		} else {
-			html.append("<strong>");
-			html.append(text);
-			html.append("</strong><br>");
-			html.append(author);
-			html.append("<br>");
-			appendStars(rating);
-			html.append("<br>");
-			html.append(ratings);
+			html.append("\"><strong>");
 		}
-		html.append("</"+el+">");
-		//html.append("</div>");
+		html.append(text);
+		html.append("</strong><br>");
+		html.append(author);
+		html.append("<br>");
+		appendStars(rating);
+		html.append("<br>");
+		html.append(ratings);
+		html.append("</div></div>");
 	}
 
 	/**
