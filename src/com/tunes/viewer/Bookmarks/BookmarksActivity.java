@@ -1,9 +1,23 @@
 package com.tunes.viewer.Bookmarks;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
+import org.xmlpull.v1.XmlSerializer;
 
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -18,6 +32,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.util.Xml;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
@@ -30,6 +45,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ResourceCursorAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.tunes.viewer.R;
 import com.tunes.viewer.FileDownload.DownloaderTask;
@@ -44,7 +60,7 @@ import com.tunes.viewer.FileDownload.DownloaderTask;
  */
 public class BookmarksActivity extends ListActivity implements OnItemClickListener{
 
-	private static final String TAG = "BookmarksActivity";
+	static final String TAG = "BookmarksActivity";
 	// Order, ID, of the context menu items:
 	private static final int IDshow = 1;
 	private static final int IDdelete = 2;
@@ -231,34 +247,123 @@ public class BookmarksActivity extends ListActivity implements OnItemClickListen
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+    	File dir = new File(Environment.getExternalStorageDirectory(), "Tunesviewer");
     	switch(item.getItemId()) {
     	case R.id.menuExport:
-    		File dir = new File(Environment.getExternalStorageDirectory(), "Tunesviewer");
     		dir.mkdirs();
     		File output = new File(dir, "bookmarks.htm");
     		try {
 				BufferedWriter outfile = new BufferedWriter(new FileWriter(output));
-				outfile.write("<html><head><title>bookmarks</title></head><body>\n");
+    			XmlSerializer xhtml = Xml.newSerializer();
+    			xhtml.setOutput(outfile);
+    			xhtml.startDocument("UTF-8", true);
+    			xhtml.startTag("", "html");
+    			xhtml.startTag("", "head");
+    			xhtml.startTag("", "title");
+    			xhtml.text("Bookmarks");
+    			xhtml.endTag("", "title");
+    			xhtml.endTag("", "head");
+    			xhtml.startTag("", "body");
 				Cursor c = dbHelper.fetchBookmarks();
 				while (!c.isAfterLast()) {
-					outfile.write("<b>");
-					outfile.write(c.getString(1).replace("\"", "&quot;"));
-					outfile.write("</b><a href=\"");
-					outfile.write(c.getString(2).replace("\"", "&quot;"));
-					outfile.write("\">link</a><br/>\n");
+					xhtml.startTag("", "b");
+					xhtml.attribute("", "class", "title");
+					xhtml.text(c.getString(1));
+					xhtml.endTag("", "b");
+					xhtml.startTag("", "a");
+					xhtml.attribute("", "href", c.getString(2));
+					xhtml.text("link");
+					xhtml.endTag("", "a");
+					xhtml.startTag("","br"); xhtml.endTag("","br");
 					c.moveToNext();
 				}
-				outfile.write("</body></html>");
+				c.close();
+				xhtml.endTag("", "body");
+				xhtml.endTag("", "html");
+				xhtml.endDocument();
 				outfile.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
 			}
     		return true;
     	case R.id.menuImport:
+    		 File input = new File(dir, "bookmarks.htm");
+    		 try {
+				BufferedInputStream bis = new BufferedInputStream(new FileInputStream(input));
+				SAXParserFactory factory = SAXParserFactory.newInstance();
+				factory.setValidating(false);
+				SAXParser saxParser= factory.newSAXParser();
+				XMLReader xr = saxParser.getXMLReader();
+				xr.setContentHandler(new GetHTML(dbHelper));
+				xr.parse(new InputSource(bis));
+				
+				listCursor.requery();
+			} catch (FileNotFoundException e) {
+				Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+			} catch (ParserConfigurationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SAXException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+			}
     		return true;
     	}
     	return false;
     }
 
+}
+
+/**
+ * A SAXParser class to read XHTML file of links and names, adding to bookmarks
+ * database when needed, to import the saved bookmarks.
+ * 
+ * @author luke
+ *
+ */
+class GetHTML extends DefaultHandler {
+	public StringBuffer out;
+	private DbAdapter _adapter;
+	private String _name;
+	private boolean _isTitletag;
+	
+	public GetHTML(DbAdapter adapter) {
+		_adapter = adapter;
+		out = new StringBuffer();
+		_name = "";
+		_isTitletag = false;
+	}
+	
+	@Override
+	public void startElement(String uri, String localName, String qName,
+			Attributes attributes) throws SAXException {
+		_isTitletag = false;
+		if (localName.equals("a") && attributes.getValue("href")!=null) {
+			String link = attributes.getValue("href");
+			// Now we have name and link.
+			if (!_adapter.hasUrl(link)) {
+				//insert into db:
+				_adapter.insertItem(_name, link);
+				Log.i(BookmarksActivity.TAG,"Inserting "+_name+", "+link);
+			}
+		} else if (attributes.getValue("class")!=null && attributes.getValue("class").equals("title")) {
+			_isTitletag = true;
+		} 
+		out.setLength(0); // reset outertext.
+	}
+	
+	@Override
+	public void endElement(String uri, String localName, String qName)
+			throws SAXException {
+		if (_isTitletag) {
+			_name = out.toString();
+		}
+		out.setLength(0); // reset innertext
+	}
+	
+	public void characters(char[] buffer, int start, int length) {
+		out.append(buffer, start, length);
+	}
 }
