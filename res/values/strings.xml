@@ -5,6 +5,10 @@
     <string name="download_title">Download</string>
     <string name="menuSearch">Search</string>
     <string name="menuHome">Home</string>
+    <string name="menuStop">Stop</string>
+    <string name="menuRefresh">Refresh</string>
+    <string name="menuForward">Forward</string>
+    
     <string name="menuShareUrl">Share Page</string>
     <string name="menuFindText">Find on Page</string>
     <string name="menuClear">Clear History, Cookies &amp; Cache</string>
@@ -13,6 +17,9 @@
     <string name="menuSource">View Page Source</string>
     <string name="menuOriginal">View Original Source</string>
     <string name="menuCookies">View Cookies</string>
+    
+    <string name="menuImportB">Import</string>
+    <string name="menuExportB">Export</string>
     
     <!-- Prefs -->
     <string name="prefUATitle">View Mode</string>

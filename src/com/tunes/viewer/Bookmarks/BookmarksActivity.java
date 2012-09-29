@@ -1,6 +1,9 @@
 package com.tunes.viewer.Bookmarks;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -12,10 +15,13 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -216,6 +222,43 @@ public class BookmarksActivity extends ListActivity implements OnItemClickListen
 		startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(url)));
 	}
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+    	MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.bookmarkmenu, menu);
+		return true;
+    }
     
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	switch(item.getItemId()) {
+    	case R.id.menuExport:
+    		File dir = new File(Environment.getExternalStorageDirectory(), "Tunesviewer");
+    		dir.mkdirs();
+    		File output = new File(dir, "bookmarks.htm");
+    		try {
+				BufferedWriter outfile = new BufferedWriter(new FileWriter(output));
+				outfile.write("<html><head><title>bookmarks</title></head><body>\n");
+				Cursor c = dbHelper.fetchBookmarks();
+				while (!c.isAfterLast()) {
+					outfile.write("<b>");
+					outfile.write(c.getString(1).replace("\"", "&quot;"));
+					outfile.write("</b><a href=\"");
+					outfile.write(c.getString(2).replace("\"", "&quot;"));
+					outfile.write("\">link</a><br/>\n");
+					c.moveToNext();
+				}
+				outfile.write("</body></html>");
+				outfile.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    		return true;
+    	case R.id.menuImport:
+    		return true;
+    	}
+    	return false;
+    }
 
 }
