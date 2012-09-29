@@ -178,7 +178,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 			// Make sure response code is in the 200 range.
 			if (_connection.getResponseCode() / 100 != 2) {
 				Log.e(TAG,"Can't connect. code "+_connection.getResponseCode());
-				throw new IOException();
+				throw new IOException(String.valueOf(_connection.getResponseCode()));
 			}
 			final long contentLength = _connection.getContentLength();
 			_sizeStr = filesize(contentLength);
