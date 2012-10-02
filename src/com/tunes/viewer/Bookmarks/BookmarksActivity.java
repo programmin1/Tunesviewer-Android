@@ -31,6 +31,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.text.ClipboardManager;
 import android.util.Log;
 import android.util.Xml;
 import android.view.ContextMenu;
@@ -251,40 +252,34 @@ public class BookmarksActivity extends ListActivity implements OnItemClickListen
     	switch(item.getItemId()) {
     	case R.id.menuExport:
     		dir.mkdirs();
-    		File output = new File(dir, "bookmarks.htm");
-    		try {
-				BufferedWriter outfile = new BufferedWriter(new FileWriter(output));
-    			XmlSerializer xhtml = Xml.newSerializer();
-    			xhtml.setOutput(outfile);
-    			xhtml.startDocument("UTF-8", true);
-    			xhtml.startTag("", "html");
-    			xhtml.startTag("", "head");
-    			xhtml.startTag("", "title");
-    			xhtml.text("Bookmarks");
-    			xhtml.endTag("", "title");
-    			xhtml.endTag("", "head");
-    			xhtml.startTag("", "body");
-				Cursor c = dbHelper.fetchBookmarks();
-				while (!c.isAfterLast()) {
-					xhtml.startTag("", "b");
-					xhtml.attribute("", "class", "title");
-					xhtml.text(c.getString(1));
-					xhtml.endTag("", "b");
-					xhtml.startTag("", "a");
-					xhtml.attribute("", "href", c.getString(2));
-					xhtml.text("link");
-					xhtml.endTag("", "a");
-					xhtml.startTag("","br"); xhtml.endTag("","br");
-					c.moveToNext();
+    		final File output = new File(dir, "bookmarks.htm");
+    		if (output.exists()) {
+    			AlertDialog dialog = new AlertDialog.Builder(this)
+    			.setIcon(android.R.drawable.ic_dialog_alert)
+    			.setTitle(R.string.exportBTitle)
+    			.setMessage(R.string.exportExists)
+    			.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+    				@Override
+    				public void onClick(DialogInterface dialog, int which) {
+    					try {
+    						outputFile(new BufferedWriter(new FileWriter(output)));
+    					} catch (IOException e) {
+    						errMsg(e.getMessage());
+    						//Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+    					}
+    				}
+    			})
+    			.setNegativeButton(android.R.string.no, null)
+    			.create();
+    			dialog.show();
+    		} else {
+	    		try {
+					outputFile(new BufferedWriter(new FileWriter(output)));
+				} catch (IOException e) {
+					errMsg(e.getMessage());
+					//Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
 				}
-				c.close();
-				xhtml.endTag("", "body");
-				xhtml.endTag("", "html");
-				xhtml.endDocument();
-				outfile.close();
-			} catch (IOException e) {
-				Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
-			}
+    		}
     		return true;
     	case R.id.menuImport:
     		 File input = new File(dir, "bookmarks.htm");
@@ -294,28 +289,84 @@ public class BookmarksActivity extends ListActivity implements OnItemClickListen
 				factory.setValidating(false);
 				SAXParser saxParser= factory.newSAXParser();
 				XMLReader xr = saxParser.getXMLReader();
-				xr.setContentHandler(new GetHTML(dbHelper));
+				GetHTML extractor = new GetHTML(dbHelper);
+				xr.setContentHandler(extractor);
 				xr.parse(new InputSource(bis));
 				
 				listCursor.requery();
+				String msg = getString(R.string.importedB);
+				AlertDialog dialog = new AlertDialog.Builder(this)
+				.setIcon(android.R.drawable.ic_dialog_info)
+				.setTitle(R.string.importedBTitle)
+				.setMessage(String.format(msg, extractor._added, extractor._notadded))
+				.setPositiveButton(android.R.string.ok, null)
+				.create();
+				
+				dialog.show();
 			} catch (FileNotFoundException e) {
-				Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+				errMsg(e.getMessage());
 			} catch (ParserConfigurationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				errMsg(getString(R.string.importError));
 			} catch (SAXException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				errMsg(getString(R.string.importError));
 			} catch (IOException e) {
-				Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+				errMsg(e.getMessage());
 			}
     		return true;
     	}
     	return false;
     }
+    
+    private void errMsg(String msg) {
+    	AlertDialog dialog = new AlertDialog.Builder(this)
+		.setIcon(android.R.drawable.ic_dialog_alert)
+		.setTitle(R.string.ErrorTitle)
+		.setMessage(msg)
+		.setPositiveButton(android.R.string.ok, null)
+		.create();
+    	dialog.show();
+    }
 
+	private void outputFile(BufferedWriter outfile) throws IOException {
+		XmlSerializer xhtml = Xml.newSerializer();
+		xhtml.setOutput(outfile);
+		xhtml.startDocument("UTF-8", true);
+		xhtml.startTag("", "html");
+		xhtml.startTag("", "head");
+		xhtml.startTag("", "title");
+		xhtml.text("Bookmarks");
+		xhtml.endTag("", "title");
+		xhtml.endTag("", "head");
+		xhtml.startTag("", "body");
+		Cursor c = dbHelper.fetchBookmarks();
+		while (!c.isAfterLast()) {
+			xhtml.startTag("", "b");
+			xhtml.attribute("", "class", "title");
+			xhtml.text(c.getString(1));
+			xhtml.endTag("", "b");
+			xhtml.startTag("", "a");
+			xhtml.attribute("", "href", c.getString(2));
+			xhtml.text("link");
+			xhtml.endTag("", "a");
+			xhtml.startTag("","br"); xhtml.endTag("","br");
+			c.moveToNext();
+		}
+		c.close();
+		xhtml.endTag("", "body");
+		xhtml.endTag("", "html");
+		xhtml.endDocument();
+		outfile.close();
+		
+		AlertDialog dialog = new AlertDialog.Builder(this)
+		.setIcon(android.R.drawable.ic_dialog_info)
+		.setTitle(R.string.exportBTitle)
+		.setMessage(R.string.exported)
+		.setPositiveButton(android.R.string.ok, null)
+		.create();
+		dialog.show();
+	}
 }
-
+	
 /**
  * A SAXParser class to read XHTML file of links and names, adding to bookmarks
  * database when needed, to import the saved bookmarks.
@@ -328,12 +379,16 @@ class GetHTML extends DefaultHandler {
 	private DbAdapter _adapter;
 	private String _name;
 	private boolean _isTitletag;
+	public int _added;
+	public int _notadded;
 	
 	public GetHTML(DbAdapter adapter) {
 		_adapter = adapter;
 		out = new StringBuffer();
 		_name = "";
 		_isTitletag = false;
+		_added = 0;
+		_notadded = 0;
 	}
 	
 	@Override
@@ -346,7 +401,10 @@ class GetHTML extends DefaultHandler {
 			if (!_adapter.hasUrl(link)) {
 				//insert into db:
 				_adapter.insertItem(_name, link);
+				_added++;
 				Log.i(BookmarksActivity.TAG,"Inserting "+_name+", "+link);
+			} else {
+				_notadded++;
 			}
 		} else if (attributes.getValue("class")!=null && attributes.getValue("class").equals("title")) {
 			_isTitletag = true;

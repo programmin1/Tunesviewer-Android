@@ -18,8 +18,14 @@
     <string name="menuOriginal">View Original Source</string>
     <string name="menuCookies">View Cookies</string>
     
-    <string name="menuImportB">Import</string>
-    <string name="menuExportB">Export</string>
+    <string name="menuImportB">Import Bookmarks from Card</string>
+    <string name="menuExportB">Export Bookmarks to Card</string>
+    <string name="exportBTitle">Export</string>
+    <string name="importedBTitle">Results</string>
+    <string name="importedB">%1$d added to bookmarks,\n%2$d already bookmarked.</string>
+    <string name="importError">Import failed. File must be XML HTML file in the same format as the exported bookmarks.</string>
+    <string name="exportExists">File Tunesviewer/bookmarks.htm already exists. Overwrite?</string>
+    <string name="exported">Saved your bookmarks to Tunesviewer/bookmarks.htm on storage card.</string>
     
     <!-- Prefs -->
     <string name="prefUATitle">View Mode</string>
@@ -68,6 +74,7 @@
     
     
     <!-- Errors -->
+    <string name="ErrorTitle">Error!</string>
     <string name="NoActivity">No suitable app was found to view this file.</string>
     <string name="NoPodcatcher">No Podcatcher</string>
     <string name="NoPodcatcherMessage">"No podcast app found to handle this link! You must install a podcast manager app that handles feed:// links, to subscribe."</string>
@@ -84,6 +91,8 @@
     <!-- Bookmarks context menu -->
     <string name="showFiles">Show Files</string>
     <string name="delete">Delete</string>
+    
+    
     
     <!-- Delete Dialog -->
     <string name="bookmarkDeleteTitle">Delete Bookmark?</string>
