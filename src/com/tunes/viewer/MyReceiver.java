@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.channels.FileLock;
 
 import android.content.Context;
 import android.content.Intent;
@@ -65,9 +66,12 @@ public class MyReceiver extends android.content.BroadcastReceiver {
 							try {
 								System.out.print((names[i]).getName());
 								test = new FileOutputStream(names[i]);
-								if (test.getChannel().tryLock() != null) {
+								FileLock lock = test.getChannel().tryLock();
+								if (lock != null) {
+									lock.release();
 									//Not a partial download
 									js.append("\"");
+									System.out.println(names[i].getName());
 									js.append(names[i].getName().replace("\"", "\\\""));
 									js.append("\"");
 									hasdata = true;
