@@ -258,6 +258,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 					Log.w(TAG,"expected "+contentLength);
 					in.close();
 					out.close();
+					file.close();// remove lock
 					if (isCancelled()) {
 						_outFile.delete();
 					} else {

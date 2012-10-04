@@ -45,7 +45,7 @@ public class MyReceiver extends android.content.BroadcastReceiver {
 		final StringBuilder js = new StringBuilder("javascript:updateDownloadOpen([");
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(_caller);
 		String downloadDir = prefs.getString("DownloadDirectory",_caller.getString(R.string.defaultDL));
-		File[] names = null;
+		File[] files = null;
 		boolean hasdata = false;
 		if (!DownloaderTask.clean(podcastname).equals("")) {//NPE sometimes
 			File directory = new File(downloadDir,DownloaderTask.clean(podcastname));
@@ -61,21 +61,21 @@ public class MyReceiver extends android.content.BroadcastReceiver {
 				    System.out.println(line);
 				    if (line.indexOf("\""+pageurl+"\"") != -1) {
 				    	// This is the page described in the file, safe.
-				    	names = directory.listFiles();
-						for (int i=0; i<names.length; i++) {
+				    	files = directory.listFiles();
+						for (int i=0; i<files.length; i++) {
 							try {
-								System.out.print((names[i]).getName());
-								test = new FileOutputStream(names[i]);
+								System.out.print((files[i]).getName());
+								test = new FileOutputStream(files[i],true);
 								FileLock lock = test.getChannel().tryLock();
 								if (lock != null) {
 									lock.release();
 									//Not a partial download
 									js.append("\"");
-									System.out.println(names[i].getName());
-									js.append(names[i].getName().replace("\"", "\\\""));
+									System.out.println(files[i].getName());
+									js.append(files[i].getName().replace("\"", "\\\""));
 									js.append("\"");
 									hasdata = true;
-									if (i != names.length-1) {
+									if (i != files.length-1) {
 										js.append(", ");
 									}
 								}
