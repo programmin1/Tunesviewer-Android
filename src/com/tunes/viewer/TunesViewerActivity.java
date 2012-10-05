@@ -177,12 +177,13 @@ public class TunesViewerActivity extends Activity {
 		super.onResume();
 		
 		// Might have been deleted/added, check:
+		/* causes high cpu usage, blocks large pages.
 		Intent doneintent = new Intent(DownloadService.DOWNLOADBROADCAST);
 		if (_web.getUrl() !=null && getTitle() != null) {
 			doneintent.putExtra(MyReceiver.PAGEURL, _web.getUrl());
 			doneintent.putExtra(MyReceiver.NAME, getTitle());
 			sendBroadcast(doneintent);
-		}
+		}*/
 	}
 	
 	@Override

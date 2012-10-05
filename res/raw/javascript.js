@@ -465,6 +465,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
 /** A function called by Java with a list of this podcast's downloaded files: */
 function updateDownloadOpen(downloads) {
+	function fileD(title,url) {
+		// todo: port java functions
+	}
+	var start = new Date().getTime();
 	var els = document.getElementsByClassName('download_open');
 	for (var i=0; i<els.length; i++) {
 		var parent = els[i].parentNode;
@@ -477,5 +481,9 @@ function updateDownloadOpen(downloads) {
 			els[i].innerHTML = "Open";
 		}
 	}
+	var end = new Date().getTime();
+	var time = end - start;
+	console.log('refresh-dl took '+time);
+	alert('ok');
 }
     

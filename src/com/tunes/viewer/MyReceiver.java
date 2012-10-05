@@ -52,12 +52,14 @@ public class MyReceiver extends android.content.BroadcastReceiver {
 				    	// This is the page described in the file, safe.
 				    	names = directory.list();
 						for (int i=0; i<names.length; i++) {
-							js.append("\"");
-							js.append(names[i].replace("\"", "\\\""));
-							js.append("\"");
-							hasdata = true;
-							if (i != names.length-1) {
-								js.append(", ");
+							if (!(new File(directory, "."+names[i]).exists())) {//Not current download.
+								js.append("\"");
+								js.append(names[i].replace("\"", "\\\""));
+								js.append("\"");
+								hasdata = true;
+								if (i != names.length-1) {
+									js.append(", ");
+								}
 							}
 						}
 				    } else {

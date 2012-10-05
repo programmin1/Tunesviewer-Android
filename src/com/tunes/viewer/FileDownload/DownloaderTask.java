@@ -166,6 +166,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	protected Long doInBackground(URL... urls) {
 		long downloaded = 0;
 		File directory;
+		File markDownloading = null;
 		try {
 			_wifiLock.acquire();
 			_url = urls[0];
@@ -211,7 +212,8 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 					// Not an ordinary download, this is from the update page.
 					_outFile = new File(directory, "update.apk");
 				} else {
-					_outFile = new File(directory, clean(_title)+ItunesXmlParser.fileExt(_url.toString()));
+					_outFile        = new File(directory, clean(_title)+ItunesXmlParser.fileExt(_url.toString()));
+					markDownloading = new File(directory, "."+clean(_title)+ItunesXmlParser.fileExt(_url.toString()));
 				}
 				if (_outFile.toString().endsWith(PODCASTDIR_FILE)) {
 					Log.e(TAG,"Security exception, not writing podcast-directory link.");
@@ -224,6 +226,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 					//TODO: unfortunately checking for room causes crash. Why?
 					//Download the file:
 					_outFile.createNewFile();
+					markDownloading.createNewFile();
 					if (contentLength < 1) {
 						Log.e(TAG,"No contentlength.");
 						//throw new IOException();
@@ -255,6 +258,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 					out.flush();
 					Log.w(TAG,"downloaded "+downloaded);
 					Log.w(TAG,"expected "+contentLength);
+					markDownloading.delete();
 					if (isCancelled()) {
 						_outFile.delete();
 					} else {
