@@ -2,11 +2,8 @@ package com.tunes.viewer;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.channels.FileLock;
 
 import android.content.Context;
 import android.content.Intent;
@@ -38,14 +35,11 @@ public class MyReceiver extends android.content.BroadcastReceiver {
 		System.out.println(intent.getStringExtra(NAME));
 		String podcastname = intent.getStringExtra(NAME);
 		String pageurl = intent.getStringExtra(PAGEURL);
-		if (pageurl==null) {
-			System.err.println("ERRROR SENT RECEIVER A NULL PAGEURL");
-		}
 		
 		final StringBuilder js = new StringBuilder("javascript:updateDownloadOpen([");
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(_caller);
 		String downloadDir = prefs.getString("DownloadDirectory",_caller.getString(R.string.defaultDL));
-		File[] files = null;
+		String[] names = null;
 		boolean hasdata = false;
 		if (!DownloaderTask.clean(podcastname).equals("")) {//NPE sometimes
 			File directory = new File(downloadDir,DownloaderTask.clean(podcastname));
@@ -54,40 +48,20 @@ public class MyReceiver extends android.content.BroadcastReceiver {
 				// This is our app's directory, safe for webview to see.
 				try {
 				    BufferedReader in = new BufferedReader(new FileReader(linkfile));
-				    FileOutputStream test = null;
-				    System.out.println("For "+linkfile.getCanonicalPath());
-				    String line = in.readLine();
-				    if (line != null) {
-				    System.out.println(line);
-				    if (line.indexOf("\""+pageurl+"\"") != -1) {
+				    if (in.readLine().indexOf("\""+pageurl+"\"") != -1) {
 				    	// This is the page described in the file, safe.
-				    	files = directory.listFiles();
-						for (int i=0; i<files.length; i++) {
-							try {
-								System.out.print((files[i]).getName());
-								test = new FileOutputStream(files[i],true);
-								FileLock lock = test.getChannel().tryLock();
-								if (lock != null) {
-									lock.release();
-									//Not a partial download
-									js.append("\"");
-									System.out.println(files[i].getName());
-									js.append(files[i].getName().replace("\"", "\\\""));
-									js.append("\"");
-									hasdata = true;
-									if (i != files.length-1) {
-										js.append(", ");
-									}
-								}
-							} catch (Exception e) {
-								e.printStackTrace();
-							} finally {
-								test.close();
+				    	names = directory.list();
+						for (int i=0; i<names.length; i++) {
+							js.append("\"");
+							js.append(names[i].replace("\"", "\\\""));
+							js.append("\"");
+							hasdata = true;
+							if (i != names.length-1) {
+								js.append(", ");
 							}
 						}
 				    } else {
 				    	System.err.println("Not sending directory info to page, since it is wrong URL!");
-				    }
 				    }
 				    in.close();
 				} catch (IOException e) {

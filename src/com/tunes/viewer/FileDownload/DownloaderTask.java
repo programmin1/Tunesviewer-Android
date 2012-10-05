@@ -237,7 +237,6 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 						});
 					}
 					FileOutputStream file = new FileOutputStream(_outFile);
-					file.getChannel().lock();
 					out = new BufferedOutputStream(file,1024*4); // too big of a buffer and it will crash, out-of-mem exception!
 					byte[] data = new byte[1024];
 					int count;
@@ -256,9 +255,6 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 					out.flush();
 					Log.w(TAG,"downloaded "+downloaded);
 					Log.w(TAG,"expected "+contentLength);
-					in.close();
-					out.close();
-					file.close();// remove lock
 					if (isCancelled()) {
 						_outFile.delete();
 					} else {
@@ -276,6 +272,8 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 							Log.i(TAG,"Calling ACTION_MEDIA_MOUNTED");
 						}
 					}
+					in.close();
+					out.close();
 				} else {
 					_ErrMSG = "Not enough room!";
 				}
