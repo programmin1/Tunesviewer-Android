@@ -95,6 +95,8 @@
     
     
     <!-- Delete Dialog -->
+    <string name="bookmarkDeleteMessage">"The following files are associated with this podcast. Do you want to delete them?
+"</string>
     <string name="bookmarkDeleteTitle">Delete Bookmark?</string>
     <string name="deleteBookmarked">Bookmark &amp; Files</string>
     <string name="removeBookmark">Only Bookmark</string>

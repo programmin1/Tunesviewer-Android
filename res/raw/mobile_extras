@@ -11,12 +11,41 @@ function toggle(el) {
     This is also at the end of javascript.js, for standard files.
      */
 function updateDownloadOpen(downloads) {
+	function dest(title,url) { // Function must be functionally the same as Java's com.tunes.viewer.WebView.JSInterface.dest()! and javascript.js dest().
+		out = "";
+		VALID = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 $%`-_@{}~!()."
+		for (var i=0; i<title.length; i++) {
+			ch = title.charAt(i);
+			if (VALID.indexOf(ch)!=-1) {
+				out += ch;
+			}
+		}
+		if (url.indexOf("?")>-1) {
+			url = url.substring(0,url.indexOf("?"));
+		}
+		if (url.lastIndexOf(".") == -1) {
+		} else {
+			var ext = url.substring(url.lastIndexOf(".") );
+			if (ext.indexOf("%")>-1) {
+				ext = ext.substring(0,ext.indexOf("%"));
+			}
+			if (ext.indexOf("/")>-1) {
+				ext = ext.substring(0,ext.indexOf("/"));
+			}
+			if (ext.toLowerCase()==(".rtf")) {
+				out += ".zip";
+			} else {
+				out += ext.toLowerCase();
+			}
+		}
+		console.log(out);
+		return out;
+	}
 	var els = document.getElementsByClassName('download_open');
 	for (var i=0; i<els.length; i++) {
 		var parent = els[i].parentNode;
 		// Adding "" to the object turns it to a string:
-		var possiblefile = ""+window.DOWNLOADINTERFACE.dest(
-		   parent.getAttribute('title'), parent.getAttribute('download-url') );
+		var possiblefile = ""+dest(parent.getAttribute('title'), parent.getAttribute('download-url') );
 		if (downloads.indexOf(possiblefile) == -1) {
 			els[i].innerHTML = "Download";
 		} else {

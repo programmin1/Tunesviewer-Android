@@ -670,6 +670,7 @@ public class ItunesXmlParser extends DefaultHandler {
 	
 	/**
 	 * Returns the file extension of the url. (replaces .rtf with .zip)
+	 * MUST match dest function in javascript.js!
 	 * @param url string.
 	 * @return lowercase string.
 	 */

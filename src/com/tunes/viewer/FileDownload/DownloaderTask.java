@@ -51,7 +51,11 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	private String _podcasturl;
 	// url of download:
 	private URL _url;
-	// Valid characters a file may have. Note that Android chokes on files with a #, and can't find their type.
+	
+	/**
+	 * Valid characters a file may have. Note that Android chokes on files with a #, and can't find their type.
+	 * MUST match in dest function in javascript.js!
+	 */
 	private final static String VALIDCHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 $%`-_@{}~!().";
 	
 	/**
@@ -304,6 +308,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	
 	/**
 	 * Cleans a string to a valid file name.
+	 * MUST match the function dest in javascript.js!
 	 * @param name (e.g. "iphone/ipad podcast")
 	 * @return name that will work as a file-name. (e.g. "iphoneipad podcast")
 	 */

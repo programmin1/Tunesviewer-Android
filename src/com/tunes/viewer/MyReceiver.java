@@ -48,22 +48,24 @@ public class MyReceiver extends android.content.BroadcastReceiver {
 				// This is our app's directory, safe for webview to see.
 				try {
 				    BufferedReader in = new BufferedReader(new FileReader(linkfile));
-				    if (in.readLine().indexOf("\""+pageurl+"\"") != -1) {
-				    	// This is the page described in the file, safe.
-				    	names = directory.list();
-						for (int i=0; i<names.length; i++) {
-							if (!(new File(directory, "."+names[i]).exists())) {//Not current download.
-								js.append("\"");
-								js.append(names[i].replace("\"", "\\\""));
-								js.append("\"");
-								hasdata = true;
-								if (i != names.length-1) {
-									js.append(", ");
+				    String line = in.readLine();
+				    if (line != null) {
+					    if (line.indexOf("\""+pageurl+"\"") != -1) {
+					    	// This is the page described in the file, safe.
+					    	names = directory.list();
+							for (int i=0; i<names.length; i++) {
+								if (!(new File(directory, "."+names[i]).exists())) {//Not current download.
+									js.append("\"");
+									js.append(names[i].replace("\"", "\\\""));
+									js.append("\",");
+									hasdata = true;
 								}
 							}
-						}
+					    } else {
+					    	System.err.println("Not sending directory info to page, since it is wrong URL!");
+					    }
 				    } else {
-				    	System.err.println("Not sending directory info to page, since it is wrong URL!");
+				    	System.err.println("No line, null line, blank postast marker file?");
 				    }
 				    in.close();
 				} catch (IOException e) {

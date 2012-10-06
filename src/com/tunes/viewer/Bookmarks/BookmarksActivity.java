@@ -49,6 +49,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tunes.viewer.R;
+import com.tunes.viewer.FileDownload.DownloadService;
 import com.tunes.viewer.FileDownload.DownloaderTask;
 
 /**
@@ -159,30 +160,42 @@ public class BookmarksActivity extends ListActivity implements OnItemClickListen
 	            case IDdelete: {
 	                // Delete the note that the context menu is for
 	                //Uri noteUri = ContentUris.withAppendedId(getIntent().getData(), info.id);
+
+	                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+	                Cursor cursor = (Cursor) getListAdapter().getItem(info.position);
+	                String podcast = cursor.getString(1);
+	            	final File folder = new File(prefs.getString(
+	        				/*download directory*/
+	        				"DownloadDirectory", getString(R.string.defaultDL)),
+	        				/*directory of this podcast page passed in intent:*/
+	        				DownloaderTask.clean(podcast));
+	            	StringBuilder msg = new StringBuilder();
 	            	Builder builder = new AlertDialog.Builder(this);
 	            	builder.setTitle(R.string.bookmarkDeleteTitle);
-	            	builder.setPositiveButton(R.string.deleteBookmarked, new DialogInterface.OnClickListener() {
-						@Override // Delete All files, and remove bookmark:
-						public void onClick(DialogInterface dialog, int which) {
-			                Cursor cursor = (Cursor) getListAdapter().getItem(info.position);
-			                String podcast = cursor.getString(1);
-			                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-							File folder = new File(prefs.getString(
-			        				/*download directory*/
-			        				"DownloadDirectory", getString(R.string.defaultDL)),
-			        				/*directory of this podcast page passed in intent:*/
-			        				DownloaderTask.clean(podcast));
-							if (folder.exists() && folder.isDirectory()) {
-								for (File f : folder.listFiles()) {
-									f.delete();
+	            	if (folder.exists() && folder.isDirectory()) { // Delete directory option.
+		            	msg.append(getString(R.string.bookmarkDeleteMessage));
+		            	for (File f : folder.listFiles()) {
+		            		msg.append("\n");
+		            		msg.append(f.getName());
+		            		msg.append(" : ");
+		            		msg.append(DownloaderTask.filesize(f.length()));
+		            	}
+		            	builder.setMessage(msg);
+		            	builder.setPositiveButton(R.string.deleteBookmarked, new DialogInterface.OnClickListener() {
+							@Override // Delete All files, and remove bookmark:
+							public void onClick(DialogInterface dialog, int which) {
+								if (folder.exists() && folder.isDirectory()) {
+									for (File f : folder.listFiles()) {
+										f.delete();
+									}
+									folder.delete();
 								}
-								folder.delete();
+								
+								dbHelper.deleteTitle(info.id);
+				                listCursor.requery();
 							}
-							
-							dbHelper.deleteTitle(info.id);
-			                listCursor.requery();
-						}
-					});
+						});
+	            	}
 	            	builder.setNeutralButton(R.string.removeBookmark, new DialogInterface.OnClickListener() {
 						@Override // Remove bookmark
 						public void onClick(DialogInterface dialog, int which) {

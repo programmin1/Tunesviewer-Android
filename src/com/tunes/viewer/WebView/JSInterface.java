@@ -133,14 +133,16 @@ public class JSInterface {
 	
 	/**
 	 * Returns the file name a download would be named.
+	 * This was moved to Javascript, in javascript.js.
+	 * JSInterface was causing SLOW performance on hundreds of calls to this.
 	 * @param title
 	 * @param url
 	 * @return
-	 */
+	 
 	public String dest(String title, String url) {
 		Log.w(TAG,DownloaderTask.clean(title)+ItunesXmlParser.fileExt(url));
 		return DownloaderTask.clean(title)+ItunesXmlParser.fileExt(url);
-	}
+	}*/
 	
 	/**
 	 * General-purpose preview, calls preview intent for a given uri
