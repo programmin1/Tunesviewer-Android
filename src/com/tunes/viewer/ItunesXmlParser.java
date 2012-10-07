@@ -33,7 +33,10 @@ import android.widget.Toast;
  */
 public class ItunesXmlParser extends DefaultHandler {
 	
-	//Turn on to enable profiling
+	/**
+	 * Turn on to enable profiling.
+	 * It seems this might also cause crashes due to excessive memory use sometimes, turn off if not needed!
+	 */
 	private final boolean _profiling = false;
 	//Turn on to enable original-source parsing also:
 	private final boolean _debug = false;
@@ -454,8 +457,11 @@ public class ItunesXmlParser extends DefaultHandler {
 					html.append("</div>");
 					if (map.containsKey("podcast-feed-url")) {
 						String rssfeedurl = map.get("podcast-feed-url").replace("\"", "&quot;");
-						html.append("<p style='text-align:left;'><a href='"+rssfeedurl+"' onclick=\"window.DOWNLOADINTERFACE.subscribe(this.getAttribute('url')); return false;\" url=\""
-						 + rssfeedurl + "\">Subscribe</a></p>");
+						html.append("<p style='text-align:left;'><a href='");
+						html.append(rssfeedurl);
+						html.append("' onclick=\"window.DOWNLOADINTERFACE.subscribe(this.getAttribute('url')); return false;\" url=\"");
+						html.append(rssfeedurl);
+						html.append("\">Subscribe</a></p>");
 					}
 				} else if (type.equals("podcast-episode")) {
 					//html.append("<script>function downloadit(title,name) { console.log('download-it'); console.log(title); console.log(name); window.DOWNLOADINTERFACE.download(title,name); }</script>\n");
@@ -734,11 +740,8 @@ public class ItunesXmlParser extends DefaultHandler {
 	/**
 	 * Handles text between tag markers.
 	 */
-	public void characters(char ch[], int start, int len) {
-		for (int i = start; i < start + len; i++)
-		{
-			innerText.append(ch[i]);
-		}
+	public void characters(char[] ch, int start, int len) {
+		innerText.append(ch, start, len);
 	}
 	
 	public void endDocument() throws SAXException {
