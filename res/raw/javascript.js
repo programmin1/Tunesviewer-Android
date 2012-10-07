@@ -510,6 +510,5 @@ function updateDownloadOpen(downloads) {
 	var end = new Date().getTime();
 	var time = end - start;
 	console.log('refresh-dl took '+time);
-	alert('ok');
 }
     

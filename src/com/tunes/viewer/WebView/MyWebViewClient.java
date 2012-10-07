@@ -490,6 +490,8 @@ public class MyWebViewClient extends WebViewClient {
 						});
 					}
 				}
+			} else {
+				throw new IOException("Could not load url. Null content type.");
 			}
 			return worked;
 		}
