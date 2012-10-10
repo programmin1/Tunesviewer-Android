@@ -1,7 +1,6 @@
 package com.tunes.viewer.WebView;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
@@ -30,9 +29,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 import android.text.ClipboardManager;
 import android.util.Log;
 import android.widget.TextView;
@@ -42,7 +39,6 @@ import com.tunes.viewer.ItunesXmlParser;
 import com.tunes.viewer.R;
 import com.tunes.viewer.TunesViewerActivity;
 import com.tunes.viewer.FileDownload.DownloadService;
-import com.tunes.viewer.FileDownload.DownloaderTask;
 
 /**
  * Javascript interface for the WebView

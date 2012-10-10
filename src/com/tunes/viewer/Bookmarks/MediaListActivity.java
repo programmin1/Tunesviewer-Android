@@ -29,18 +29,11 @@ import android.widget.Toast;
 import com.tunes.viewer.ItunesXmlParser;
 import com.tunes.viewer.R;
 import com.tunes.viewer.FileDownload.DownloaderTask;
-import com.tunes.viewer.WebView.JSInterface;
 
 /**
  * A class to show all of a podcast's media.
  * Tap - opens media.
  * Hold, select Delete - deletes media. 
- * 
- * TODO: The delete doesn't yet work correctly, it makes the rest of the list off by one.
- * Maybe a better adapter model needs to be used.
- * 
- * TODO: Haven't looked into setting list order based on metadata track-number data.
- * This would be a good idea.
  * 
  * @author luke
  *
@@ -73,7 +66,8 @@ public class MediaListActivity extends ListActivity {
 		if (_folder.exists() && _folder.isDirectory()) {
 			File[] dir = _folder.listFiles();
 			for (File media : dir) {
-				if (!media.isDirectory() && !media.getName().equals(DownloaderTask.PODCASTDIR_FILE)) {
+				if (!media.isDirectory() && !media.getName().equals(DownloaderTask.PODCASTDIR_FILE)/* Not the marker file */
+						&& !media.getName().startsWith(".")/* Not a 0-length file marking file in use */) {
 					items.add(new MediaFile(media,this));
 				}
 			}
@@ -194,6 +188,7 @@ class MediaFile implements Comparable<MediaFile> {
 	public String _title;
 	public String _display;
 	public String _duration;
+	public boolean _downloading; //TODO: Maybe mark as not fully downloaded in the list? But movies do work when partially downloaded...
 	 //Objects for retreiving podcast metadata
     static Uri media = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
     // select columns:
@@ -215,7 +210,7 @@ class MediaFile implements Comparable<MediaFile> {
 		_title = "";
 		_display = "";
 		_duration = "";
-		
+		_downloading = false;
 		Cursor cursor;
 		try {
 			cursor = parent.managedQuery(media,
@@ -232,7 +227,9 @@ class MediaFile implements Comparable<MediaFile> {
 				_duration = cursor.getString(5);
 				_numberOrder = cursor.getInt(6);
 			}
-
+			if (new File(file.getParent(), "."+file.getName()).exists()) {
+				_downloading = true;
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

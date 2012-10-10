@@ -31,7 +31,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.text.ClipboardManager;
 import android.util.Log;
 import android.util.Xml;
 import android.view.ContextMenu;
@@ -46,10 +45,8 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ResourceCursorAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.tunes.viewer.R;
-import com.tunes.viewer.FileDownload.DownloadService;
 import com.tunes.viewer.FileDownload.DownloaderTask;
 
 /**
