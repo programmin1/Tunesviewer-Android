@@ -29,6 +29,9 @@ public class MyReceiver extends android.content.BroadcastReceiver {
 
 	@Override
     public void onReceive(Context context, Intent intent) {
+		if (intent.getStringExtra(PAGEURL) == null || intent.getStringExtra(NAME)==null) {
+			return;
+		}
 		System.out.println("Received download-notification");
 		
 		System.out.println(intent.getStringExtra(PAGEURL));

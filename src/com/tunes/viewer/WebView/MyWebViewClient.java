@@ -6,10 +6,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -363,11 +366,17 @@ public class MyWebViewClient extends WebViewClient {
 				//TODO: This is ugly
 				trustAllHosts(); // stop javax.net.ssl.SSLException: Not trusted server certificate
 			}
-			URLConnection conn = u.openConnection();
+			HttpURLConnection conn = (HttpURLConnection) u.openConnection();
+			(conn).setInstanceFollowRedirects(true);
 			conn.addRequestProperty("Accept-Encoding", "gzip");
 			_CM.setCookies(conn);
 			conn.connect();
 			_CM.storeCookies(conn);
+			Map<String, List<String>> returnv = conn.getHeaderFields();
+			String loc = conn.getHeaderField("Location");
+			if (loc != null) {
+				conn = (HttpURLConnection) new URL(loc).openConnection();
+			}
 			Log.d(TAG,"mime: "+conn.getContentType());
 			length = conn.getContentLength();
 			if (conn.getContentType()!=null) {
@@ -491,7 +500,7 @@ public class MyWebViewClient extends WebViewClient {
 					}
 				}
 			} else {
-				throw new IOException("Could not load url. Null content type.");
+				throw new IOException("Could not load url. Null content type, for download: "+_url);
 			}
 			return worked;
 		}
@@ -529,7 +538,7 @@ public class MyWebViewClient extends WebViewClient {
 						// Inject js:
 						final StringBuilder data = _download;
 						int endhead = data.indexOf("<head>")+6;
-						if (endhead >-1) {
+						if (endhead-6 != -1) {
 							data.replace(endhead, endhead, "<script>"+_javascript+"</script>");
 						} else {
 							Log.w(TAG, "No end head tag in this page, so not preinserting!!");
