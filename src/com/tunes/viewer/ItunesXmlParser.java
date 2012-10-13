@@ -53,6 +53,7 @@ public class ItunesXmlParser extends DefaultHandler {
 	
 	//Url starting with this is not supported:
 	private static final String IGNOREENROLL = "http://itunes.apple.com/WebObjects/DZR.woa/wa/iTunesEnroll";
+	private static final String IGNOREENROLL2 = "https://itunes.apple.com/WebObjects/DZR.woa/wa/iTunesEnroll";
 	
 	// Holds mobile_extras file, which is added to the page. 
 	private static String mobileExtras;
@@ -418,7 +419,7 @@ public class ItunesXmlParser extends DefaultHandler {
 					}
 					html.append("</font></div>");
 				} else if (type.equals("link")) { //A link to page
-					if (map.get("url") != null && map.get("url").startsWith(IGNOREENROLL)) {
+					if (map.get("url") != null && (map.get("url").startsWith(IGNOREENROLL) || map.get("url").startsWith(IGNOREENROLL2))) {
 						Log.e(TAG,"Enroll link not shown, since AppleID enrollment is not supported.");
 					} else {
 						if (map.get("average-user-rating") == null) {
