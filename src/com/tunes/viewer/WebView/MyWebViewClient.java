@@ -362,20 +362,28 @@ public class MyWebViewClient extends WebViewClient {
 				_url = "http"+_url.substring(4);
 			}
 			URL u = new URL(_url);
-			if (u.getProtocol().toLowerCase().equals("https")) {
+			
+			
+			//if (true || u.getProtocol().toLowerCase().equals("https")) {
 				//TODO: This is ugly
 				trustAllHosts(); // stop javax.net.ssl.SSLException: Not trusted server certificate
+			//}
+			URLConnection conn = u.openConnection();
+			/*if (_url.startsWith("http://")) { old android workaround
+				conn = new URL(_url.replaceFirst("http://", "https://")).openConnection();
 			}
-			HttpURLConnection conn = (HttpURLConnection) u.openConnection();
-			(conn).setInstanceFollowRedirects(true);
-			conn.addRequestProperty("Accept-Encoding", "gzip");
+			trustAllHosts();*/
+			//conn.addRequestProperty("Accept-Encoding", "gzip");
 			_CM.setCookies(conn);
 			conn.connect();
+			//Map<String, List<String>> returnv = conn.getHeaderFields();
 			_CM.storeCookies(conn);
-			Map<String, List<String>> returnv = conn.getHeaderFields();
 			String loc = conn.getHeaderField("Location");
-			if (loc != null) {
-				conn = (HttpURLConnection) new URL(loc).openConnection();
+			if (loc != null) { // Works in Android 4.1, maybe others?
+				conn = new URL(loc).openConnection();
+			} else if (conn.getContentType()==null && _url.startsWith("http://")) { //old android workaround
+				conn = new URL(_url.replaceFirst("http://", "https://")).openConnection();
+				trustAllHosts();
 			}
 			Log.d(TAG,"mime: "+conn.getContentType());
 			length = conn.getContentLength();

@@ -98,6 +98,7 @@ public class TunesViewerActivity extends Activity {
 				"text/html", "UTF-8");
 		
 		if (this.getIntent().getData()==null) { //no specified url.
+			                                      // Http redirects to https but some devices don't support it, so...
 			_myWVC.shouldOverrideUrlLoading(_web, "http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewGrouping?id=27753");
 		}
 		((EditText)findViewById(R.id.editFind)).addTextChangedListener(new TextWatcher() {

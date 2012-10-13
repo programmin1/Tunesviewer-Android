@@ -36,7 +36,26 @@
  android:name="android.intent.category.BROWSABLE"></category>
                     <data android:scheme="itms"/>
                     <data android:scheme="itmss"/>
-                    
+                </intent-filter>
+                <intent-filter>
+                    <action android:name="android.intent.action.VIEW"></action>
+                     <category
+ android:name="android.intent.category.DEFAULT"></category>
+                     <category
+ android:name="android.intent.category.DEFAULT"></category>
+                     <category
+ android:name="android.intent.category.BROWSABLE"></category>
+                    <data android:scheme="http" android:host="deimos.apple.com"/>
+                </intent-filter>
+                <intent-filter>
+                    <action android:name="android.intent.action.VIEW"></action>
+                     <category
+ android:name="android.intent.category.DEFAULT"></category>
+                     <category
+ android:name="android.intent.category.DEFAULT"></category>
+                     <category
+ android:name="android.intent.category.BROWSABLE"></category>
+                    <data android:scheme="http" android:host="deimos3.apple.com"/>
                 </intent-filter>
                 <intent-filter>
 					<action android:name="android.intent.action.MAIN" />
