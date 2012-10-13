@@ -2,16 +2,9 @@ package com.tunes.viewer;
 
 import java.lang.reflect.Method;
 
-import com.tunes.viewer.Bookmarks.BookmarksActivity;
-import com.tunes.viewer.FileDownload.DownloadService;
-import com.tunes.viewer.WebView.JSInterface;
-import com.tunes.viewer.WebView.MyWebChromeClient;
-import com.tunes.viewer.WebView.MyWebViewClient;
-
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -31,14 +24,20 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.view.View.OnClickListener;
+import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.tunes.viewer.Bookmarks.BookmarksActivity;
+import com.tunes.viewer.FileDownload.DownloadService;
+import com.tunes.viewer.WebView.JSInterface;
+import com.tunes.viewer.WebView.MyWebChromeClient;
+import com.tunes.viewer.WebView.MyWebViewClient;
 
 @TargetApi(3)
 public class TunesViewerActivity extends Activity {
@@ -98,8 +97,7 @@ public class TunesViewerActivity extends Activity {
 				"text/html", "UTF-8");
 		
 		if (this.getIntent().getData()==null) { //no specified url.
-			                                      // Http redirects to https but some devices don't support it, so...
-			_myWVC.shouldOverrideUrlLoading(_web, "http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewGrouping?id=27753");
+			_myWVC.shouldOverrideUrlLoading(_web, "http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewGrouping?id=27753");// redirects https
 		}
 		((EditText)findViewById(R.id.editFind)).addTextChangedListener(new TextWatcher() {
 			@Override
