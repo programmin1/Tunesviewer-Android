@@ -381,9 +381,11 @@ public class MyWebViewClient extends WebViewClient {
 			String loc = conn.getHeaderField("Location");
 			if (loc != null) { // Works in Android 4.1, maybe others?
 				conn = new URL(loc).openConnection();
+				Log.w(TAG, "Header redirect to: "+loc);
 			} else if (conn.getContentType()==null && _url.startsWith("http://")) { //old android workaround
 				conn = new URL(_url.replaceFirst("http://", "https://")).openConnection();
 				trustAllHosts();
+				Log.w(TAG, "Null content type, that looks like the redirect bug.");
 			}
 			Log.d(TAG,"mime: "+conn.getContentType());
 			length = conn.getContentLength();

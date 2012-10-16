@@ -13,6 +13,16 @@
     <string name="menuSource">Ver Código-Fonte da Página</string>
     <string name="menuOriginal">Ver Original</string>
     <string name="menuCookies">Ver Cookies</string>
+
+    
+    <string name="menuImportB">Import Bookmarks from Card</string>
+    <string name="menuExportB">Export Bookmarks to Card</string>
+    <string name="exportBTitle">Export</string>
+    <string name="importedBTitle">Results</string>
+    <string name="importedB">%1$d added to bookmarks,\n%2$d already bookmarked.</string>
+    <string name="importError">Import failed. File must be XML HTML file in the same format as the exported bookmarks.</string>
+    <string name="exportExists">File Tunesviewer/bookmarks.htm already exists. Overwrite?</string>
+    <string name="exported">Saved your bookmarks to Tunesviewer/bookmarks.htm on storage card.</string>
     
     <!-- Prefs -->
     <string name="prefUATitle">Modo de Visualização</string>
@@ -78,6 +88,8 @@
     <string name="delete">Apagar</string>
     
     <!-- Delete Dialog -->
+    <string name="bookmarkDeleteMessage">"The following files are associated with this podcast. Do you want to delete them?
+"</string>
     <string name="bookmarkDeleteTitle">Apagar Favorito?</string>
     <string name="deleteBookmarked">Favoritos &amp; Arquivos</string>
     <string name="removeBookmark">Somente Favoritos</string>
