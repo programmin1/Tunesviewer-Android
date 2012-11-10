@@ -21,6 +21,7 @@ import java.util.zip.GZIPInputStream;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
@@ -33,6 +34,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
+import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -366,27 +368,43 @@ public class MyWebViewClient extends WebViewClient {
 			
 			//if (true || u.getProtocol().toLowerCase().equals("https")) {
 				//TODO: This is ugly
-				trustAllHosts(); // stop javax.net.ssl.SSLException: Not trusted server certificate
+				//trustAllHosts(); // stop javax.net.ssl.SSLException: Not trusted server certificate
 			//}
-			URLConnection conn = u.openConnection();
-			/*if (_url.startsWith("http://")) { old android workaround
-				conn = new URL(_url.replaceFirst("http://", "https://")).openConnection();
+			int tries = 4;
+			int code = 301;
+			URLConnection conn = null;
+			// Handles HTTP-level redirects:
+			while (tries > 0 && code/100 == 3) {
+				conn = null;
+				if (myprefs.getBoolean("SSLTrustAll", false)) {
+					trustAllHosts();
+				}
+				conn = u.openConnection();
+				_CM.setCookies(conn);
+				conn.addRequestProperty("Accept-Encoding", "gzip");
+				((HttpURLConnection)conn).setInstanceFollowRedirects(false);
+				code =((HttpURLConnection)conn).getResponseCode();
+				if (code/100 == 3) {
+					String loc = conn.getHeaderField("Location");
+					u = new URL(loc);
+				}
 			}
-			trustAllHosts();*/
-			//conn.addRequestProperty("Accept-Encoding", "gzip");
-			_CM.setCookies(conn);
+
 			conn.connect();
 			//Map<String, List<String>> returnv = conn.getHeaderFields();
 			_CM.storeCookies(conn);
-			String loc = conn.getHeaderField("Location");
-			if (loc != null) { // Works in Android 4.1, maybe others?
+			
+			/*if (loc != null) { // Works in Android 4.1, maybe others?
 				conn = new URL(loc).openConnection();
-				Log.w(TAG, "Header redirect to: "+loc);
+				((HttpURLConnection)conn).setInstanceFollowRedirects(false);
+				Log.w(TAG,""+((HttpURLConnection)conn).getResponseCode());
+				loc = conn.getHeaderField("Location");
+				conn = new URL(loc).openConnection();
 			} else if (conn.getContentType()==null && _url.startsWith("http://")) { //old android workaround
 				conn = new URL(_url.replaceFirst("http://", "https://")).openConnection();
 				trustAllHosts();
 				Log.w(TAG, "Null content type, that looks like the redirect bug.");
-			}
+			}*/
 			Log.d(TAG,"mime: "+conn.getContentType());
 			length = conn.getContentLength();
 			if (conn.getContentType()!=null) {
@@ -510,7 +528,7 @@ public class MyWebViewClient extends WebViewClient {
 					}
 				}
 			} else {
-				throw new IOException("Could not load url. Null content type, for download: "+_url);
+				throw new IOException("Try again, could not load url. Null content type, for download: "+_url);
 			}
 			return worked;
 		}
@@ -520,7 +538,7 @@ public class MyWebViewClient extends WebViewClient {
 			synchronized(_view) {
 				isLoading = true;
 				boolean worked;
-				try {
+				try { // page level redirecting/retry:
 					worked = load();
 					if (!worked) {
 						worked = load();
@@ -528,6 +546,20 @@ public class MyWebViewClient extends WebViewClient {
 							load();
 						}
 					}
+				} catch (SSLException e) {
+					activity.runOnUiThread(new Runnable() {
+						public void run() {
+						/*AlertDialog.Builder msg = new AlertDialog.Builder(callerContext.getApplicationContext());
+						msg.setMessage(R.string.SSLError)
+						.setPositiveButton("ok", null)
+						.setNegativeButton("oh", null)
+						.create()
+						.show();*/
+							for (int i=0; i < 3; i++) {
+								Toast.makeText(callerContext, R.string.SSLError, Toast.LENGTH_LONG).show();
+							}
+						}
+					});
 				} catch (IOException e) {
 					// Show error
 					synchronized (_view) {

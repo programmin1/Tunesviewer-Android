@@ -81,6 +81,7 @@
     <string name="DownloadError">"Download Error: "</string>
     <string name="DownloadErrorTimeout">Download timeout. Network may be disconnected?</string>
     <string name="PageNotDownloaded">The page could not be loaded.</string>
+    <string name="SSLError">The connection failed. This is probably due to certificate error. If you trust your internet connection, try enabling all SSL in the settings (Menu->Settings).</string>
     
     <!-- Searchbox -->
     <string name="courses">University Courses</string>
@@ -121,6 +122,8 @@
     <string name="menuFirebug">Show Firebug Lite</string>
     <string name="prefBookmarkTitle">Bookmark All Downloaded</string>
     <string name="prefBookmarkSummary">Bookmarks a podcasts when an item is downloaded.</string>
+    <string name="SSLTitle">Trust All SSL</string>
+    <string name="SSLSummary">This should not be necessary. Only use if you trust your connection and certificates give you errors.</string>
     
     
 </resources>

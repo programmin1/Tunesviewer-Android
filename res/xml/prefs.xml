@@ -8,6 +8,7 @@
   <PreferenceCategory android:title="Advanced Options">
       <CheckBoxPreference android:title="@string/prefAdvTitle" android:key="debug" android:summary="@string/prefAdvSummary"></CheckBoxPreference>
       <EditTextPreference android:title="@string/prefInsertTitle" android:summary="@string/prefInsertSummary" android:key="extraScript"></EditTextPreference>
+      <CheckBoxPreference android:title="@string/SSLTitle" android:key="SSLTrustAll" android:summary="@string/SSLSummary"/>
   </PreferenceCategory>
   
     
