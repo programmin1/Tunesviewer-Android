@@ -56,7 +56,7 @@ public class ItunesXmlParser extends DefaultHandler {
 	private static final String IGNOREENROLL2 = "https://itunes.apple.com/WebObjects/DZR.woa/wa/iTunesEnroll";
 	
 	// Holds mobile_extras file, which is added to the page. 
-	private static String mobileExtras;
+	public static String mobileExtras;
 	
 	// Holds text inside or between the elements,
 	// this is printed out and reset at start-tag and end-tag.
@@ -110,6 +110,7 @@ public class ItunesXmlParser extends DefaultHandler {
 	
 	int _scrWidth;
 	private int _imgPrefSize;
+	private boolean _preview = false;
 	
 	public String toString() {
 		return original.toString();
@@ -446,15 +447,9 @@ public class ItunesXmlParser extends DefaultHandler {
 						html.append(" ["+subMap.get("label")+"]");
 					}
 					html.append("</font></a>");
-					if (map.containsKey("title2") && map.containsKey("view-user-reviews-url")) {
-						html.append("<br><a href='javascript:;' url=\"");
-						html.append(map.get("view-user-reviews-url"));//Ratings link
-						html.append("\" onclick=\"window.DOWNLOADINTERFACE.go(this.getAttribute('url'))\">");
-						html.append(map.get("title2"));
-						html.append("</a>");
-					}
 					html.append("<br>");
 					html.append(map.get("description"));
+					showRating();
 					html.append("</div>");
 					if (map.containsKey("podcast-feed-url")) {
 						String rssfeedurl = map.get("podcast-feed-url").replace("\"", "&quot;");
@@ -465,41 +460,35 @@ public class ItunesXmlParser extends DefaultHandler {
 						html.append("\">Subscribe</a></p>");
 					}
 				} else if (type.equals("podcast-episode")) {
-					//html.append("<script>function downloadit(title,name) { console.log('download-it'); console.log(title); console.log(name); window.DOWNLOADINTERFACE.download(title,name); }</script>\n");
 					if (map.containsKey("url") && map.get("url").equals(_url.toString())) {
 						extra = "style='background-color:gold;' ";
 						html.append("<a name='here'></a>");
 					}
-					html.append("<div class='media' "+extra+" onclick='toggle(this.nextSibling)'>");
-					//stoppropagation to prevent clicking container, then download:
-					html.append("<a class='media' style='float:right' onclick=\"window.event.stopPropagation();window.DOWNLOADINTERFACE.download(this.getAttribute('title'), document.title, this.getAttribute('download-url'));\" title=\"");
-					html.append(map.get("title").replace("\"", "&quot;"));
-					html.append("\" download-url=\"");
-					html.append(subMap.get("asset-url").replace("\"", "&quot;"));
-					html.append("\"><span class='download_open'>Download</span> ");
-					html.append(fileExt(subMap.get("asset-url")));
-					html.append("</a><a href='javascript:;' onclick=\"window.event.stopPropagation();window.DOWNLOADINTERFACE.preview(this.getAttribute('title'),this.getAttribute('url'));\" title=\"");
-					html.append(map.get("title").replace("\"", "&quot;"));
-					html.append("\" url=\"");
-					html.append(subMap.get("asset-url").replace("\"", "&quot;"));
-					html.append("\"><span class='preview'></span></a>&nbsp;<b class='media'>");
-					html.append(map.get("title"));
-					if (subMap.containsKey("label")) {
-						html.append(" ["+subMap.get("label")+"]");
+					addMiniMedia(map.get("title"),subMap.get("asset-url"),subMap.get("asset-url"),extra);
+					
+				} else if (type.equals("album")) {
+					if (subMap.containsKey("url")) {
+						html.append("<img style='vertical-align: top; margin:2px; float:left; display:block;' src=\"");
+						html.append(subMap.get("url").replace("\"","\\\""));
+						html.append("\">");
 					}
-					html.append("</b></div><div style='display:none'><b>");
-					if (subMap.containsKey("duration")) {
-						html.append("Duration: ");
-						html.append(timeval(subMap.get("duration")));
+					html.append(map.get("genre-name"));
+					html.append("<br/>");
+					html.append(map.get("copyright"));
+					html.append("<br/>Released ");
+					html.append(map.get("release-date-string"));
+					html.append("<br/>");
+					html.append(subMap.get("price-display"));
+					showRating();
+				} else if (type.equals("song")) {
+					if (map.containsKey("url") && map.get("url").equals(_url.toString())) {
+						extra = "style='background-color:gold;' ";
+						html.append("<a name='here'></a>");
 					}
-					if (map.containsKey("copyright")) {
-						html.append(" Copyright: ");
-						html.append(map.get("copyright"));
-					}
-					html.append("</b><br>");
-					html.append(map.get("long-description"));
-					html.append("<br></div>");
+					addMiniMedia(map.get("title"), subMap.get("preview-url"), null, "");
+					_preview = true;
 				} else if (map.containsKey("songName") || map.containsKey("itemName")) {
+				
 					addMediaRow();
 				} else if (type.endsWith("-section") && map.containsKey("contents")) {
 					//Funny hybrid ipadpage that has htm in xml.
@@ -562,6 +551,63 @@ public class ItunesXmlParser extends DefaultHandler {
 		innerText.setLength(0);
 	}
 	
+	/**
+	 * If applicable, adds rating and stars of current section:
+	 */
+	private void showRating() {
+		if (map.containsKey("title2") && map.containsKey("view-user-reviews-url")) {
+			html.append("<p><a href='javascript:;' url=\"");
+			html.append(map.get("view-user-reviews-url"));//Ratings link
+			html.append("\" onclick=\"window.DOWNLOADINTERFACE.go(this.getAttribute('url'))\">");
+			html.append(map.get("title2"));
+			if (map.containsKey("average-user-rating")) {
+				appendStars(Float.valueOf(map.get("average-user-rating")));
+			}
+			html.append("</a></p>");
+		}
+	}
+	private void addMiniMedia(String title, String preview, String download, String extra) {
+		html.append("<div class='media' "+extra+" onclick='toggle(this.nextSibling)'>");
+		//stoppropagation to prevent clicking container, then download:
+		if (download != null) {
+			html.append("<a class='media' style='float:right' onclick=\"window.event.stopPropagation();window.DOWNLOADINTERFACE.download(this.getAttribute('title'), document.title, this.getAttribute('download-url'));\" title=\"");
+			html.append(title.replace("\"", "&quot;"));
+			html.append("\" download-url=\"");
+			html.append(subMap.get("asset-url").replace("\"", "&quot;"));
+			html.append("\"><span class='download_open'>Download</span> ");
+			html.append(fileExt(subMap.get("asset-url")));
+			html.append("</a>");
+		}
+		if (preview != null) {
+			html.append("<a href='javascript:;' onclick=\"window.event.stopPropagation();window.DOWNLOADINTERFACE.preview(this.getAttribute('title'),this.getAttribute('url'));\" title=\"");
+			html.append(title.replace("\"", "&quot;"));
+			html.append("\" url=\"");
+			html.append(preview.replace("\"", "&quot;"));
+			html.append("\"><span class='preview'></span></a>&nbsp;");
+		}
+		html.append("<b class='media'>");
+		html.append(title);
+		if (subMap.containsKey("label")) {
+			html.append(" ["+subMap.get("label")+"]");
+		}
+		html.append("</b></div><div style='display:none'><b>");
+		if (subMap.containsKey("duration")) {
+			html.append("Duration: ");
+			html.append(timeval(subMap.get("duration")));
+		}
+		if (map.containsKey("copyright")) {
+			html.append(" Copyright: ");
+			html.append(map.get("copyright"));
+		}
+		html.append("</b><br>");
+		if (map.containsKey("long-description")) {
+			html.append(map.get("long-description"));
+		}
+		if (subMap.containsKey("price-display")) {
+			html.append(subMap.get("price-display"));
+		}
+		html.append("<br></div>");
+	}
 	/**
 	 * Appends rating stars to html.
 	 * @param rating - 0 for 0 stars, 1.0 is 5-star.
@@ -756,11 +802,14 @@ public class ItunesXmlParser extends DefaultHandler {
 		}
 		html.insert(0, String.format("<html><head>"+
 			//<meta name=\"viewport\" content=\"width=device-width\" />
-			"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/></head><body bgcolor=\"%s\">",backColor));
+			"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/></head><body class=\"tunesviewerGenerated\" bgcolor=\"%s\">",backColor));
 		if (media.length()>0) {
 			html.append(PRE_MEDIA);
 			html.append(media);
 			html.append(POST_MEDIA);
+		}
+		if (_preview) {
+			html.append("Previews available for promotional streaming purposes only, provided courtesy of iTunes. <a href=\"./\">Download on iTunes</a> by holding link and selecting \"Share\" to computer.");
 		}
 		html.append("</body></html>");
 		if (_profiling) {
@@ -781,7 +830,8 @@ public class ItunesXmlParser extends DefaultHandler {
 		//return keyid != null && HandledNames.containsKey(keyid);
 		return keyid != null && (keyid.endsWith("section") || keyid.equals("action")
 			|| keyid.equals("items") || keyid.equals("item-metadata") || keyid.equals("tabs")
-			|| keyid.equals("squishes") || keyid.equals("content") || keyid.equals("dialog"));
+			|| keyid.equals("squishes") || keyid.equals("content") || keyid.equals("dialog")
+			|| keyid.equals("album-metadata"));
 	}
 	
 	/**

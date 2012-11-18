@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URI;
 
 import android.content.Context;
 import android.content.Intent;
@@ -38,7 +39,12 @@ public class MyReceiver extends android.content.BroadcastReceiver {
 		System.out.println(intent.getStringExtra(NAME));
 		String podcastname = intent.getStringExtra(NAME);
 		String pageurl = intent.getStringExtra(PAGEURL);
-		
+		/*try {
+			URI uri = URI.create(pageurl);
+			pageurl = uri.getScheme()+"://"+uri.getHost()+uri.getPath();
+		} catch (Exception e) {
+			System.err.println("MyReceiver current page not valid: "+pageurl);
+		}*/
 		final StringBuilder js = new StringBuilder("javascript:updateDownloadOpen([");
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(_caller);
 		String downloadDir = prefs.getString("DownloadDirectory",_caller.getString(R.string.defaultDL));
@@ -53,7 +59,8 @@ public class MyReceiver extends android.content.BroadcastReceiver {
 				    BufferedReader in = new BufferedReader(new FileReader(linkfile));
 				    String line = in.readLine();
 				    if (line != null) {
-					    if (line.indexOf("\""+pageurl+"\"") != -1) {
+					    if (line.indexOf("\""+pageurl) != -1 ||
+					        line.indexOf("\""+pageurl.replaceFirst("https://", "http://")) != -1) {
 					    	// This is the page described in the file, safe.
 					    	names = directory.list();
 							for (int i=0; i<names.length; i++) {

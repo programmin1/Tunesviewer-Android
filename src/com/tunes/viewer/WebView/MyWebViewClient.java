@@ -75,6 +75,7 @@ public class MyWebViewClient extends WebViewClient {
 	private SharedPreferences _prefs;
 	private String _originalDownload = "";
 	private String _javascript; //from res/raw/javascript.js
+	private String mobileExtras;
 	
 	//Back and Forward navigation stacks:
 	private Stack<String> Back = new Stack<String>();
@@ -365,11 +366,6 @@ public class MyWebViewClient extends WebViewClient {
 			}
 			URL u = new URL(_url);
 			
-			
-			//if (true || u.getProtocol().toLowerCase().equals("https")) {
-				//TODO: This is ugly
-				//trustAllHosts(); // stop javax.net.ssl.SSLException: Not trusted server certificate
-			//}
 			int tries = 4;
 			int code = 301;
 			URLConnection conn = null;
@@ -387,12 +383,17 @@ public class MyWebViewClient extends WebViewClient {
 				if (code/100 == 3) {
 					String loc = conn.getHeaderField("Location");
 					u = new URL(loc);
+				} else {
+					// try:
+					conn.connect();
+					//Map<String, List<String>> returnv = conn.getHeaderFields();
+					_CM.storeCookies(conn);
+					if (conn.getContentType()==null) {
+						code = 300;
+					}
 				}
 			}
-
-			conn.connect();
-			//Map<String, List<String>> returnv = conn.getHeaderFields();
-			_CM.storeCookies(conn);
+			
 			
 			/*if (loc != null) { // Works in Android 4.1, maybe others?
 				conn = new URL(loc).openConnection();
@@ -440,6 +441,7 @@ public class MyWebViewClient extends WebViewClient {
 					ItunesXmlParser parser = new ItunesXmlParser(
 						u,callerContext,_view.getWidth()
 						,Integer.valueOf(myprefs.getString("ImgPref", "0")));
+					mobileExtras = parser.mobileExtras;
 					XMLReader xr = saxParser.getXMLReader();
 					xr.setContentHandler(parser);
 					InputSource is = new InputSource(new StringReader(_download.toString()));
@@ -581,7 +583,7 @@ public class MyWebViewClient extends WebViewClient {
 						final StringBuilder data = _download;
 						int endhead = data.indexOf("<head>")+6;
 						if (endhead-6 != -1) {
-							data.replace(endhead, endhead, "<script>"+_javascript+"</script>");
+							data.replace(endhead, endhead, "<script>"+_javascript+"</script>"+mobileExtras);
 						} else {
 							Log.w(TAG, "No end head tag in this page, so not preinserting!!");
 						}
