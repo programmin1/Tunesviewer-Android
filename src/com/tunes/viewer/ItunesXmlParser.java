@@ -434,7 +434,7 @@ public class ItunesXmlParser extends DefaultHandler {
 				} else if (type.equals("pagination")) {
 					addLink(map.get("title"), map.get("url"), null);
 				} else if (type.equals("podcast")) { // page info.
-					html.append("<div style='display:table; margin-top:7px;'><!-- podcast --><a href='javascript:;' url=\"");
+					html.append("<div style='display:table; margin:8px 0px;'><!-- podcast --><a href='javascript:;' url=\"");
 					html.append(map.get("url"));
 					html.append("\" onclick=\"window.DOWNLOADINTERFACE.go(this.getAttribute('url'))\"><img style='float:left; padding:3px;' src=\"");
 					html.append(subMap.get("url"));
@@ -450,15 +450,15 @@ public class ItunesXmlParser extends DefaultHandler {
 					html.append("<br>");
 					html.append(map.get("description"));
 					showRating();
-					html.append("</div>");
 					if (map.containsKey("podcast-feed-url")) {
 						String rssfeedurl = map.get("podcast-feed-url").replace("\"", "&quot;");
 						html.append("<p style='text-align:left;'><a href='");
 						html.append(rssfeedurl);
 						html.append("' onclick=\"window.DOWNLOADINTERFACE.subscribe(this.getAttribute('url')); return false;\" url=\"");
 						html.append(rssfeedurl);
-						html.append("\">Subscribe</a></p>");
+						html.append("\">Subscribe</a><br/></p>");
 					}
+					html.append("</div>");
 				} else if (type.equals("podcast-episode")) {
 					if (map.containsKey("url") && map.get("url").equals(_url.toString())) {
 						extra = "style='background-color:gold;' ";
@@ -467,6 +467,7 @@ public class ItunesXmlParser extends DefaultHandler {
 					addMiniMedia(map.get("title"),subMap.get("asset-url"),subMap.get("asset-url"),extra);
 					
 				} else if (type.equals("album")) {
+					html.append("<div style='display:table; margin: 8px 0px'>");
 					if (subMap.containsKey("url")) {
 						html.append("<img style='vertical-align: top; margin:2px; float:left; display:block;' src=\"");
 						html.append(subMap.get("url").replace("\"","\\\""));
@@ -480,6 +481,7 @@ public class ItunesXmlParser extends DefaultHandler {
 					html.append("<br/>");
 					html.append(subMap.get("price-display"));
 					showRating();
+					html.append("</div>");
 				} else if (type.equals("song")) {
 					if (map.containsKey("url") && map.get("url").equals(_url.toString())) {
 						extra = "style='background-color:gold;' ";
@@ -556,14 +558,14 @@ public class ItunesXmlParser extends DefaultHandler {
 	 */
 	private void showRating() {
 		if (map.containsKey("title2") && map.containsKey("view-user-reviews-url")) {
-			html.append("<p><a href='javascript:;' url=\"");
+			html.append("<br/><a href='javascript:;' url=\"");
 			html.append(map.get("view-user-reviews-url"));//Ratings link
 			html.append("\" onclick=\"window.DOWNLOADINTERFACE.go(this.getAttribute('url'))\">");
 			html.append(map.get("title2"));
 			if (map.containsKey("average-user-rating")) {
 				appendStars(Float.valueOf(map.get("average-user-rating")));
 			}
-			html.append("</a></p>");
+			html.append("</a><br/>");
 		}
 	}
 	private void addMiniMedia(String title, String preview, String download, String extra) {
