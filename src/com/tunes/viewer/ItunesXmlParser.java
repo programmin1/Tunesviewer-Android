@@ -434,7 +434,8 @@ public class ItunesXmlParser extends DefaultHandler {
 				} else if (type.equals("pagination")) {
 					addLink(map.get("title"), map.get("url"), null);
 				} else if (type.equals("podcast")) { // page info.
-					html.append("<div style='display:table; margin:8px 0px;'><!-- podcast --><a href='javascript:;' url=\"");
+					// could add background -webkit-gradient(linear, left top, left bottom, color-stop(0%,#DACE95), color-stop(100%,#E2E2E2));?
+					html.append("<div style='display:table; width:100%; margin:7px 0 20px 0;'><!-- podcast --><a href='javascript:;' url=\"");
 					html.append(map.get("url"));
 					html.append("\" onclick=\"window.DOWNLOADINTERFACE.go(this.getAttribute('url'))\"><img style='float:left; padding:3px;' src=\"");
 					html.append(subMap.get("url"));
@@ -446,17 +447,18 @@ public class ItunesXmlParser extends DefaultHandler {
 					if (subMap.containsKey("label")) {
 						html.append(" ["+subMap.get("label")+"]");
 					}
-					html.append("</font></a>");
-					html.append("<br>");
+					html.append("</font></a><br/>");
 					html.append(map.get("description"));
+					html.append("<div style=\"margin:7px 0 7px 0;\">");
 					showRating();
+					html.append("</div>");
 					if (map.containsKey("podcast-feed-url")) {
 						String rssfeedurl = map.get("podcast-feed-url").replace("\"", "&quot;");
-						html.append("<p style='text-align:left;'><a href='");
+						html.append("<a href='");
 						html.append(rssfeedurl);
 						html.append("' onclick=\"window.DOWNLOADINTERFACE.subscribe(this.getAttribute('url')); return false;\" url=\"");
 						html.append(rssfeedurl);
-						html.append("\">Subscribe</a><br/></p>");
+						html.append("\">Subscribe</a>");
 					}
 					html.append("</div>");
 				} else if (type.equals("podcast-episode")) {
@@ -467,7 +469,7 @@ public class ItunesXmlParser extends DefaultHandler {
 					addMiniMedia(map.get("title"),subMap.get("asset-url"),subMap.get("asset-url"),extra);
 					
 				} else if (type.equals("album")) {
-					html.append("<div style='display:table; margin: 8px 0px'>");
+					html.append("<div style='display:table; margin: 8px 0px; width:100%;'>");
 					if (subMap.containsKey("url")) {
 						html.append("<img style='vertical-align: top; margin:2px; float:left; display:block;' src=\"");
 						html.append(subMap.get("url").replace("\"","\\\""));
@@ -480,6 +482,7 @@ public class ItunesXmlParser extends DefaultHandler {
 					html.append(map.get("release-date-string"));
 					html.append("<br/>");
 					html.append(subMap.get("price-display"));
+					html.append("<br/>");
 					showRating();
 					html.append("</div>");
 				} else if (type.equals("song")) {
@@ -558,11 +561,12 @@ public class ItunesXmlParser extends DefaultHandler {
 	 */
 	private void showRating() {
 		if (map.containsKey("title2") && map.containsKey("view-user-reviews-url")) {
-			html.append("<br/><a href='javascript:;' url=\"");
+			html.append("<a href='javascript:;' url=\"");
 			html.append(map.get("view-user-reviews-url"));//Ratings link
 			html.append("\" onclick=\"window.DOWNLOADINTERFACE.go(this.getAttribute('url'))\">");
 			html.append(map.get("title2"));
 			if (map.containsKey("average-user-rating")) {
+				html.append("<br/>");
 				appendStars(Float.valueOf(map.get("average-user-rating")));
 			}
 			html.append("</a><br/>");
