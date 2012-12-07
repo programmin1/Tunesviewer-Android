@@ -424,7 +424,7 @@ public class ItunesXmlParser extends DefaultHandler {
 						Log.e(TAG,"Enroll link not shown, since AppleID enrollment is not supported.");
 					} else {
 						if (map.get("average-user-rating") == null) {
-							addLink(map.get("title"), map.get("url"), subMap.get("url"));
+							addLink(map.get("title"), map.get("url"), subMap.get("url"),map.get("artist-name"));
 						} else {
 							addLink(map.get("title"), map.get("url"), subMap.get("url"),
 								map.get("title2"), Float.valueOf(map.get("average-user-rating")),
@@ -625,7 +625,11 @@ public class ItunesXmlParser extends DefaultHandler {
 		html.append(String.valueOf(125*(rating)));
 		html.append("px;\"></div></string>");
 	}
+	
 	private void addLink(String text, String url, String image) {
+		addLink(text, url, image, null);
+	}
+	private void addLink(String text, String url, String image, String author) {
 		html.append("<div class='link' onclick=\"window.DOWNLOADINTERFACE.go(this.getAttribute('url'))\" url=\"");
 		html.append(url.replace("\"", "&quot;"));
 		html.append("\">");
@@ -634,7 +638,14 @@ public class ItunesXmlParser extends DefaultHandler {
 			html.append(image.replace("\"", "&quot;"));
 			html.append("\">");
 		}
-		html.append(text);
+		if (author != null) {
+			html.append("<strong>");
+			html.append(text);
+			html.append("</strong><br>");
+			html.append(author);
+		} else {
+			html.append(text);
+		}
 		html.append("</div>");
 	}
 	
