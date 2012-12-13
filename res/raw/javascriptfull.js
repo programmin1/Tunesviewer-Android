@@ -488,6 +488,8 @@ function updateDownloadOpen(downloads) {
 			}
 			if (ext.toLowerCase()==(".rtf")) {
 				out += ".zip";
+			} else if (ext.toLowerCase()==".ibooks") {
+				out += ".epub";
 			} else {
 				out += ext.toLowerCase();
 			}

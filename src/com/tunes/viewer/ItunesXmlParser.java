@@ -761,6 +761,8 @@ public class ItunesXmlParser extends DefaultHandler {
 			}
 			if (ext.toLowerCase().equals(".rtf")) {
 				return ".zip";
+			} else if (ext.toLowerCase().equals(".ibooks")) {
+				return ".epub";
 			} else {
 				return ext.toLowerCase();
 			}
