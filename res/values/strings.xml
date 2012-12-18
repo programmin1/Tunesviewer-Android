@@ -124,6 +124,8 @@
     <string name="prefBookmarkSummary">Bookmarks a podcasts when an item is downloaded.</string>
     <string name="SSLTitle">Trust All SSL</string>
     <string name="SSLSummary">This should not be necessary. Only use if you trust your connection and certificates give you errors.</string>
+    <string name="viewPdf">View as Pdf</string>
+    <string name="viewThumbnail">View Thumbnail Preview</string>
     
     
 </resources>

@@ -83,7 +83,7 @@
 		<activity android:name=".Bookmarks.MediaListActivity"></activity>
 		<service android:name=".FileDownload.DownloadService"></service>
 		<activity android:name=".Bookmarks.BookmarksActivity"></activity>
-		<activity android:name=".RedirectActivity">
+		<activity android:name="com.tunes.viewer.OpenFileActivity">
 		    
 		    <intent-filter>
     <action android:name="android.intent.action.VIEW" />
