@@ -82,7 +82,7 @@ public class OpenFileActivity extends Activity {
 			findViewById(R.id.buttonPdf).setVisibility(View.GONE);
 		}
 		if (hasThumbnail) {
-			pdf.setOnClickListener(new OnClickListener() {
+			thumbnail.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
 					OpenFileActivity.this.open("QuickLook/Thumbnail.jpg");
