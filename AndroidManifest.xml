@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.tunes.viewer"
-      android:versionCode="14" android:versionName="1.1">
+      android:versionCode="15" android:versionName="1.2">
       <!-- Android tablet compatibility -->
 <uses-sdk android:minSdkVersion="4" 
               android:targetSdkVersion="11" />
@@ -86,16 +86,17 @@
 		<activity android:name="com.tunes.viewer.OpenFileActivity">
 		    
 		    <intent-filter>
-    <action android:name="android.intent.action.VIEW" />
-    <category android:name="android.intent.category.DEFAULT" />
-    <category android:name="android.intent.category.BROWSABLE" />
-    <data android:scheme="file" />
-    <data android:pathPattern="*.*\\.pages" />
-            <!-- 
-    <data android:mimeType="*/*" />
-    <data android:pathPattern="*.*\\.pages" />
-    <data android:mimeType="application/pages" android:scheme="content"></data> -->
-</intent-filter>
+			    <action android:name="android.intent.action.VIEW" />
+			    <category android:name="android.intent.category.DEFAULT" />
+			    <category android:name="android.intent.category.BROWSABLE" />
+			    <data android:scheme="file" />
+			    <data android:pathPattern="*.*\\.pages" />
+			            <!-- 
+			    <data android:mimeType="application/zip" android:scheme="content"></data>
+			    <data android:mimeType="*/*" />
+			    <data android:pathPattern="*.*\\.pages" />
+			     -->
+			</intent-filter>
 		</activity>
     </application>
 </manifest>

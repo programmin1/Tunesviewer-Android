@@ -120,7 +120,7 @@ iTunes = { // All called from the page js:
 	/** Download a file described as XML */
 	addProtocol: function (xml) {
 		"use strict";
-		//console.log('addProtocol called:'+xml);
+		console.log('addProtocol called:'+xml);
 		if (xml.indexOf("<key>navbar</key>") === -1) {
 			xml = new DOMParser().parseFromString(xml, "text/xml");
 			var keys = xml.getElementsByTagName('key'), url = "", name = "";
@@ -134,7 +134,9 @@ iTunes = { // All called from the page js:
 				}
 				
 			}
-			window.DOWNLOADINTERFACE.download(name, document.title, url);
+			if (url != '') {
+				window.DOWNLOADINTERFACE.download(name, document.title, url);
+			}
 			/*if (xml.indexOf("<key>navbar</key>") === -1) {
 				console.log("TunesViewer: adding download: " + xml);
 				location.href = "download://" + xml;
@@ -344,8 +346,9 @@ document.addEventListener("DOMContentLoaded", function () {
 			removeListeners(divs[i].parentNode.parentNode);
 			removeListeners(divs[i].parentNode.childNodes);
 			removeListeners(divs[i].childNodes);
+			var url = divs[i].getAttribute("download-url");
 			divs[i].innerHTML = "<a class='media' onclick=\"window.event.stopPropagation();window.DOWNLOADINTERFACE.download(this.getAttribute('title'), document.title, this.getAttribute('download-url'));\" title=\""
-				+divs[i].getAttribute("item-title")+"\" download-url=\""+divs[i].getAttribute("download-url")+"\"><span class='download_open'>Download</span></a>";
+				+divs[i].getAttribute("item-title")+"\" download-url=\""+url+"\"><span class='download_open'>Download</span> "+file_ext(url)+"</a>";
 			//divs[i].addEventListener('mouseDown',function () {console.log('opening'+this.getAttribute('download-url'));
 			//                                              location.href = this.getAttribute('download-url'); });
 			//Unfortunately it seems some previews aren't working with this:
@@ -373,7 +376,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			for (j=0; j<divs.length; j++) {
 				if (divs[j].getAttribute("podcast-feed-url") != null) {
 					rss = divs[j].getAttribute("podcast-feed-url");
-					console.log("rss:"+rss);
+					//console.log("rss:"+rss); too many
 				}
 			}
 			divs[i].addEventListener('click', function () {console.log(rss);window.DOWNLOADINTERFACE.subscribe(rss);});
@@ -400,7 +403,8 @@ document.addEventListener("DOMContentLoaded", function () {
 		    divs[i].textContent.indexOf("FREE") !== -1) {
 			console.log("TunesViewer: getting attribute: " + divs[i].getAttribute("download-url"));
 			removeListeners(divs[i].childNodes);
-			//divs[i].innerHTML = "<button class='download_open' onclick='window.event.stopPropagation();location.href=\"" + divs[i].getAttribute("download-url") + "\";'>Download</button>";
+			var url = divs[i].getAttribute("download-url");
+			//divs[i].innerHTML = "<button class='download_open' onclick='window.event.stopPropagation();location.href=\"" + url + "\";'>Download "+file_ext(url)+"</button>";
 			divs[i].addEventListener('mouseDown',function() {downloadMouseDownEvent(getAttribute('download-url'))}, false);
 		}
 		if (divs[i].getAttribute("role") === "button" &&
@@ -412,7 +416,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			for (j = 0; j < divs.length; j++) {
 				if (divs[j].getAttribute("podcast-feed-url") !== null) {
 					rss = divs[j].getAttribute("podcast-feed-url");
-					console.log("TunesViewer: RSS:" + rss);
+					//console.log("TunesViewer: RSS:" + rss); too many
 				}
 			}
 			divs[i].addEventListener('click', clickEvent(rss), false);
@@ -463,54 +467,4 @@ document.addEventListener("DOMContentLoaded", function () {
 
 }, false); // end Pageshow.
 
-/** A function called by Java with a list of this podcast's downloaded files: */
-function updateDownloadOpen(downloads) {
-	function dest(title,url) { // Function must be functionally the same as Java's com.tunes.viewer.WebView.JSInterface.dest()! and mobileextras dest().
-		out = "";
-		VALID = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 $%`-_@{}~!()."
-		for (var i=0; i<title.length; i++) {
-			ch = title.charAt(i);
-			if (VALID.indexOf(ch)!=-1) {
-				out += ch;
-			}
-		}
-		if (url.indexOf("?")>-1) {
-			url = url.substring(0,url.indexOf("?"));
-		}
-		if (url.lastIndexOf(".") == -1) {
-		} else {
-			var ext = url.substring(url.lastIndexOf(".") );
-			if (ext.indexOf("%")>-1) {
-				ext = ext.substring(0,ext.indexOf("%"));
-			}
-			if (ext.indexOf("/")>-1) {
-				ext = ext.substring(0,ext.indexOf("/"));
-			}
-			if (ext.toLowerCase()==(".rtf")) {
-				out += ".zip";
-			} else if (ext.toLowerCase()==".ibooks") {
-				out += ".epub";
-			} else {
-				out += ext.toLowerCase();
-			}
-		}
-		console.log(out);
-		return out;
-	}
-	var start = new Date().getTime();
-	var els = document.getElementsByClassName('download_open');
-	for (var i=0; i<els.length; i++) {
-		var parent = els[i].parentNode;
-		// Adding "" to the object turns it to a string:
-		var possiblefile = dest(parent.getAttribute('title'), parent.getAttribute('download-url') );
-		if (downloads.indexOf(possiblefile) == -1) {
-			els[i].innerHTML = "Download";
-		} else {
-			els[i].innerHTML = "Open";
-		}
-	}
-	var end = new Date().getTime();
-	var time = end - start;
-	console.log('refresh-dl took '+time);
-}
     

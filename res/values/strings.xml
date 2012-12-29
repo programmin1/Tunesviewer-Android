@@ -72,6 +72,7 @@
     <string name="prefInsertTitle">Additional Script</string>
     <string name="prefInsertSummary">Enter JavaScript that will run on each page.</string>
     
+    <string name="unsupported">"Tunesviewer doesn't handle this file-type."</string>
     
     <!-- Errors -->
     <string name="ErrorTitle">Error!</string>

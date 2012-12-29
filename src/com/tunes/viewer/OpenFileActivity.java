@@ -17,6 +17,7 @@ import java.util.zip.ZipInputStream;
 import com.tunes.viewer.FileDownload.DownloaderTask;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -30,13 +31,11 @@ public class OpenFileActivity extends Activity {
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 	}
 	
 	@Override
 	protected void onStart() {
-		// TODO Auto-generated method stub
 		super.onStart();
 		setContentView(R.layout.openfile);
 		String uri = this.getIntent().getData().getPath();
@@ -44,7 +43,6 @@ public class OpenFileActivity extends Activity {
 		boolean hasThumbnail = false;
 		Button pdf = (Button) findViewById(R.id.buttonPdf);
 		Button thumbnail = (Button) findViewById(R.id.buttonThumbnail);
-		Toast.makeText(getApplicationContext(), "YEEHAA"+uri.toString(), Toast.LENGTH_LONG).show();
 		if (ItunesXmlParser.fileExt(uri).equals(".pages")) {
 			try {
 				_infile = new File(uri);
@@ -63,13 +61,16 @@ public class OpenFileActivity extends Activity {
 				}
 				zis.close();
 			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
+				Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
 				e.printStackTrace();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
+				Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
 				e.printStackTrace();
 			}
-			
+			((TextView)findViewById(R.id.textFileDesc)).setText(uri.toString());
+		} else {
+			((TextView)findViewById(R.id.textFileDesc)).setText(uri.toString()+"\n\n"+ getString(R.string.unsupported));
+			Toast.makeText(this, getString(R.string.unsupported), Toast.LENGTH_LONG).show();
 		}
 		if (hasPdf) {
 			pdf.setOnClickListener(new OnClickListener() {
@@ -91,7 +92,7 @@ public class OpenFileActivity extends Activity {
 		} else {
 			findViewById(R.id.buttonThumbnail).setVisibility(View.GONE);
 		}
-		((TextView)findViewById(R.id.textFileDesc)).setText(uri.toString());
+		
 	}
 	
 	/**
