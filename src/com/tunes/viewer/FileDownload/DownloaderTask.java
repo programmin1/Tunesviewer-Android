@@ -215,6 +215,7 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 				if (_url.getHost().equals("sourceforge.net") && _url.getPath().startsWith("/projects/")) {
 					// Not an ordinary download, this is from the update page.
 					_outFile = new File(directory, "update.apk");
+					markDownloading = new File(directory, "updating");
 				} else {
 					_outFile        = new File(directory, clean(_title)+ItunesXmlParser.fileExt(_url.toString()));
 					markDownloading = new File(directory, "."+clean(_title)+ItunesXmlParser.fileExt(_url.toString()));
