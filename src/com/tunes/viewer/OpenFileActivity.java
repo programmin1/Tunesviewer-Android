@@ -25,6 +25,12 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+/**
+ * An activity for viewing .pages
+ * Distributed under GPL2+
+ * @author Luke Bryan 2011-2013
+ */
 public class OpenFileActivity extends Activity {
 
 	private File _infile;

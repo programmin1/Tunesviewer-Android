@@ -10,6 +10,8 @@ import android.content.Intent;
 
 /**
  * Notification manager class, handles a notification with % complete and estimated time remaining.
+ * Distributed under GPL2+
+ * @author Luke Bryan 2011-2013
  */
 public class Notifier {
 	
@@ -38,7 +40,7 @@ public class Notifier {
 	
 	/**
 	 * Creates this class' notification.
-	 * @param ongoing - True when download still in progress
+	 * @param ongoing - True when download's still in progress
 	 * @param title - initial title
 	 */
 	private void makeNotification(boolean ongoing,String title) {

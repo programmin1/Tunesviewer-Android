@@ -39,6 +39,12 @@ import com.tunes.viewer.WebView.JSInterface;
 import com.tunes.viewer.WebView.MyWebChromeClient;
 import com.tunes.viewer.WebView.MyWebViewClient;
 
+/**
+ * Tunesviewer main activity.
+ * Distributed under GPL2+
+ * @author Luke Bryan 2011-2013
+ *
+ */
 @TargetApi(3)
 public class TunesViewerActivity extends Activity {
 

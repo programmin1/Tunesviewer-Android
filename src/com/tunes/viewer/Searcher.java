@@ -15,6 +15,12 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
+/**
+ * A search activity
+ * Distributed under GPL2+
+ * @author Luke Bryan 2011-2013
+ *
+ */
 public class Searcher extends Activity {
 	
 	private EditText _text;

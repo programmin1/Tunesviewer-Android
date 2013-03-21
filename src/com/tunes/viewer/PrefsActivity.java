@@ -11,7 +11,12 @@ import android.os.Environment;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.util.Log;
-
+/**
+ * TunesViewer Preferences
+ * Distributed under GPL2+
+ * @author Luke Bryan 2011-2013
+ *
+ */
 public class PrefsActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 
 	private static final String DL = "DownloadDirectory";

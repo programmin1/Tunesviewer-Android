@@ -24,8 +24,8 @@ import android.widget.Toast;
  * The downloader service, manages DownloaderTasks.
  * When called, it opens selected file, or starts new download.
  * 
- * @author Luke Bryan
- *
+ * Distributed under GPL2+
+ * @author Luke Bryan 2011-2013
  */
 @TargetApi(3)
 public class DownloadService extends Service {

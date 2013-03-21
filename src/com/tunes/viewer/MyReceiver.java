@@ -16,8 +16,9 @@ import com.tunes.viewer.FileDownload.DownloaderTask;
 /**
  * A subclass of BroadcastReceiver that holds reference to main activity,
  * updates the download/open buttons with a bit of javascript when called.
- * @author luke
- *
+ * 
+ * Distributed under GPL2+
+ * @author Luke Bryan 2011-2013
  */
 public class MyReceiver extends android.content.BroadcastReceiver {
     private TunesViewerActivity _caller;

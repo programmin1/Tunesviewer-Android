@@ -5,7 +5,9 @@ import android.media.MediaScannerConnection.MediaScannerConnectionClient;
 import android.net.Uri;
 import android.util.Log;
 
-
+/**
+ * MediaScanner (for updating Android media db)
+ */
 public class MediaScannerWrapper implements MediaScannerConnectionClient {
     private MediaScannerConnection mConnection;
     private String mPath;

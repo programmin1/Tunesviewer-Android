@@ -44,6 +44,8 @@ import com.tunes.viewer.FileDownload.DownloadService;
  * Javascript interface for the WebView
  * Note that all of these functions must be safe for untrusted input!
  * They are called by the injected script found in res/raw/javascript.js.
+ * Distributed under GPL2+
+ * @author Luke Bryan 2011-2013
  */
 public class JSInterface {
 

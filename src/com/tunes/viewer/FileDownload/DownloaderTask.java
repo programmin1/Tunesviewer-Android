@@ -36,7 +36,8 @@ import com.tunes.viewer.R;
 
 /**
  * A class to handle a download and its notification.
- * @author Luke Bryan
+ * Distributed under GPL2+
+ * @author Luke Bryan 2011-2013
  */
 @TargetApi(3)
 public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
