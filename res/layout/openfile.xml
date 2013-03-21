@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+        android:layout_x="175dp"
+        android:layout_y="87dp"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/textFileDesc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Medium Text"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <Button
+            android:id="@+id/buttonPdf"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/viewPdf" />
+
+        <Button
+            android:id="@+id/buttonThumbnail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/viewThumbnail" />
+
+    </LinearLayout>
