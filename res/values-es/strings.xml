@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!-- Menu -->
+    <string name="app_name">TunesViewer</string>
+    <string name="download_title">Descargar</string>
+    <string name="menuSearch">Búsqueda</string>
+    <string name="menuHome">Página de inicio</string>
+    <string name="menuStop">Parada</string>
+    <string name="menuRefresh">Actualizar</string>
+    <string name="menuForward">Adelante</string>
+    
+    <string name="menuShareUrl">Compartir la página</string>
+    <string name="menuFindText">Encontrar en la página</string>
+    <string name="menuClear">Borrar historial, Cookies &amp; Cache </string>
+    <string name="menuPrefs">Ajustes</string>
+    <string name="menuGo">Copiar/Ir a la URL</string>
+    <string name="menuSource">Ver Página Fuente</string>
+    <string name="menuOriginal">Ver Código Fuente Original </string>
+    <string name="menuCookies">Ver Cookies</string>
+    
+    <string name="menuImportB">Importar Marcadores de Tarjeta</string>
+    <string name="menuExportB">Exportar Marcadores para Tarjeta</string>
+    <string name="exportBTitle">Exportar</string>
+    <string name="importedBTitle">Resultados</string>
+    <string name="importedB">%1$d agregado a bookmarks,\n%2$d ya bookmarked.</string>
+    <string name="importError">Importación fallado. Archivo debe ser archivo XML HTML en el mismo formato que los marcadores exportados.</string>
+    <string name="exportExists">Tunesviewer/bookmarks.htm archivo ya existe. Sobrescribir?</string>
+    <string name="exported">Guardado tus favoritos a Tunesviewer/bookmarks.htm en almacenamiento tarjeta.</string>
+    
+    <!-- Prefs -->
+    <string name="prefUATitle">Modo de Vista </string>
+    <string name="prefUASummary">Cambiar user-agent para solicitar páginas.</string>
+    <string name="prefDLTitle">Directorio de descargas</string>
+    <string name="prefDLSummary">Seleccionar un directorio para descargar.</string>
+    <string name="prefMountTitle">Montar SD después de descargar</string>
+    <string name="prefMountSummary">Necesarios para agregar descargan medios al reproductor de música/video en algunos dispositivos, pero puede reproducir parada actual canción.</string>
+    <string-array name="UAarray">
+    	<item>Página completa (lento)</item>
+    	<!-- <item>Tablet not working?</item> -->
+    	<item>Móvil (Más rápido, poco ancho de banda)</item>
+    </string-array>
+    <string-array name="UAvalues">
+    	<item>iTunes/10.6.1</item>
+    	<!-- <item>iTunes-iPad-M/3.2</item> -->
+    	<item>iTunes-iPhone/1.2.0</item>
+    </string-array>
+    <string name="defaultUA">iTunes-iPhone/1.2.0</string>
+    
+    <string name="prefImgTitle">Tamaño de la Imagen </string>
+    <string name="prefImgSummary">Preferido de tamaño de imagen para el modo de vista móvil.</string>
+    <string-array name="ImgArray">
+    	<item>Imágenes Ninguno</item>
+    	<item>pequeño (55px)</item>
+    	<item>Medio (88px)</item>
+    	<item>Grande (176px)</item>
+    	<item>Cualquier tamaño </item>
+    </string-array>
+    <!-- Can't use integer-array, see http://code.google.com/p/android/issues/detail?id=2096 -->
+    <string-array name="ImgValues">
+    	<item>-1</item>
+    	<item>55</item>
+    	<item>88</item>
+    	<item>176</item>
+    	<item>0</item>
+    </string-array>
+    <string name="defaultImg">0</string>
+    <string name="defaultDL">/sdcard/download</string>
+    
+    <string name="prefAdvTitle">Mostrar menús de Depuración</string>
+    <string name="prefAdvSummary">Activar menús vista-fuente, galletas y Firebug-lite </string>
+    
+    <string name="prefInsertTitle">Script Adicional</string>
+    <string name="prefInsertSummary">Entrar en JavaScript que se ejecutará en cada página.</string>
+    
+    <string name="unsupported">"Tunesviewer no maneja este tipo de archivo."</string>
+    
+    <!-- Errors -->
+    <string name="ErrorTitle">Error!</string>
+    <string name="NoActivity">No conveniente aplicación fue encontrado para ver este archivo.</string>
+    <string name="NoPodcatcher">No aplicación de podcast</string>
+    <string name="NoPodcatcherMessage">"No aplicación de podcast encontrado para manejar este enlace! Debe instalar una aplicación de gestor de podcast que controla la feed:// enlaces, suscribirse."</string>
+    <string name="DownloadError">"Error de descarga: "</string>
+    <string name="DownloadErrorTimeout">Descargar timeout. Red puede desconectarse?</string>
+    <string name="PageNotDownloaded">No se pudo cargar la página.</string>
+    <string name="SSLError">La conexión falló. Esto es probablemente debido a un error de certificado. Si confías en tu conexión a internet, intente activar SSL todas en la configuración (Menú -> configuración).</string>
+    
+    <!-- Searchbox -->
+    <string name="courses">Cursos Universitarios</string>
+    <string name="collections">Colecciones</string>
+    <string name="podcasts">Podcasts</string>
+    <string name="search">Búsqueda</string>
+    
+    <!-- Bookmarks context menu -->
+    <string name="showFiles">Mostrar archivos</string>
+    <string name="delete">Eliminar</string>
+    
+    
+    
+    <!-- Delete Dialog -->
+    <string name="bookmarkDeleteMessage">"Los siguientes archivos se asocian a este podcast. ¿Desea eliminarlos?
+"</string>
+    <string name="bookmarkDeleteTitle">Borrar marcador?</string>
+    <string name="deleteBookmarked">Marcador &amp; Archivos</string>
+    <string name="removeBookmark">Sólo Marcar</string>
+    
+    <!-- %% is the file size (KB/MB) here: -->
+    <string name="deleteFile">Desea eliminar este %% archivo?</string>
+    
+    <!-- Other strings -->
+    <string name="bookmarks">Marcadores</string>
+    <string name="loading">" Cargando..."</string>
+    
+    <string name="clearedData">Historial, Cookies y caché han sido borrados.</string>
+    
+    <!-- Size of file added after this string: -->
+    <string name="startedDownloadingB">"Iniciado descargando "</string><!-- filesize MB/KB -->
+    
+    <string name="alreadyDownloaded">"Ya descargado. Abrir archivo..."</string>
+    <string name="share">Compartir</string>
+    <string name="sourceTitle">"Fuente de la página (%% car.)"</string>
+	<string name="close">Cerrar</string>
+    <string name="about">Sobre</string>
+    <string name="menuFirebug">Mostrar Firebug Lite</string>
+    <string name="prefBookmarkTitle">Marcador todo descargado</string>
+    <string name="prefBookmarkSummary">Sumar Marcador para un podcast cuando un elemento se descarga.</string>
+    <string name="SSLTitle">Confiar todos SSL</string>
+    <string name="SSLSummary">Esto no debería ser necesario. Utilice sólo si confías en tu conexión y certificados darán errores.</string>
+    <string name="viewPdf">Ver como Pdf </string>
+    <string name="viewThumbnail">Vista miniatura escuchar</string>
+</resources>

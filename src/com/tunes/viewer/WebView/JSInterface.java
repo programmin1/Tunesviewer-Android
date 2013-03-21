@@ -277,17 +277,26 @@ public class JSInterface {
 			if (!url.startsWith("feed") && url.indexOf("://")>-1) {
 				url = "feed"+url.substring(url.indexOf("://"));
 			}
-			Intent i = new Intent(Intent.ACTION_VIEW);
-			i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			i.setData(Uri.parse(url));
-			_context.startActivity(i);
+			Intent f = new Intent(Intent.ACTION_VIEW);
+			f.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			f.setData(Uri.parse(url));
+			_context.startActivity(f);
 		} catch (ActivityNotFoundException e) {
-			new AlertDialog.Builder(_context)
-			.setIcon(android.R.drawable.ic_dialog_alert)
-			.setTitle(R.string.NoPodcatcher)
-			.setMessage(R.string.NoPodcatcherMessage)
-			.setNegativeButton(android.R.string.ok, null)
-			.show();
+			// Also try itpc://
+			try {
+				url = "itpc"+url.substring(url.indexOf("://"));
+				Intent i = new Intent(Intent.ACTION_VIEW);
+				i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				i.setData(Uri.parse(url));
+				_context.startActivity(i);
+			} catch (ActivityNotFoundException nf) {
+				new AlertDialog.Builder(_context)
+				.setIcon(android.R.drawable.ic_dialog_alert)
+				.setTitle(R.string.NoPodcatcher)
+				.setMessage(R.string.NoPodcatcherMessage)
+				.setNegativeButton(android.R.string.ok, null)
+				.show();
+			}
 		}
 	}
 	
