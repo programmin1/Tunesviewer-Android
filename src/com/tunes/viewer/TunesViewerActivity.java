@@ -80,6 +80,7 @@ public class TunesViewerActivity extends Activity {
 			s.setUserAgentString(UA);
 		}
 		s.setJavaScriptEnabled(true);
+		s.setJavaScriptCanOpenWindowsAutomatically(true);//Disable popup-blocker interfering with window.open() interface:// commands.
 		s.setPluginsEnabled(true);
 		s.setSupportZoom(true);
 		s.setBuiltInZoomControls(true);

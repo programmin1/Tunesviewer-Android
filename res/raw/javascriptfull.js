@@ -7,7 +7,7 @@
 /*global window */
 window.DOWNLOADINTERFACE = function(){
 var sendI = function(obj) {
-	location.href="interface://"+encodeURIComponent(JSON.stringify(obj));
+	window.open("interface://"+encodeURIComponent(JSON.stringify(obj)));
 };
 return {
 	go: function(url) {
@@ -17,7 +17,7 @@ return {
 		sendI({cmd:'subscribe',url:url});
 	},
 	source: function(url) {
-		sendI({cmd:'source',src:url});
+		window.location.href = "interface://"+encodeURIComponent(JSON.stringify({cmd:'source',src:url}));
 	},
 	download: function(title,podcast,url) {
 		sendI({cmd:'download', title:title, podcast:podcast, url:url});
