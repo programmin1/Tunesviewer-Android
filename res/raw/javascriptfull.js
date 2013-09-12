@@ -5,7 +5,31 @@
  */
 
 /*global window */
-
+window.DOWNLOADINTERFACE = function(){
+var sendI = function(obj) {
+	location.href="interface://"+encodeURIComponent(JSON.stringify(obj));
+};
+return {
+	go: function(url) {
+		sendI({cmd:'go',url:url});
+	},
+	subscribe: function(url) {
+		sendI({cmd:'subscribe',url:url});
+	},
+	source: function(url) {
+		sendI({cmd:'source',src:url});
+	},
+	download: function(title,podcast,url) {
+		sendI({cmd:'download', title:title, podcast:podcast, url:url});
+	},
+	preview:function(title, url) {
+		sendI({cmd:'preview', title:title, url:url});
+	},
+	setTitle: function(title) {
+		sendI({cmd:'setTitle', title:title});
+	}
+}
+}();// create the object
 iTunes = { // All called from the page js:
 	getMachineID: function () {
 		"use strict";

@@ -9,6 +9,7 @@ import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLDecoder;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
@@ -30,6 +31,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -81,10 +84,12 @@ public class MyWebViewClient extends WebViewClient {
 	private Stack<String> Back = new Stack<String>();
 	private Stack<String> Forward = new Stack<String>();
 	private WebView _web;
+	private JSInterface _interface;
 	
 	public MyWebViewClient (Context c, TunesViewerActivity a, WebView v) {
 		callerContext = c;
 		activity = a;
+		_interface = new JSInterface(a);
 		_prefs = PreferenceManager.getDefaultSharedPreferences(activity);
 		_web = v;
 		InputStream inputStream = c.getResources().openRawResource(R.raw.javascript);
@@ -223,6 +228,27 @@ public class MyWebViewClient extends WebViewClient {
 			System.out.println("COPY "+url);
 			ClipboardManager clipboard = (ClipboardManager)callerContext.getSystemService(Context.CLIPBOARD_SERVICE);
 			clipboard.setText(url.substring(10));
+		} else if (url.startsWith("interface://")) {
+			try {
+				JSONObject json = new JSONObject(URLDecoder.decode(url.substring(12)));
+				String cmd = json.getString("cmd");
+				if (cmd.equals("go")) {
+					_interface.go(json.getString("url"));
+				} else if (cmd.equals("download")) {
+					_interface.download(json.getString("title"), json.getString("podcast"), json.getString("url"));
+				} else if (cmd.equals("subscribe")) {
+					_interface.subscribe(json.getString("url"));
+				} else if (cmd.equals("source")) {
+					_interface.source(json.getString("src"));
+				} else if (cmd.equals("preview")) {
+					_interface.preview(json.getString("title"), json.getString("url"));
+				} else if (cmd.equals("setTitle")) {
+					_interface.setTitle(json.getString("title"));
+				}
+			} catch (JSONException e) {
+				throw new RuntimeException();
+			}
+			
 		} else { // Normal page load:
 			String ua = _prefs.getString("UserAgent", callerContext.getString(R.string.defaultUA));
 			System.setProperty("http.agent", ua);
@@ -232,7 +258,7 @@ public class MyWebViewClient extends WebViewClient {
 			//new Thread(new WebLoader(view,url,this,0)).start();
 			executor.execute(new WebLoader(view,url,this,NEWURL));
 		}
-		return true;
+		return true;//Always using our own loader
 	}
 	
 	/**

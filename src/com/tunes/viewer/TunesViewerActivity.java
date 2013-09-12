@@ -89,7 +89,7 @@ public class TunesViewerActivity extends Activity {
 		}
 		
 		_myWVC =  new MyWebViewClient(getApplicationContext(),this,_web);
-		_web.addJavascriptInterface(new JSInterface(this), "DOWNLOADINTERFACE");
+		//_web.addJavascriptInterface(new JSInterface(this), "DOWNLOADINTERFACE"); bad!
 		_web.setWebViewClient(_myWVC);
 		_web.setWebChromeClient(new MyWebChromeClient(this));
 		_web.requestFocus(View.FOCUS_DOWN);
