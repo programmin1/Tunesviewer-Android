@@ -729,13 +729,21 @@ public class ItunesXmlParser extends DefaultHandler {
 			style = "dl selection";
 		}
 		if (!directurl.equals("") && directurl.lastIndexOf(".")>-1) { //valid media row:
-			if (style.equals("dl selection")) {
-				media.append("<a name='here'></a>");
+			if (html.toString().equals("<plist><dict><true>")) {//Not in a page, this must be single item.
+				urls.add(directurl);
+				singleName = name;
+				if (map.containsKey("podcastName")) {
+					_title = map.get("podcastName");
+				}
+			} else {//normal
+				if (style.equals("dl selection")) {
+					media.append("<a name='here'></a>");
+				}
+				media.append(String.format(
+				"<tr class=\"%s\" onClick=\"window.DOWNLOADINTERFACE.preview(this.getAttribute('name'),this.getAttribute('url'));\" name=\"%s\" url=\"%s\"><td><a name=\"%s\">%s</a></td><td>%s</td><td>%s</td><td>%s</td>"+
+				"<td><a href='javascript:;' onclick=\"window.event.stopPropagation(); downloadit(this.parentNode.parentNode.getAttribute('name'),this.parentNode.parentNode.getAttribute('url'))\">Download %s</a></td></tr>\n",
+				style,name.replace("\"", "&quot;"),directurl.replace("\"", "&quot;"),id,name,artist,timeval(duration),comments,directurl.substring(directurl.lastIndexOf("."))));
 			}
-			media.append(String.format(
-			"<tr class=\"%s\" onClick=\"window.DOWNLOADINTERFACE.preview(this.getAttribute('name'),this.getAttribute('url'));\" name=\"%s\" url=\"%s\"><td><a name=\"%s\">%s</a></td><td>%s</td><td>%s</td><td>%s</td>"+
-			"<td><a href='javascript:;' onclick=\"window.event.stopPropagation(); downloadit(this.parentNode.parentNode.getAttribute('name'),this.parentNode.parentNode.getAttribute('url'))\">Download %s</a></td></tr>\n",
-			style,name.replace("\"", "&quot;"),directurl.replace("\"", "&quot;"),id,name,artist,timeval(duration),comments,directurl.substring(directurl.lastIndexOf("."))));
 		}
 	}
 	

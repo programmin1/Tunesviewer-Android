@@ -179,11 +179,7 @@ iTunes = { // All called from the page js:
 
 	doPodcastDownload: function (obj, number) {
 		"use strict";
-		alert("podcastdownload");
-		console.log(obj.getAttribute('description'));
-		console.log(obj.getAttribute('episode-url'));
-		window.DOWNLOADINTERFACE.download(obj.getAttribute('description'), document.title ,obj.getAttribute('episode-url'));
-		//var keys = obj.getElementsByTagName('key');
+		window.open("download://"+encodeURIComponent(obj.innerHTML));
 	},
 
 

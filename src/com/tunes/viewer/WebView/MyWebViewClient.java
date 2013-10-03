@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
@@ -249,6 +250,42 @@ public class MyWebViewClient extends WebViewClient {
 				throw new RuntimeException();
 			}
 			
+		} else if (url.startsWith("download://")) {// a download description.
+			String xml = URLDecoder.decode(url.substring(11));
+			try {
+				SAXParserFactory factory = SAXParserFactory.newInstance();
+				factory.setValidating(false);
+				SAXParser saxParser= factory.newSAXParser();
+				ItunesXmlParser parser = new ItunesXmlParser(
+						new URL(view.getOriginalUrl()),callerContext,55,55);
+				XMLReader xr = saxParser.getXMLReader();
+				xr.setContentHandler(parser);
+				InputSource is = new InputSource(new StringReader(xml));
+				long startMS = System.currentTimeMillis();
+				xr.parse(is);
+				long endMS = System.currentTimeMillis();
+				Log.i(TAG,"DOWNLOAD PARSING XML TOOK "+(endMS-startMS)+" MS.");
+				if (parser.getUrls().size()==1) {
+					Intent intent = new Intent(callerContext,DownloadService.class);
+					intent.putExtra(DownloadService.EXTRA_URL, parser.getUrls().get(0));
+					intent.putExtra(DownloadService.EXTRA_PODCAST, parser.getTitle());
+					intent.putExtra(DownloadService.EXTRA_PODCASTURL, view.getUrl());
+					intent.putExtra(DownloadService.EXTRA_ITEMTITLE,parser.getSingleName());
+					callerContext.startService(intent);
+				}
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SAXException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ParserConfigurationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		} else { // Normal page load:
 			String ua = _prefs.getString("UserAgent", callerContext.getString(R.string.defaultUA));
 			System.setProperty("http.agent", ua);
