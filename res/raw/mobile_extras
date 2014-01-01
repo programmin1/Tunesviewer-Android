@@ -38,8 +38,7 @@ function file_ext(url) {
      */
 function updateDownloadOpen(downloads) {
 	function dest(title,url) { // Function must be functionally the same as Java's com.tunes.viewer.WebView.JSInterface.dest()! and javascript.js dest().
-		out = "";
-		VALID = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 $%`-_@{}~!()."
+		var out = "", VALID = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 $%`-_@{}~!()."
 		for (var i=0; i<title.length; i++) {
 			ch = title.charAt(i);
 			if (VALID.indexOf(ch)!=-1) {

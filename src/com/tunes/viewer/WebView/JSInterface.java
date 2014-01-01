@@ -89,13 +89,20 @@ public class JSInterface {
 	 * @param title
 	 * @param url
 	 */
-	public void preview(String title, String url) {
-		try {
-			url = doRedirect(url);
-			previewIntent(url, _context);
-		} catch (ActivityNotFoundException e) {
-			Toast.makeText(_context, _context.getText(R.string.NoActivity), Toast.LENGTH_LONG).show();
-		}
+	public void preview(final String title, final String url) {
+		new Thread(new Runnable(){
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				try {
+					String durl = doRedirect(url);
+					previewIntent(durl, _context);
+				} catch (ActivityNotFoundException e) {
+					Toast.makeText(_context, _context.getText(R.string.NoActivity), Toast.LENGTH_LONG).show();
+				}
+			}
+		}).start();
+		
 	}
 	
 	/**
@@ -231,6 +238,7 @@ public class JSInterface {
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (NullPointerException e) {
+				e.printStackTrace();
 			}
 		}
 		return output;
