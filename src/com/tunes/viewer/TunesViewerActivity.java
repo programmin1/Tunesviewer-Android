@@ -1,5 +1,8 @@
 package com.tunes.viewer;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 
 import android.annotation.TargetApi;
@@ -284,6 +287,25 @@ public class TunesViewerActivity extends Activity {
 			// Based on Firebug Lite here: https://getfirebug.com/firebuglite#Stable
 			// with %20 replaced with a space.
 			_web.loadUrl("javascript:(function(F,i,r,e,b,u,g,L,I,T,E){if(F.getElementById(b))return;E=F[i+'NS']&&F.documentElement.namespaceURI;E=E?F[i+'NS'](E,'script'):F[i]('script');E[r]('id',b);E[r]('src',I+g+T);E[r](b,u);(F[e]('head')[0]||F[e]('body')[0]).appendChild(E);E=new Image;E[r]('src',I+L);})(document,'createElement','setAttribute','getElementsByTagName','FirebugLite','4','firebug-lite.js','releases/lite/latest/skin/xp/sprite.png','https://getfirebug.com/','#startOpened');");
+			return true;
+		case R.id.menuSecurity:
+			InputStream inputStream = getResources().openRawResource(R.raw.securitytest);
+			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+			int i;
+			try { // Read the Javascript file into memory.
+				i = inputStream.read();
+				while (i != -1) {
+					byteArrayOutputStream.write(i);
+					i = inputStream.read();
+				}
+				inputStream.close();
+				String filecontent = byteArrayOutputStream.toString();
+				//_web.loadUrl("data:text/html;base64,"+Base64.encodeToString(filecontent.getBytes("UTF-8"), Base64.DEFAULT));
+				_web.loadDataWithBaseURL("http://example.com", filecontent, "text/html", "utf-8", null);//("data:text/html,"+filecontent);
+			} catch (IOException e) {
+				e.printStackTrace();
+				Toast.makeText(this, "Couldn't load test", Toast.LENGTH_LONG).show();
+			}
 			return true;
 		case R.id.menuCookie:
 			final String cookies = _myWVC.getCookies();
