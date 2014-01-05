@@ -58,7 +58,6 @@ public class JSInterface {
 		_context = c;
 	}
 	
-	
 	/**
 	 * Starts a media file download.
 	 * @param title - Title of this media
