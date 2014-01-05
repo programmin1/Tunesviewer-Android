@@ -134,7 +134,8 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 	 */
 	public void doTapAction(boolean notifClicked) {
 		boolean finished = getStatus().equals(AsyncTask.Status.FINISHED);
-		if (finished && !isCancelled()/* && notifClicked*/) {//success
+		//isCancelled could be set sometimes (Android 4.4)
+		if (finished /*&& !isCancelled() && notifClicked*/) {//success
 			if (!notifClicked) {
 				//Toast.makeText(_context, R.string.alreadyDownloaded, Toast.LENGTH_SHORT).show();
 			}

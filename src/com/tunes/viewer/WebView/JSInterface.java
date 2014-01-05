@@ -65,23 +65,28 @@ public class JSInterface {
 	 * @param podcast - Name of the podcast this belongs to.
 	 * @param url - String for download url.
 	 */
-	public void download(String title, String podcast, String url) {
-		if (title==null) {
-			title="Unknown";
-		}
-		if (podcast==null) {
-			 title="Unknown";
-		}
-		if (url==null) {
-			System.err.println("url is null, title:"+title+", podcast:"+podcast);
-			return;
-		}
-		Intent intent = new Intent(_context,DownloadService.class);
-		intent.putExtra(DownloadService.EXTRA_URL, url);
-		intent.putExtra(DownloadService.EXTRA_PODCAST, podcast);
-		intent.putExtra(DownloadService.EXTRA_PODCASTURL, ((TunesViewerActivity)_context).geturl());
-		intent.putExtra(DownloadService.EXTRA_ITEMTITLE,title);
-		_context.startService(intent);
+	public void download(final String intitle, final String podcast, final String url) {
+		_context.runOnUiThread(new Runnable(){
+			public void run(){
+				String title = intitle;
+				if (title==null) {
+					title="Unknown";
+				}
+				if (podcast==null) {
+					 title="Unknown";
+				}
+				if (url==null) {
+					System.err.println("url is null, title:"+title+", podcast:"+podcast);
+					return;
+				}
+				Intent intent = new Intent(_context,DownloadService.class);
+				intent.putExtra(DownloadService.EXTRA_URL, url);
+				intent.putExtra(DownloadService.EXTRA_PODCAST, podcast);
+				intent.putExtra(DownloadService.EXTRA_PODCASTURL, ((TunesViewerActivity)_context).geturl());
+				intent.putExtra(DownloadService.EXTRA_ITEMTITLE,title);
+				_context.startService(intent);
+			}
+		});
 	}
 	
 	/**
