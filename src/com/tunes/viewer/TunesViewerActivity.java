@@ -45,7 +45,7 @@ import com.tunes.viewer.WebView.MyWebViewClient;
 /**
  * Tunesviewer main activity.
  * Distributed under GPL2+
- * @author Luke Bryan 2011-2013
+ * @author Luke Bryan 2011-2014
  *
  */
 @TargetApi(3)
@@ -60,6 +60,11 @@ public class TunesViewerActivity extends Activity {
 	private String originalUA;
 	final String UA = "iTunes/10.6.1 ";
 	private MyReceiver _receiver;
+	
+	/**
+	 * Handy reference for WebViewClient to set menu state.
+	 */
+	public Menu mainmenu;
 	
 	@TargetApi(7)
 	@Override
@@ -159,6 +164,7 @@ public class TunesViewerActivity extends Activity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.mainmenu, menu);
+		mainmenu = menu;
 		return true;
 	}
 	
@@ -239,7 +245,9 @@ public class TunesViewerActivity extends Activity {
 			startActivity(share);
 			return true;
 		case R.id.menuForward:
-			_myWVC.goForward();
+			if (_myWVC.canGoForward()) {
+				_myWVC.goForward();
+			}
 			return true;
 		case R.id.menuClear:
 			_web.clearHistory();
@@ -443,5 +451,14 @@ public class TunesViewerActivity extends Activity {
 	public WebView getWeb() {
 		return _web;
 	}
+	
+	/*@Override
+	public void onBackPressed() {
+		if (_myWVC.canGoBack()) {
+			_myWVC.goBack();
+		} else {
+			//super.onBackPressed();
+		}
+	}*/
 	
 }

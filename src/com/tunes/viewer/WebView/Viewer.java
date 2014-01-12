@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.webkit.WebView;
 
 import com.tunes.viewer.R;
+import com.tunes.viewer.TunesViewerActivity;
 
 /**
  * Subclass of WebView that handles hold-click.
@@ -24,13 +25,15 @@ public class Viewer extends WebView {
 	private static final int ID_SHARELINK = 3;
 	private static final int ID_OPENLINK = 2;
 	private static final int ID_COPY = 4;
+	private TunesViewerActivity _parent;
 	
 	//Stop the 'double tap to zoom' toast that doesn't apply here anyway:
 	private static final String PREF_FILE = "WebViewSettings";
 	private static final String DOUBLE_TAP_TOAST_COUNT = "double_tap_toast_count";
 
-	public Viewer(Context context) {
+	public Viewer(TunesViewerActivity context) {
 		super(context);
+		_parent = context;
 		SharedPreferences prefs = context.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
 		if (prefs.getInt(DOUBLE_TAP_TOAST_COUNT, 1) > 0) {
 		    prefs.edit().putInt(DOUBLE_TAP_TOAST_COUNT, 0).commit();

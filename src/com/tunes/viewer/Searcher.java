@@ -18,7 +18,7 @@ import android.widget.TextView;
 /**
  * A search activity
  * Distributed under GPL2+
- * @author Luke Bryan 2011-2013
+ * @author Luke Bryan 2011-2014
  *
  */
 public class Searcher extends Activity {
