@@ -25,7 +25,7 @@ import android.widget.Toast;
  * When called, it opens selected file, or starts new download.
  * 
  * Distributed under GPL2+
- * @author Luke Bryan 2011-2013
+ * @author Luke Bryan 2011-2014
  */
 @TargetApi(3)
 public class DownloadService extends Service {

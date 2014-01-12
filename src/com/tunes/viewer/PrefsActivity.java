@@ -14,7 +14,7 @@ import android.util.Log;
 /**
  * TunesViewer Preferences
  * Distributed under GPL2+
- * @author Luke Bryan 2011-2013
+ * @author Luke Bryan 2011-2014
  *
  */
 public class PrefsActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {

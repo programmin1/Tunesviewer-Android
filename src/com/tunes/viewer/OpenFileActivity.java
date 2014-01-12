@@ -29,7 +29,7 @@ import android.widget.Toast;
 /**
  * An activity for viewing .pages
  * Distributed under GPL2+
- * @author Luke Bryan 2011-2013
+ * @author Luke Bryan 2011-2014
  */
 public class OpenFileActivity extends Activity {
 

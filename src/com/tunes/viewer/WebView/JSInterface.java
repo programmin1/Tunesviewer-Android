@@ -45,7 +45,7 @@ import com.tunes.viewer.FileDownload.DownloadService;
  * Note that all of these functions must be safe for untrusted input!
  * They are called by the injected script found in res/raw/javascript.js.
  * Distributed under GPL2+
- * @author Luke Bryan 2011-2013
+ * @author Luke Bryan 2011-2014
  */
 public class JSInterface {
 
@@ -286,30 +286,37 @@ public class JSInterface {
 	 * @param url
 	 */
 	public void subscribe(String url) {
-		try {
-			//Change it to feed or itpc://url, to send automatically to podcatcher.
-			if (!url.startsWith("feed") && url.indexOf("://")>-1) {
-				url = "feed"+url.substring(url.indexOf("://"));
-			}
-			Intent f = new Intent(Intent.ACTION_VIEW);
-			f.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			f.setData(Uri.parse(url));
-			_context.startActivity(f);
-		} catch (ActivityNotFoundException e) {
-			// Also try itpc://
+		try {//xml mime, for feed:
+			Intent bymime = new Intent(Intent.ACTION_VIEW);
+			bymime.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			bymime.setDataAndType(Uri.parse(url), "application/xml");
+			_context.startActivity(bymime);
+		} catch (ActivityNotFoundException err) {
 			try {
-				url = "itpc"+url.substring(url.indexOf("://"));
-				Intent i = new Intent(Intent.ACTION_VIEW);
-				i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				i.setData(Uri.parse(url));
-				_context.startActivity(i);
-			} catch (ActivityNotFoundException nf) {
-				new AlertDialog.Builder(_context)
-				.setIcon(android.R.drawable.ic_dialog_alert)
-				.setTitle(R.string.NoPodcatcher)
-				.setMessage(R.string.NoPodcatcherMessage)
-				.setNegativeButton(android.R.string.ok, null)
-				.show();
+				//Change it to feed or itpc://url, to send automatically to podcatcher.
+				if (!url.startsWith("feed") && url.indexOf("://")>-1) {
+					url = "feed"+url.substring(url.indexOf("://"));
+				}
+				Intent f = new Intent(Intent.ACTION_VIEW);
+				f.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				f.setData(Uri.parse(url));
+				_context.startActivity(f);
+			} catch (ActivityNotFoundException e) {
+				// Also try itpc://
+				try {
+					url = "itpc"+url.substring(url.indexOf("://"));
+					Intent i = new Intent(Intent.ACTION_VIEW);
+					i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					i.setData(Uri.parse(url));
+					_context.startActivity(i);
+				} catch (ActivityNotFoundException nf) {
+					new AlertDialog.Builder(_context)
+					.setIcon(android.R.drawable.ic_dialog_alert)
+					.setTitle(R.string.NoPodcatcher)
+					.setMessage(R.string.NoPodcatcherMessage)
+					.setNegativeButton(android.R.string.ok, null)
+					.show();
+				}
 			}
 		}
 	}

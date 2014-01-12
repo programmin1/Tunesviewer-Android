@@ -11,7 +11,7 @@ import android.content.Intent;
 /**
  * Notification manager class, handles a notification with % complete and estimated time remaining.
  * Distributed under GPL2+
- * @author Luke Bryan 2011-2013
+ * @author Luke Bryan 2011-2014
  */
 public class Notifier {
 	

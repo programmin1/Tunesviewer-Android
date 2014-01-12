@@ -124,6 +124,7 @@ public class MyWebViewClient extends WebViewClient {
 	public void stop() {
 		isLoading = false;
 	}
+	
 	/**
 	 * Returns true when page is loading.
 	 * @return
@@ -139,6 +140,7 @@ public class MyWebViewClient extends WebViewClient {
 	public boolean canGoBack() {
 		return (Back.size()>0);
 	}
+	
 	/**
 	 * Goes backward, or causes exception if canGoBack() is false.
 	 */
@@ -150,6 +152,7 @@ public class MyWebViewClient extends WebViewClient {
 			executor.execute(new WebLoader(_web,Back.peek(),this,BACK));
 		}
 	}
+	
 	/**
 	 * Returns true when goForward() will work.
 	 * @return
@@ -157,6 +160,7 @@ public class MyWebViewClient extends WebViewClient {
 	public boolean canGoForward() {
 		return (Forward.size()>0);
 	}
+	
 	/**
 	 * Goes forward, or causes exception is canGoForward() is false.
 	 */
@@ -167,6 +171,7 @@ public class MyWebViewClient extends WebViewClient {
 			executor.execute(new WebLoader(_web,Forward.peek(),this,FORWARD));
 		}
 	}
+	
 	/**
 	 * Refreshes the WebView, no change to back/forward stack.
 	 */
@@ -195,6 +200,11 @@ public class MyWebViewClient extends WebViewClient {
 	public void onPageFinished(WebView view, String url) {
 		Log.d(TAG,"Inserting script into "+url);
 		
+		//Since Forward is shown always on actionbar of newer Android, enable/disable as needed:
+		if (activity.mainmenu != null) {
+			activity.onPrepareOptionsMenu(activity.mainmenu);
+		}
+		
 		// When this line is commented out, many download links wouldn't work,
 		// many preview links don't go through to the JSInterface, and other display
 		// problems (in mobile mode, html).
@@ -214,6 +224,7 @@ public class MyWebViewClient extends WebViewClient {
 		doneintent.putExtra(MyReceiver.NAME, DownloaderTask.clean((String) activity.getTitle()));
 		activity.sendBroadcast(doneintent);
 	}
+	
 	@Override
 	public void onPageStarted(WebView view, String url, Bitmap favicon) {
 		activity.hideSearch();
@@ -692,7 +703,9 @@ public class MyWebViewClient extends WebViewClient {
 						} else if (cmd==NEWURL) {
 							// Clicked link, so clear forward and add this to "back".
 							Forward.clear();
-							if (view.getUrl() != null) {
+							if (view.getUrl() != null && //happens on newer Android:
+								!view.getUrl().equals("data:text/html,<html><body><script>function setTitle() {window.DOWNLOADINTERFACE.setTitle('No page loaded');}</script>blank page</body></html>")) {
+								
 								Back.push(view.getUrl());
 							}
 						}

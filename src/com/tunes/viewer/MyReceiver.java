@@ -18,7 +18,7 @@ import com.tunes.viewer.FileDownload.DownloaderTask;
  * updates the download/open buttons with a bit of javascript when called.
  * 
  * Distributed under GPL2+
- * @author Luke Bryan 2011-2013
+ * @author Luke Bryan 2011-2014
  */
 public class MyReceiver extends android.content.BroadcastReceiver {
     private TunesViewerActivity _caller;

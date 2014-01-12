@@ -29,7 +29,7 @@ import android.widget.Toast;
  * If the page is already HTML, this will throw SAXException.
  * 
  * Distributed under GPL2+
- * @author Luke Bryan 2011-2013
+ * @author Luke Bryan 2011-2014
  *
  */
 public class ItunesXmlParser extends DefaultHandler {
