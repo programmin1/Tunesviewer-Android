@@ -36,9 +36,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tunes.viewer.ItunesXmlParser;
+import com.tunes.viewer.MyReceiver;
 import com.tunes.viewer.R;
 import com.tunes.viewer.TunesViewerActivity;
 import com.tunes.viewer.FileDownload.DownloadService;
+import com.tunes.viewer.FileDownload.DownloaderTask;
 
 /**
  * Javascript interface for the WebView
@@ -330,6 +332,13 @@ public class JSInterface {
 			@Override
 			public void run() {
 				_context.setTitle(title.replace("&amp;","&"));
+				//Also call receiver to update open/dl links since title is right.
+				// Why also do this in webviewclient's onpagefinished, seems to work only on 2.2 or older Androids,
+				//  at least when it is the older type page (green blocks) called from a bookmark click?
+				Intent doneintent = new Intent(DownloadService.DOWNLOADBROADCAST);
+				doneintent.putExtra(MyReceiver.PAGEURL, _context.geturl());
+				doneintent.putExtra(MyReceiver.NAME, DownloaderTask.clean((String) _context.getTitle()));
+				_context.sendBroadcast(doneintent);
 			}
 		});
 	}

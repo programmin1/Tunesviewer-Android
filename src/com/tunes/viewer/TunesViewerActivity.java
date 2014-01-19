@@ -296,7 +296,7 @@ public class TunesViewerActivity extends Activity {
 			// with %20 replaced with a space.
 			_web.loadUrl("javascript:(function(F,i,r,e,b,u,g,L,I,T,E){if(F.getElementById(b))return;E=F[i+'NS']&&F.documentElement.namespaceURI;E=E?F[i+'NS'](E,'script'):F[i]('script');E[r]('id',b);E[r]('src',I+g+T);E[r](b,u);(F[e]('head')[0]||F[e]('body')[0]).appendChild(E);E=new Image;E[r]('src',I+L);})(document,'createElement','setAttribute','getElementsByTagName','FirebugLite','4','firebug-lite.js','releases/lite/latest/skin/xp/sprite.png','https://getfirebug.com/','#startOpened');");
 			return true;
-		case R.id.menuSecurity:
+		/*case R.id.menuSecurity:
 			InputStream inputStream = getResources().openRawResource(R.raw.securitytest);
 			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 			int i;
@@ -314,7 +314,7 @@ public class TunesViewerActivity extends Activity {
 				e.printStackTrace();
 				Toast.makeText(this, "Couldn't load test", Toast.LENGTH_LONG).show();
 			}
-			return true;
+			return true;*/
 		case R.id.menuCookie:
 			final String cookies = _myWVC.getCookies();
 			new AlertDialog.Builder(this)

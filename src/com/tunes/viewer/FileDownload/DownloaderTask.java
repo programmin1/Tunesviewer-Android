@@ -279,9 +279,9 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 						// Add to Android media player.
 						if (prefs.getBoolean("mount", true)) {
 							try {
-							_context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
-								Uri.parse("file://"+ Environment.getExternalStorageDirectory())));
-							Log.i(TAG,"Calling ACTION_MEDIA_MOUNTED");
+								_context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
+									Uri.parse("file://"+ Environment.getExternalStorageDirectory())));
+								Log.i(TAG,"Calling ACTION_MEDIA_MOUNTED");
 							} catch (SecurityException e) {
 								Log.d(TAG,"Exception calling ACTION_MEDIA_MOUNTED");
 							}

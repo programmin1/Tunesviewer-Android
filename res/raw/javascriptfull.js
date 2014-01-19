@@ -1,4 +1,6 @@
 /*
+ * Important! Any changes to this must be saved in javascript.js, the minified version!
+ * 
  * iTunes Javascript Class, added to the displayed pages.
  * Catches iTunes-api calls from pages, such as
  * http://r.mzstatic.com/htmlResources/6018/dt-storefront-base.jsz
