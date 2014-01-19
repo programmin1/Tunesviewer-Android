@@ -1,11 +1,37 @@
 /*
+ * Important! Any changes to this must be saved in javascript.js, the minified version!
+ * 
  * iTunes Javascript Class, added to the displayed pages.
  * Catches iTunes-api calls from pages, such as
  * http://r.mzstatic.com/htmlResources/6018/dt-storefront-base.jsz
  */
 
 /*global window */
-
+window.DOWNLOADINTERFACE = function(){
+var sendI = function(obj) {
+	window.open("interface://"+encodeURIComponent(JSON.stringify(obj)));
+};
+return {
+	go: function(url) {
+		sendI({cmd:'go',url:url});
+	},
+	subscribe: function(url) {
+		sendI({cmd:'subscribe',url:url});
+	},
+	source: function(url) {
+		window.location.href = "interface://"+encodeURIComponent(JSON.stringify({cmd:'source',src:url}));
+	},
+	download: function(title,podcast,url) {
+		sendI({cmd:'download', title:title, podcast:podcast, url:url});
+	},
+	preview:function(title, url) {
+		sendI({cmd:'preview', title:title, url:url});
+	},
+	setTitle: function(title) {
+		sendI({cmd:'setTitle', title:title});
+	}
+}
+}();// create the object
 iTunes = { // All called from the page js:
 	getMachineID: function () {
 		"use strict";
