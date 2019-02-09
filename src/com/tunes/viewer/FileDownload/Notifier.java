@@ -70,7 +70,7 @@ public class Notifier {
 		} else {
 			lowerTitle = "Done.";
 		}
-		notification.setLatestEventInfo(_context, _title, lowerTitle, notificationIntent);
+		//notification.setLatestEventInfo(_context, _title, lowerTitle, notificationIntent);
 		if (ongoing) {
 			notification.flags = Notification.FLAG_ONGOING_EVENT;
 		}
@@ -90,7 +90,7 @@ public class Notifier {
 			long fullTime = 100*elapsedTime()/progress;
 			String remaining = ItunesXmlParser.timeval(String.valueOf(fullTime - elapsedTime()));
 			CharSequence contentText = progress + "% of "+sizeStr+" ("+remaining+") Tap to cancel download.";
-			notification.setLatestEventInfo(_context, _title, contentText, notificationIntent);
+			//notification.setLatestEventInfo(_context, _title, contentText, notificationIntent);
 			notificationManager.notify(_NOTIFICATION_ID, notification);
 		}
 	}

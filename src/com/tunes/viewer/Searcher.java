@@ -83,13 +83,13 @@ public class Searcher extends Activity {
 			// http://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?displayIndex=2&entity=iTunesUCollection&term=Math&media=all#here
 			// http://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?displayIndex=2&entity=iTunesUMaterial&term=App&media=all#here
 			if (Ucollection && !podcast) {
-				gotourl = "itms://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?entity=iTunesUPodcast&term="+terms+"&media=all";
+				gotourl = "itmss://search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?entity=iTunesUPodcast&term="+terms+"&media=all";
 			} else if (Ucourse && !podcast) {
-				gotourl = "itms://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?entity=iTunesUCourse&term="+terms+"&media=all";
+				gotourl = "itmss://search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?entity=iTunesUCourse&term="+terms+"&media=all";
 			} else if (podcast && !Ucollection && !Ucourse) {
-				gotourl = "itms://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?submit=media&term="+terms+"&media=podcast"; 
+				gotourl = "itmss://search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?submit=media&term="+terms+"&media=podcast";
 			} else {
-				gotourl = "itms://ax.search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?submit=media&restrict=true&term="+terms+"&media=all";
+				gotourl = "itmss://search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?submit=media&restrict=true&term="+terms+"&media=all";
 			}
 		} else {
 			if (podcast) {
