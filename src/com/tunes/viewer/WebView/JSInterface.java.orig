@@ -1,7 +1,6 @@
 package com.tunes.viewer.WebView;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
@@ -31,7 +30,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.v4.content.FileProvider;
 import android.text.ClipboardManager;
 import android.util.Log;
 import android.widget.TextView;
@@ -166,18 +164,13 @@ public class JSInterface {
 	 */
 	private void previewIntent(String uri, Context caller) throws ActivityNotFoundException {
 		Intent i = new Intent(Intent.ACTION_VIEW);
-		i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-		i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 		String type = ItunesXmlParser.fileExt(uri);
-		Uri fileuri = FileProvider.getUriForFile(
-				caller,
-				caller.getApplicationContext().getPackageName() + ".provider", new File(uri));
 		if (Arrays.asList(audioFormats).indexOf(type) > -1) {
-			i.setDataAndType(fileuri, "audio/*");
+			i.setDataAndType(Uri.parse(uri), "audio/*");
 		} else if (Arrays.asList(videoFormats).indexOf(type) > -1) {
-			i.setDataAndType(fileuri, "video/*");
+			i.setDataAndType(Uri.parse(uri), "video/*");
 		} else {
-			i.setDataAndType(fileuri, "*/*");
+			i.setDataAndType(Uri.parse(uri), "*/*");
 		}
 		caller.startActivity(i);
 	}

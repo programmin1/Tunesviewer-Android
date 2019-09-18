@@ -1,9 +1,11 @@
 package com.tunes.viewer.FileDownload;
 
 import com.tunes.viewer.ItunesXmlParser;
+import com.tunes.viewer.R;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.NotificationChannel;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -52,8 +54,7 @@ public class Notifier {
 			icon = android.R.drawable.stat_sys_download_done;
 		}
 		CharSequence tickerText = title;
-		notification = new Notification(icon,tickerText,System.currentTimeMillis());
-		
+
 		Intent returnIntent = new Intent(_context,DownloadService.class);
 		returnIntent.putExtra(DownloadService.EXTRA_URL,        _url);
 		returnIntent.putExtra(DownloadService.EXTRA_ITEMTITLE,  _title);
@@ -63,17 +64,40 @@ public class Notifier {
 		returnIntent.setAction("test.test.myAction"+_NOTIFICATION_ID);
 		// Important to make a unique action, and FLAG_CANCEL_CURRENT, to make distinct notifications.
 
+
 		notificationIntent = PendingIntent.getService(_context, 0, returnIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-		
+
+
+
 		if (ongoing) {
 			lowerTitle = "Tap to cancel download.";
 		} else {
 			lowerTitle = "Done.";
 		}
 		//notification.setLatestEventInfo(_context, _title, lowerTitle, notificationIntent);
+
+		//notification = new Notification(icon,tickerText,System.currentTimeMillis());
+		Notification notification = new Notification.Builder(_context)
+				.setContentTitle(tickerText)
+				.setContentText(lowerTitle)
+				.setSmallIcon(R.drawable.icon)
+				.setContentIntent(notificationIntent).getNotification();
+
 		if (ongoing) {
 			notification.flags = Notification.FLAG_ONGOING_EVENT;
 		}
+
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)
+		{
+			int importance = NotificationManager.IMPORTANCE_HIGH;
+			NotificationChannel notificationChannel = new NotificationChannel(NotificationChannel.DEFAULT_CHANNEL_ID, "NOTIFICATION_CHANNEL_NAME", importance);
+			notificationChannel.enableLights(false);
+			notificationChannel.enableVibration(false);
+			//mBuilder.setChannelId(NOTIFICATION_CHANNEL_ID);
+			notificationManager.createNotificationChannel(notificationChannel);
+		}
+
+
 		notificationManager.notify(_NOTIFICATION_ID, notification);
 	}
 	
@@ -91,6 +115,11 @@ public class Notifier {
 			String remaining = ItunesXmlParser.timeval(String.valueOf(fullTime - elapsedTime()));
 			CharSequence contentText = progress + "% of "+sizeStr+" ("+remaining+") Tap to cancel download.";
 			//notification.setLatestEventInfo(_context, _title, contentText, notificationIntent);
+			//notificationManager.notify(_NOTIFICATION_ID, notification);
+			Notification notification = new Notification.Builder(_context)
+					.setContentText(contentText)
+					.setSmallIcon(R.drawable.icon)
+					.setContentIntent(notificationIntent).getNotification();
 			notificationManager.notify(_NOTIFICATION_ID, notification);
 		}
 	}
