@@ -90,7 +90,8 @@ public class Notifier {
 		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)
 		{
 			int importance = NotificationManager.IMPORTANCE_HIGH;
-			NotificationChannel notificationChannel = new NotificationChannel(NotificationChannel.DEFAULT_CHANNEL_ID, "NOTIFICATION_CHANNEL_NAME", importance);
+			String notificationChannelId = "tunesviewer_app_notifications";
+			NotificationChannel notificationChannel = new NotificationChannel(notificationChannelId, "NOTIFICATION_CHANNEL_NAME", importance);
 			notificationChannel.enableLights(false);
 			notificationChannel.enableVibration(false);
 			//mBuilder.setChannelId(NOTIFICATION_CHANNEL_ID);

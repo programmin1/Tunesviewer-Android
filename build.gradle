@@ -14,7 +14,7 @@ buildscript {
      * of the Gradle plugin for the buildscript.
      */
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.3.1'
+        classpath 'com.android.tools.build:gradle:3.5.0'
 
 
 
@@ -39,9 +39,9 @@ apply plugin: 'com.android.application'
  * following line includes all the JAR files in the libs directory.
  */
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation "com.android.support:support-core-utils:26.1.0"
+    implementation 'androidx.legacy:legacy-support-core-utils:1.0.0'
     // Add other library dependencies here (see the next step)
 }
 
@@ -51,7 +51,7 @@ dependencies {
  */
 android {
     useLibrary  'org.apache.http.legacy'
-    compileSdkVersion 26
+    compileSdkVersion 29
     buildToolsVersion "28.0.3"
 
     /**
@@ -86,6 +86,6 @@ android {
     }
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 26
+        targetSdkVersion 29
     }
 }
