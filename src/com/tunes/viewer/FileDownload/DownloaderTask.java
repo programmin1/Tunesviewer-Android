@@ -206,7 +206,11 @@ public class DownloaderTask extends AsyncTask<URL, Integer, Long> {
 				// it has been created by this app. 
 				// For security, only podcast-directories should
 				// be scannable from the webview to see what has/hasn't been downloaded.
-				directory.mkdirs();
+				if( !directory.mkdirs() ) {
+					//Permissions? Android 10, this is the same and doesn't work.
+					directory = new File( Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),clean(_podcast) );
+					directory.mkdirs();
+				}
 				File mark = new File(directory,PODCASTDIR_FILE);
 				BufferedWriter outfile = new BufferedWriter(new FileWriter(mark));
 				outfile.write("<html><head><title>"+_podcast+"</title></head>"+
